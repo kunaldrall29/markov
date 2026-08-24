@@ -1,0 +1,23 @@
+[toolchain]
+anchor_version = "0.31.1"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.devnet]
+mandate = "5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm"
+demo_swap = "3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK"
+demo_yield = "GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC"
+
+[programs.localnet]
+mandate = "5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm"
+demo_swap = "3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK"
+demo_yield = "GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC"
+
+[provider]
+cluster = "devnet"
+wallet = "keys/deployer.json"
+
+[scripts]
+test = "bun test"

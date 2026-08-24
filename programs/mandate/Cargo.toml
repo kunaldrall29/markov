@@ -1,0 +1,21 @@
+[package]
+name = "mandate"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.79"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "mandate"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "demo_swap/idl-build", "demo_yield/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "=0.31.1", features = ["init-if-needed"] }
+anchor-spl = { version = "=0.31.1", default-features = false, features = ["token", "associated_token"] }
+demo_swap = { path = "../demo_swap", features = ["cpi"] }
+demo_yield = { path = "../demo_yield", features = ["cpi"] }

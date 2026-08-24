@@ -3,7 +3,7 @@
 ## Cursor Cloud specific instructions
 
 - Marketing landing page is live at https://markovhq.com. Do not rebuild, restyle, or change it. This repo is the protocol/product workspace (mandate engine + Float), not the site repo.
-- Product canon for copy and scope: `docs/PITCH.md`. External numbers only from `docs/FACTS.md`. Engine semantics: `docs/SPEC.md`. Litepaper version for protocol claims: v0.4.
+- Product canon: `docs/PITCH.md`. Numbers: `docs/FACTS.md`. Semantics: `SPEC.md`. Security: `SECURITY.md`. Doc map: `docs/MAP.md`. Operator skill: `packages/sdk/SKILL.md`. Litepaper for protocol claims: v0.4.
 - Runtime is Bun (`$HOME/.bun/bin` if it is not on PATH). Install with `bun install`. Do not add npm/yarn lockfiles.
 - Start with `bun run dev` (API `http://127.0.0.1:8787`, Float `http://127.0.0.1:3000`). Hello path: `bun run demo` (in-process four-beat) or Float **Run four-beat demo**. Climax is a live refusal `blocked: over_cap`.
 - Ledger persists to `data/ledger.json` (gitignored). Delete it to reset.

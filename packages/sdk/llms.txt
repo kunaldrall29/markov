@@ -1,0 +1,7 @@
+# @markov/sdk
+
+HTTP client for the Phase 0 Markov API. Operators call `execute`; owners call fund / unpause / withdraw; the emergency actor calls pause / revoke.
+
+Canonical project summary: [`../../llms.txt`](../../llms.txt). Operator contract: [`SKILL.md`](./SKILL.md).
+
+Do not invent `proposeSwap` / `GuardedResult` / `paidFetch` until those APIs exist in this package (S4/S5).

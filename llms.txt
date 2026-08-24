@@ -1,0 +1,28 @@
+# Markov
+
+> The mandate layer for Solana: non-custodial accounts where AI agents and human strategists operate an owner's capital under program-enforced policy — venue and token allowlists, caps, x402 spend budgets, expiry, instant revocation. Every action and every refusal emits a verifiable receipt. Float is the consumer surface: operator marketplace, live console with kill switch, and a pause/revoke-only Telegram agent. Protocol and SDKs are open source; receipts are meant to compound into operator scores, bonds, and eventually credit (not in this prototype).
+
+Key facts: withdrawal authority never leaves the owner; refusals carry machine-readable BlockReason codes; the emergency key can only pause and revoke; unpause is owner-only; no token exists.
+
+This file describes **this repository** (Phase 0 monorepo). URLs below are live only if listed in `docs/FACTS.md`.
+
+## Docs (this repo)
+
+- [README](https://github.com/kunaldrall29/markov/blob/main/README.md): what this workspace is and how to run it
+- [SPEC.md](https://github.com/kunaldrall29/markov/blob/main/SPEC.md): accounts, instructions, gate order, BlockReason
+- [SECURITY.md](https://github.com/kunaldrall29/markov/blob/main/SECURITY.md): authority model, disclosure
+- [docs/MAP.md](https://github.com/kunaldrall29/markov/blob/main/docs/MAP.md): documentation map and session cadence
+- [docs/FACTS.md](https://github.com/kunaldrall29/markov/blob/main/docs/FACTS.md): sourced claims ledger
+- [Operator skill](https://github.com/kunaldrall29/markov/blob/main/packages/sdk/SKILL.md): how an agent operates a mandate
+- Internal pitch canon: `docs/PITCH.md`. Litepaper version for protocol claims: v0.4 (not hosted in this repo)
+
+## Code
+
+- [GitHub](https://github.com/kunaldrall29/markov): mandate engine, SDK HTTP client, Float web/api, agents, bot, Anchor scaffolds
+- Live engine: `packages/engine`. Intended on-chain program: `programs/mandate` (not deployed)
+
+## Optional
+
+- Marketing site (live): https://markovhq.com — **not this repository**; do not restyle it
+- Float local: `bun run dev` → http://127.0.0.1:3000
+- Intended public docs host (markov.fyi /docs, /litepaper): **not live** as of FACTS last refresh

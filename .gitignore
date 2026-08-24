@@ -9,6 +9,12 @@ coverage
 .env.local
 data/*.json
 !data/.gitkeep
+!data/devnet.example.json
 apps/web/.next
 **/*.tsbuildinfo
 .DS_Store
+target
+test-ledger
+.anchor
+keys
+*.so

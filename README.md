@@ -1,33 +1,55 @@
 # Markov
 
-The trust layer for capital in the agent economy. This repo is the Phase 0 prototype: mandate engine, Float (marketplace + console + kill switch), revoke-only Telegram bot, first-party agents (DCA, dip-buyer, yield rotation), and the four-beat demo.
+The mandate layer for Solana. Non-custodial accounts where an owner deposits capital and an operator — an AI agent or a human strategist — can act on it only within a policy the program enforces. Withdrawal authority never leaves the owner. Every action, and every refusal, emits a receipt.
+
+Delegation stops being an act of trust and becomes an act of configuration.
+
+This repository is the **Phase 0 monorepo**: a spec-faithful TypeScript engine, Float (marketplace + console + kill switch), a pause/revoke-only bot, first-party agents, and Anchor scaffolds for the on-chain port. The marketing site is live at [markovhq.com](https://markovhq.com) and is **not** this repo.
 
 Consumer line: **Give an agent your capital. Keep the keys.**
 
-Internal canon: [`docs/PITCH.md`](docs/PITCH.md). Claims ledger: [`docs/FACTS.md`](docs/FACTS.md). Engine semantics: [`docs/SPEC.md`](docs/SPEC.md). Litepaper claims: v0.4.
+| Canon | Path |
+|---|---|
+| Litepaper (protocol claims) | v0.4 |
+| Internal pitch | [`docs/PITCH.md`](docs/PITCH.md) |
+| Claims ledger | [`docs/FACTS.md`](docs/FACTS.md) |
+| Spec | [`SPEC.md`](SPEC.md) |
+| Security / disclosure | [`SECURITY.md`](SECURITY.md) |
+| Doc map | [`docs/MAP.md`](docs/MAP.md) |
+| Operator skill | [`packages/sdk/SKILL.md`](packages/sdk/SKILL.md) |
+| Machine summary | [`llms.txt`](llms.txt) |
 
-The marketing site is live at [markovhq.com](https://markovhq.com) and is **not** this repository.
+## The primitive
+
+A **mandate** holds the owner's assets and binds an operator to a **policy**: program allowlist, token allowlist, per-transaction and UTC-day notional caps, x402 spend budgets, max slippage, expiry, instant revoke.
+
+**Verbs:** `register_operator` · `create_mandate` · `fund` · `amend_policy` · `pause` · `unpause` (owner only) · `revoke` · `owner_withdraw` (any state) · `execute_swap` / `execute_deposit` / `execute_withdraw_venue` · `spend`.
+
+Gate stack (fixed, fail-closed): state → expiry → operator → program allowlist → token allowlist → per-tx cap → daily cap → spend caps → slippage → CPI.
+
+Refusals emit `ActionRefused` (`ActionRefused` in the live engine) with a `BlockReason`. Refusals are receipts, not errors.
 
 ## Four-beat demo (the climax is a refusal)
 
 1. Create a mandate and fund it (USDC-d).
 2. Agent pays for a quote (x402 spend) and trades under policy. Receipts land in the console.
-3. Over-cap intent is refused on screen: `blocked: over_cap`.
+3. Over-cap intent is refused: `blocked: over_cap`.
 4. Emergency bot revokes. Next operator action is `blocked: revoked`. Owner withdraw still works.
 
-## Stack
+## Workspace
 
-| Piece | Path | Notes |
+| Piece | Path | Status |
 |---|---|---|
-| Mandate engine | `packages/engine` | Fail-closed gates, action + refusal receipts |
-| SDK | `packages/sdk` | HTTP client |
-| API | `apps/api` | Hono, persists `data/ledger.json` |
+| Mandate engine | `packages/engine` | Live semantics |
+| SDK (HTTP) | `packages/sdk` | Live client |
+| API | `apps/api` | Hono, `data/ledger.json` |
 | Float | `apps/web` | Next.js marketplace + console |
 | Agents | `apps/agents` | DCA, dip, yield |
 | Bot | `apps/bot` | Pause/revoke only |
-| Anchor port | `programs/mandate` | Instruction map; runtime is the engine until the validator lands |
+| Mandate program | `programs/mandate` | `src/lib.rs` present; not deployed |
+| Demo venues | `programs/demo_swap`, `programs/demo_yield` | Rust sources; not deployed |
 
-Demo mints: **USDC-d**, **DEMO**. Venues are stubs with the same adapter shape mainnet venues will use.
+Demo mints: **USDC-d**, **DEMO**. Venues are stubs with the adapter shape mainnet venues will use.
 
 ## Run
 
@@ -49,8 +71,10 @@ bun run --filter @markov/bot start '/revoke <mandateId>'
 
 Set `TELEGRAM_BOT_TOKEN` to attach the same revoke-only commands to Telegram.
 
+On-chain: `anchor test` is not wired until `programs/mandate/src/lib.rs` exists. Toolchain notes belong in `docs/FACTS.md` when a cluster deploy is verified.
+
 ## Scope freeze (Phase 0)
 
 In: mandates, allowlists, caps, x402 spend budget, executed **and** refused receipts, Float, revoke-only bot, first-party agents, four-beat demo.
 
-Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, marketing page.
+Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, marketing page, this repo restyling markovhq.com.

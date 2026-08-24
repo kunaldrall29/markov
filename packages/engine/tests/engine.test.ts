@@ -146,6 +146,30 @@ describe("gates fail closed and emit refusal receipts", () => {
     if (p.type === "ActionRefused") expect(p.reason).toBe("ProgramNotAllowed");
   });
 
+  test("token allowlist", () => {
+    const { e, id } = funded({
+      programAllowlist: [PROGRAMS.demoSwap, "x402"],
+      tokenAllowlist: [TOKENS.usdcd],
+    });
+    const r = e.execute(id, "op_dca", {
+      kind: "swap",
+      tokenIn: TOKENS.usdcd,
+      tokenOut: TOKENS.demo,
+      amountIn: 1_000_000,
+      minOut: 1,
+    });
+    expect(r.type).toBe("ActionRefused");
+    if (r.type === "ActionRefused") expect(r.reason).toBe("TokenNotAllowed");
+  });
+
+  test("unpause is owner-only", () => {
+    const { e, id } = funded();
+    e.pause(id, "bot");
+    expect(() => e.unpause(id, "bot")).toThrow("only owner can unpause");
+    const u = e.unpause(id, "owner");
+    expect(u.type).toBe("Unpaused");
+  });
+
   test("unauthorized operator", () => {
     const { e, id } = funded();
     const r = e.execute(id, "stranger", {
