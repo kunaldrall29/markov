@@ -1,9 +1,13 @@
+import { join } from "node:path";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { OperatorClient } from "../packages/operator/src/operator";
 import { OwnerClient } from "../packages/operator/src/owner";
 import { explorerTxUrl, type GuardedResult } from "../packages/operator/src/types";
 import { loadFacts, loadKeypair } from "../packages/operator/src/keys";
+
+const ROOT = join(import.meta.dir, "..");
+const FACTS_PATH = join(ROOT, "data/devnet.json");
 
 export type ChainReceipt = {
   type: string;
@@ -39,20 +43,20 @@ function line(label: string, result: GuardedResult | { sig: string }) {
 }
 
 export async function runFourBeatDevnet(): Promise<ChainFourBeat> {
-  const facts = loadFacts();
+  const facts = loadFacts(FACTS_PATH);
   if (!facts) throw new Error("run bun run devnet:setup first");
 
-  const owner = loadKeypair("keys/owner.json");
-  const emergency = loadKeypair("keys/emergency.json");
-  const operator = loadKeypair("keys/op_dca.json");
-  const treasury = loadKeypair("keys/treasury.json");
+  const owner = loadKeypair(join(ROOT, "keys/owner.json"));
+  const emergency = loadKeypair(join(ROOT, "keys/emergency.json"));
+  const operator = loadKeypair(join(ROOT, "keys/op_dca.json"));
+  const treasury = loadKeypair(join(ROOT, "keys/treasury.json"));
   const seed = BigInt(Date.now());
   const quoteMint = new PublicKey(facts.mints.usdcd);
   const demoMint = new PublicKey(facts.mints.demo);
   const connection = new Connection(facts.rpc, "confirmed");
 
-  const owners = new OwnerClient({ payer: owner });
-  const ops = new OperatorClient({ operator });
+  const owners = new OwnerClient({ payer: owner, factsPath: FACTS_PATH });
+  const ops = new OperatorClient({ operator, factsPath: FACTS_PATH });
 
   const expires = BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 3600);
   const created = await owners.createMandate({

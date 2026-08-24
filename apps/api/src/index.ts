@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Intent } from "@markov/engine";
@@ -8,6 +9,10 @@ import { fetchPrice } from "./data";
 import { runFourBeat } from "./four-beat";
 import { ACTORS, DEMO_POLICY, seed } from "./seed";
 import { loadEngine, persist } from "./store";
+
+const ROOT = join(import.meta.dir, "../../..");
+const DEVNET_FACTS = join(ROOT, "data/devnet.json");
+const OWNER_KEY = join(ROOT, "keys/owner.json");
 
 const engine = loadEngine();
 seed(engine);
@@ -51,8 +56,8 @@ function stampExplorer(
 }
 
 app.get("/health", (c) => {
-  const facts = existsSync("data/devnet.json")
-    ? (JSON.parse(readFileSync("data/devnet.json", "utf8")) as {
+  const facts = existsSync(DEVNET_FACTS)
+    ? (JSON.parse(readFileSync(DEVNET_FACTS, "utf8")) as {
         programs?: Record<string, string>;
         rpc?: string;
       })
@@ -170,7 +175,7 @@ app.post("/agents/:name/tick", async (c) => {
 app.post("/demo/four-beat", async (c) => {
   const result = runFourBeat(engine);
   persist(engine);
-  if (process.env.MARKOV_CLUSTER === "devnet" && existsSync("data/devnet.json") && existsSync("keys/owner.json")) {
+  if (process.env.MARKOV_CLUSTER === "devnet" && existsSync(DEVNET_FACTS) && existsSync(OWNER_KEY)) {
     try {
       const { runFourBeatDevnet } = await import("../../../scripts/four-beat-devnet.ts");
       const chain = await runFourBeatDevnet();
