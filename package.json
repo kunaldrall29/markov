@@ -1,0 +1,21 @@
+{
+  "name": "markov",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "bun@1.4.0",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "bun scripts/dev.ts",
+    "dev:api": "bun --filter @markov/api dev",
+    "dev:web": "bun --filter @markov/web dev",
+    "test": "bun test packages apps/api apps/agents apps/bot",
+    "typecheck": "bun --filter '*' typecheck",
+    "lint": "bun --filter '*' lint",
+    "build": "bun --filter '*' build",
+    "demo": "bun scripts/four-beat.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.20",
+    "typescript": "^5.9.2"
+  }
+}
