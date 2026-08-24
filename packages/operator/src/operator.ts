@@ -195,12 +195,13 @@ export class OperatorClient {
     const parser = new EventParser(this.program.programId, this.program.coder);
     try {
       for (const ev of parser.parseLogs(logs)) {
-        if (ev.name === "ActionRefused") {
+        const name = ev.name.toLowerCase();
+        if (name === "actionrefused") {
           const blockedBy = variantName(ev.data.reason);
           if (blockedBy === "Revoked") this.halted = "Revoked";
           return { status: "blocked", sig, blockedBy };
         }
-        if (ev.name === "ActionExecuted") return { status: "executed", sig };
+        if (name === "actionexecuted") return { status: "executed", sig };
       }
     } catch {
       /* log scrape below */

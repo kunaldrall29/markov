@@ -17,7 +17,8 @@ Last refreshed: 2026-08-24.
 | First-party agents use the public execute path | True of `apps/api` + `apps/agents` | 2026-08-24 |
 | No token in this prototype | True | repo contains no mint/token program for Markov |
 | Mandate program source | Yes | `programs/mandate/src/lib.rs` 2026-08-24 |
-| Mandate program on devnet | Pending faucet / `bun run devnet:setup` | Program ids in `Anchor.toml` / `keys/program-ids.json` — verify with `solana program show` after setup |
+| Mandate program on public Solana devnet | Pending faucet (deployer 0 SOL on `api.devnet.solana.com` as of 2026-08-24; faucet.solana.com requires GitHub + captcha) | Same program keypairs as `Anchor.toml`; retry `bun run devnet:setup` when SOL lands |
+| Mandate + venues exercised on local validator | Yes — four-beat: under-policy execute, `OverTxCap` refusal tx, `Revoked` refusal tx, owner withdraw | `bun scripts/four-beat-devnet.ts` vs `solana-test-validator` 2026-08-24. Public explorer will not show local sigs. |
 | `Anchor.toml` program pubkeys | Local keypair addresses | mandate `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm`, demo_swap `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK`, demo_yield `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` |
 | markov.fyi docs/litepaper/Float URLs | **Not live** in this refresh | Intended site IA; GitHub is canonical until S9 |
 | GitHub org `MarkovFyi` | **Not verified** | This repo is `kunaldrall29/markov` |

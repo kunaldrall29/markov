@@ -16,4 +16,6 @@
 - Devnet airdrop is flaky. `scripts/fund-devnet.ts` sprays ephemeral wallets and consolidates. Retry `bun run devnet:setup`.
 - On-chain x402 allowlist entry is the **mandate program pubkey**, not the engine string `"x402"`.
 - `data/devnet.json` is pubkeys only (committed). `keys/` is gitignored — never commit secrets.
-- `bun run demo` is in-process engine four-beat. `bun run demo:devnet` is live Solana devnet.
+- `bun run demo` is in-process engine four-beat. `bun run demo:devnet` is live Solana (RPC from `data/devnet.json`).
+- Anchor `EventParser` names events in camelCase (`actionRefused`). Compare case-insensitively or refusals look like executes.
+- Do not commit `data/devnet.json` with `rpc` pointing at localhost. That file is pubkeys for public devnet.

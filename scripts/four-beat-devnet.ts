@@ -164,11 +164,17 @@ export async function runFourBeatDevnet(): Promise<ChainFourBeat> {
   });
   line("owner-withdraw", { sig: withdrew });
 
-  if (over.status !== "blocked" || over.blockedBy !== "OverTxCap") {
-    throw new Error(`expected OverTxCap refusal, got ${over.status} ${over.blockedBy ?? ""}`);
+  if (over.status !== "blocked") {
+    throw new Error(`expected OverTxCap refusal, got ${over.status}`);
   }
-  if (after.status !== "blocked" || after.blockedBy !== "Revoked") {
-    throw new Error(`expected Revoked refusal, got ${after.status} ${after.blockedBy ?? ""}`);
+  if (over.blockedBy !== "OverTxCap") {
+    throw new Error(`expected OverTxCap refusal, got ${over.blockedBy}`);
+  }
+  if (after.status !== "blocked") {
+    throw new Error(`expected Revoked refusal, got ${after.status}`);
+  }
+  if (after.blockedBy !== "Revoked") {
+    throw new Error(`expected Revoked refusal, got ${after.blockedBy}`);
   }
 
   const beats = [

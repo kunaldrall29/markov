@@ -12,6 +12,9 @@ describe("GuardedResult is data", () => {
     expect(variantName({ overTxCap: {} })).toBe("OverTxCap");
     expect(variantName("Revoked")).toBe("Revoked");
     expect(variantName({ revoked: {} })).toBe("Revoked");
+    // Anchor EventParser uses camelCase event names
+    expect("actionRefused".toLowerCase()).toBe("actionrefused");
+    expect("ActionRefused".toLowerCase()).toBe("actionrefused");
   });
 });
 
