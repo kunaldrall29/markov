@@ -20,5 +20,5 @@
     "swapB": "<set by bun run devnet:setup>",
     "yield": "<set by bun run devnet:setup>"
   },
-  "note": "pubkeys only \u2014 never private keys"
+  "note": "pubkeys only — never private keys"
 }

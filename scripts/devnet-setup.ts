@@ -174,7 +174,6 @@ const facts: DevnetFacts = {
 
 mkdirSync("data", { recursive: true });
 writeFileSync("data/devnet.json", JSON.stringify(facts, null, 2) + "\n");
-writeFileSync("data/devnet.example.json", JSON.stringify({ ...facts, note: "pubkeys only" }, null, 2) + "\n");
 console.log("wrote data/devnet.json");
 console.log(facts);
 }
