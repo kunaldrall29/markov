@@ -16,7 +16,7 @@ Consumer line: **Give an agent your capital. Keep the keys.**
 | Spec | [`SPEC.md`](SPEC.md) |
 | Security / disclosure | [`SECURITY.md`](SECURITY.md) |
 | Doc map | [`docs/MAP.md`](docs/MAP.md) |
-| Operator skill | [`packages/sdk/SKILL.md`](packages/sdk/SKILL.md) |
+| Operator skill | [`skills/markov-mandates/SKILL.md`](skills/markov-mandates/SKILL.md) · [`packages/sdk/SKILL.md`](packages/sdk/SKILL.md) |
 | Machine summary | [`llms.txt`](llms.txt) |
 
 ## The primitive
@@ -46,8 +46,9 @@ Refusals emit `ActionRefused` (`ActionRefused` in the live engine) with a `Block
 | Float | `apps/web` | Next.js marketplace + console |
 | Agents | `apps/agents` | DCA, dip, yield |
 | Bot | `apps/bot` | Pause/revoke only |
-| Mandate program | `programs/mandate` | `src/lib.rs` present; not deployed |
-| Demo venues | `programs/demo_swap`, `programs/demo_yield` | Rust sources; not deployed |
+| Mandate program | `programs/mandate` | Built (`target/deploy/mandate.so`); `bun run devnet:setup` |
+| Demo venues | `programs/demo_swap`, `programs/demo_yield` | Built; same setup script |
+| Operator SDK | `packages/operator` | `@markovfyi/operator` — GuardedResult, paidFetch |
 
 Demo mints: **USDC-d**, **DEMO**. Venues are stubs with the adapter shape mainnet venues will use.
 
@@ -71,7 +72,7 @@ bun run --filter @markov/bot start '/revoke <mandateId>'
 
 Set `TELEGRAM_BOT_TOKEN` to attach the same revoke-only commands to Telegram.
 
-On-chain: `anchor test` is not wired until `programs/mandate/src/lib.rs` exists. Toolchain notes belong in `docs/FACTS.md` when a cluster deploy is verified.
+On-chain: `bun run devnet:setup` deploys to Solana devnet (needs SOL). `bun run demo:devnet` runs the live four-beat. Toolchain and program IDs: `docs/FACTS.md`.
 
 ## Scope freeze (Phase 0)
 

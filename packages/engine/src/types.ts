@@ -126,6 +126,8 @@ export type Receipt =
       amountIn: number;
       amountOut: number;
       nonce: number;
+      sig?: string;
+      explorerUrl?: string;
     }
   | {
       type: "ActionRefused";
@@ -136,6 +138,8 @@ export type Receipt =
       requestedAmount: number;
       reason: BlockReason;
       nonce: number;
+      sig?: string;
+      explorerUrl?: string;
     }
   | {
       type: "Paused";
@@ -154,6 +158,8 @@ export type Receipt =
       ts: number;
       mandateId: string;
       by: string;
+      sig?: string;
+      explorerUrl?: string;
     }
   | {
       type: "OwnerWithdrew";
@@ -161,6 +167,8 @@ export type Receipt =
       mandateId: string;
       token: string;
       amount: number;
+      sig?: string;
+      explorerUrl?: string;
     };
 
 export interface SwapPool {

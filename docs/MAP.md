@@ -23,16 +23,16 @@ Rule: a doc that describes code is written from the code, never before it.
 | docs/venues.md | — | Adapter interface for venue programs | S3 |
 | CLAUDE.md, SESSION_LOG.md | `CLAUDE.md`, `SESSION_LOG.md` | Working agreement, session handoffs | S0 |
 
-## markov-sdk → `packages/sdk`, `packages/engine`
+## markov-sdk → `packages/sdk`, `packages/engine`, `packages/operator`
 
 | Doc | Path | Purpose | When |
 |---|---|---|---|
 | README.md | `packages/sdk/README.md` | Quickstart: propose a guarded action in ~20 lines | S4 |
-| SKILL.md | `packages/sdk/SKILL.md` | Agent skill: operate a mandate correctly | now |
+| SKILL.md | `skills/markov-mandates/SKILL.md` · `packages/sdk/SKILL.md` | Agent skill: operate a mandate correctly | now |
 | llms.txt | `llms.txt` | Machine-readable project summary | now |
-| docs/guarded-result.md | — | GuardedResult + blockedBy handling table | S4 |
-| docs/soft-gates.md | — | Freshness, idempotency, local halt | S4 |
-| docs/paid-fetch.md | — | x402 spend flow (branch chosen at S5) | S5 |
+| docs/guarded-result.md | `docs/guarded-result.md` | GuardedResult + blockedBy handling | now |
+| docs/soft-gates.md | — | Freshness, idempotency, local halt | S4 remainder |
+| docs/paid-fetch.md | `docs/paid-fetch.md` | x402 spend via mandate spend budget | now |
 
 ## float-web → `apps/web`, `apps/api`
 

@@ -1,0 +1,24 @@
+{
+  "cluster": "devnet",
+  "rpc": "https://api.devnet.solana.com",
+  "explorerTx": "https://solscan.io/tx/{sig}?cluster=devnet",
+  "programs": {
+    "mandate": "5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm",
+    "demoSwap": "3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK",
+    "demoYield": "GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC"
+  },
+  "mints": {
+    "usdcd": "<set by bun run devnet:setup>",
+    "demo": "<set by bun run devnet:setup>"
+  },
+  "pools": {
+    "swap": "<set by bun run devnet:setup>",
+    "yield": "<set by bun run devnet:setup>"
+  },
+  "vaults": {
+    "swapA": "<set by bun run devnet:setup>",
+    "swapB": "<set by bun run devnet:setup>",
+    "yield": "<set by bun run devnet:setup>"
+  },
+  "note": "pubkeys only \u2014 never private keys"
+}

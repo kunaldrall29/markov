@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Intent } from "@markov/engine";
@@ -25,15 +26,48 @@ function actor(c: { req: { header: (n: string) => string | undefined } }) {
   return c.req.header("x-actor") ?? ACTORS.owner;
 }
 
-app.get("/health", (c) =>
-  c.json({
+function explorerTxUrl(sig: string) {
+  return `https://solscan.io/tx/${sig}?cluster=devnet`;
+}
+
+function stampExplorer(
+  local: ReturnType<typeof runFourBeat>,
+  chain: { beats: { name: string; receipts: { type: string; sig: string; explorerUrl: string; reason?: string }[] }[] },
+) {
+  const queue = chain.beats.flatMap((b) => b.receipts);
+  for (const beat of local.beats) {
+    for (const receipt of beat.receipts) {
+      const idx = queue.findIndex((q) => q.type === receipt.type);
+      if (idx < 0) continue;
+      const [hit] = queue.splice(idx, 1);
+      if (!hit) continue;
+      if ("sig" in receipt || true) {
+        (receipt as { sig?: string; explorerUrl?: string }).sig = hit.sig;
+        (receipt as { sig?: string; explorerUrl?: string }).explorerUrl =
+          hit.explorerUrl || explorerTxUrl(hit.sig);
+      }
+    }
+  }
+}
+
+app.get("/health", (c) => {
+  const facts = existsSync("data/devnet.json")
+    ? (JSON.parse(readFileSync("data/devnet.json", "utf8")) as {
+        programs?: Record<string, string>;
+        rpc?: string;
+      })
+    : null;
+  return c.json({
     ok: true,
-    network: "markov-localnet",
+    network: process.env.MARKOV_CLUSTER === "devnet" ? "solana-devnet" : "markov-localnet",
+    cluster: process.env.MARKOV_CLUSTER ?? "local",
     operators: engine.operators.size,
     mandates: engine.mandates.size,
     receipts: engine.receipts.length,
-  }),
-);
+    programs: facts?.programs ?? null,
+    rpc: facts?.rpc ?? null,
+  });
+});
 
 app.get("/operators", (c) => c.json([...engine.operators.values()]));
 
@@ -133,9 +167,19 @@ app.post("/agents/:name/tick", async (c) => {
   return c.json({ receipts });
 });
 
-app.post("/demo/four-beat", (c) => {
+app.post("/demo/four-beat", async (c) => {
   const result = runFourBeat(engine);
   persist(engine);
+  if (process.env.MARKOV_CLUSTER === "devnet" && existsSync("data/devnet.json") && existsSync("keys/owner.json")) {
+    try {
+      const { runFourBeatDevnet } = await import("../../../scripts/four-beat-devnet.ts");
+      const chain = await runFourBeatDevnet();
+      stampExplorer(result, chain);
+      persist(engine);
+    } catch (err) {
+      console.warn("devnet four-beat overlay skipped:", err instanceof Error ? err.message : err);
+    }
+  }
   return c.json(result);
 });
 

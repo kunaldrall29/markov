@@ -16,8 +16,9 @@ Last refreshed: 2026-08-24.
 | Emergency key: pause and revoke only; unpause owner-only | True of engine | `unpause` throws if caller ≠ owner; tests, 2026-08-24 |
 | First-party agents use the public execute path | True of `apps/api` + `apps/agents` | 2026-08-24 |
 | No token in this prototype | True | repo contains no mint/token program for Markov |
-| Mandate program deployed | **No** | `programs/mandate` has no `src/lib.rs`; no cluster IDs |
-| `Anchor.toml` program pubkeys | Local keypair addresses only | **Not** verified on devnet/mainnet as of 2026-08-24 |
+| Mandate program source | Yes | `programs/mandate/src/lib.rs` 2026-08-24 |
+| Mandate program on devnet | Pending faucet / `bun run devnet:setup` | Program ids in `Anchor.toml` / `keys/program-ids.json` — verify with `solana program show` after setup |
+| `Anchor.toml` program pubkeys | Local keypair addresses | mandate `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm`, demo_swap `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK`, demo_yield `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` |
 | markov.fyi docs/litepaper/Float URLs | **Not live** in this refresh | Intended site IA; GitHub is canonical until S9 |
 | GitHub org `MarkovFyi` | **Not verified** | This repo is `kunaldrall29/markov` |
 | `security@markov.fyi` mailbox | Published in `SECURITY.md`; inbox not verified here | Treat as intended contact |
@@ -38,4 +39,11 @@ Last refreshed: 2026-08-24.
 
 ## Toolchain (when you build on-chain)
 
-Record versions here only after you have run them in this environment. Placeholders until a session verifies: Anchor 0.31.x (see `Anchor.toml`), Solana CLI, `bun` from `package.json` `packageManager`.
+| Tool | Version | Date |
+|---|---|---|
+| Anchor CLI | 0.31.1 | 2026-08-24 |
+| Solana CLI | 2.1.21 | 2026-08-24 |
+| rustc (host) | 1.85.0 | 2026-08-24 |
+| bun | 1.4.0 (`package.json` packageManager) | 2026-08-24 |
+| `@coral-xyz/anchor` | 0.31.1 | 2026-08-24 |
+| blake3 (Cargo.lock pin) | 1.5.5 | required for SBF cargo 1.79 |

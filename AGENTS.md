@@ -10,3 +10,10 @@
 - Float prototype uses demo owner `owner_demo`. No browser wallet is required.
 - Bot is pause/revoke only (`bot_emergency`). Telegram is optional via `TELEGRAM_BOT_TOKEN`. A compromised bot can only protect the owner.
 - Phase 0 freeze: no copilot, launch radar, pooled mandates, score/credit, token, or landing-page work. Stub venues (`demo_swap`, `demo_yield`) are intentional. First-party agents: DCA, dip-buyer, yield rotation.
+- Refusals are **successful transactions**. Look for `ActionRefused` / `GuardedResult.status === "blocked"`, not `err`.
+- Never call `demo_swap` / `demo_yield` with the operator key. Operator flow goes through `@markovfyi/operator`.
+- SBF cargo is 1.79: keep `blake3` **1.5.5** in `Cargo.lock`. `anchor build` must use rustup’s cargo proxy (`/usr/local/cargo/bin/cargo`), not `rustup which cargo`.
+- Devnet airdrop is flaky. `scripts/fund-devnet.ts` sprays ephemeral wallets and consolidates. Retry `bun run devnet:setup`.
+- On-chain x402 allowlist entry is the **mandate program pubkey**, not the engine string `"x402"`.
+- `data/devnet.json` is pubkeys only (committed). `keys/` is gitignored — never commit secrets.
+- `bun run demo` is in-process engine four-beat. `bun run demo:devnet` is live Solana devnet.

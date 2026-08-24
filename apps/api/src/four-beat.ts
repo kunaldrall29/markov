@@ -32,5 +32,9 @@ export function runFourBeat(engine: MandateEngine): {
   });
   const beat4 = { name: "revoke-mid-flight", receipts: [revoked, after] };
 
-  return { mandateId: mandate.id, beats: [beat1, beat2, beat3, beat4] };
+  const left = engine.mandate(mandate.id).vault[TOKENS.usdcd] ?? 0;
+  const withdrew = left > 0 ? engine.ownerWithdraw(mandate.id, ACTORS.owner, TOKENS.usdcd, left) : revoked;
+  const beat5 = { name: "owner-withdraw", receipts: left > 0 ? [withdrew] : [] };
+
+  return { mandateId: mandate.id, beats: [beat1, beat2, beat3, beat4, beat5] };
 }

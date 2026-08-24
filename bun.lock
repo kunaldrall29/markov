@@ -21,6 +21,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@markov/engine": "workspace:*",
+        "@markovfyi/operator": "workspace:*",
         "hono": "^4.9.0",
       },
     },
@@ -44,6 +45,19 @@
     "packages/engine": {
       "name": "@markov/engine",
       "version": "0.1.0",
+    },
+    "packages/operator": {
+      "name": "@markovfyi/operator",
+      "version": "0.1.0",
+      "dependencies": {
+        "@coral-xyz/anchor": "0.31.1",
+        "@solana/spl-token": "0.4.13",
+        "@solana/web3.js": "1.98.4",
+      },
+      "devDependencies": {
+        "@types/bun": "^1.2.20",
+        "typescript": "^5.9.2",
+      },
     },
     "packages/sdk": {
       "name": "@markov/sdk",
@@ -125,6 +139,8 @@
     "@markov/sdk": ["@markov/sdk@workspace:packages/sdk"],
 
     "@markov/web": ["@markov/web@workspace:apps/web"],
+
+    "@markovfyi/operator": ["@markovfyi/operator@workspace:packages/operator"],
 
     "@next/env": ["@next/env@15.5.23", "", {}, "sha512-Mv3Z9hVbFcPnoLevsZ6rnX1TBtyHb5E17yN7HTPDXSXxeNsGBjUFrdbjRXKKXIOhfth7/cg6Ay7PZ2UFawaWsQ=="],
 

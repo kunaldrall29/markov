@@ -188,7 +188,8 @@ pub mod mandate {
         let mint_in = ctx.accounts.mint_in.key();
         let mint_out = ctx.accounts.mint_out.key();
         let venue = ctx.accounts.swap_program.key();
-        let expected = quote_swap(&ctx.accounts.pool, mint_in, amount_in)?;
+        let pool = load_swap_pool(&ctx.accounts.pool)?;
+        let expected = quote_swap(&pool, mint_in, amount_in)?;
 
         if let Some(reason) = gate_swap(
             &ctx.accounts.mandate,
@@ -305,10 +306,11 @@ pub mod mandate {
             amount,
         )?;
 
+        let pool = load_yield_pool(&ctx.accounts.pool)?;
         let shares = amount
             .checked_mul(1_000_000)
             .ok_or(MandateError::Math)?
-            / ctx.accounts.pool.share_value.max(1);
+            / pool.share_value.max(1);
         ctx.accounts.mandate.yield_shares = ctx
             .accounts
             .mandate
@@ -343,8 +345,9 @@ pub mod mandate {
         let caller = ctx.accounts.caller.key();
         let mint = ctx.accounts.mint.key();
         let venue = ctx.accounts.yield_program.key();
+        let pool = load_yield_pool(&ctx.accounts.pool)?;
         let amount = shares
-            .checked_mul(ctx.accounts.pool.share_value)
+            .checked_mul(pool.share_value)
             .ok_or(MandateError::Math)?
             / 1_000_000;
 
@@ -495,6 +498,7 @@ fn refuse(
     reason: BlockReason,
     nonce: u64,
 ) -> Result<()> {
+    msg!("ActionRefused {:?}", reason);
     emit!(ActionRefused {
         mandate,
         operator,
@@ -551,7 +555,19 @@ fn token_allowed(p: &Policy, id: &Pubkey) -> bool {
     p.tokens[..n].iter().any(|x| x == id)
 }
 
-fn quote_swap(pool: &Account<SwapPool>, mint_in: Pubkey, amount_in: u64) -> Result<u64> {
+fn load_swap_pool(info: &AccountInfo) -> Result<SwapPool> {
+    require_keys_eq!(*info.owner, demo_swap::ID, MandateError::InvalidVenue);
+    let data = info.try_borrow_data()?;
+    SwapPool::try_deserialize(&mut &data[..]).map_err(|_| error!(MandateError::InvalidVenue))
+}
+
+fn load_yield_pool(info: &AccountInfo) -> Result<YieldPool> {
+    require_keys_eq!(*info.owner, demo_yield::ID, MandateError::InvalidVenue);
+    let data = info.try_borrow_data()?;
+    YieldPool::try_deserialize(&mut &data[..]).map_err(|_| error!(MandateError::InvalidVenue))
+}
+
+fn quote_swap(pool: &SwapPool, mint_in: Pubkey, amount_in: u64) -> Result<u64> {
     let fee = amount_in
         .checked_mul(pool.fee_bps as u64)
         .ok_or(MandateError::Math)?
@@ -686,7 +702,7 @@ fn to_bytes64(s: &str) -> [u8; 64] {
     out
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum BlockReason {
     OverTxCap,
     OverDailyCap,
@@ -945,8 +961,9 @@ pub struct ExecuteSwap<'info> {
     #[account(mut, token::mint = mint_out, token::authority = mandate)]
     pub vault_out: Account<'info, TokenAccount>,
     pub swap_program: Program<'info, DemoSwap>,
+    /// CHECK: demo_swap pool; owner and layout verified in handler.
     #[account(mut)]
-    pub pool: Account<'info, SwapPool>,
+    pub pool: UncheckedAccount<'info>,
     #[account(mut)]
     pub pool_source: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -967,8 +984,9 @@ pub struct ExecuteDeposit<'info> {
     #[account(mut, token::mint = mint, token::authority = mandate)]
     pub vault: Account<'info, TokenAccount>,
     pub yield_program: Program<'info, DemoYield>,
+    /// CHECK: demo_yield pool; owner and layout verified in handler.
     #[account(mut)]
-    pub pool: Account<'info, YieldPool>,
+    pub pool: UncheckedAccount<'info>,
     #[account(mut)]
     pub pool_vault: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
@@ -1004,4 +1022,5 @@ pub enum MandateError {
     InsufficientShares,
     MemoTooLong,
     TokenNotAllowlisted,
+    InvalidVenue,
 }

@@ -7,7 +7,7 @@ description: Operate a Markov mandate as an operator — propose gated actions, 
 
 You are an **operator**, not an owner. A mandate is capital you may use only inside policy the mandate itself enforces. Withdrawal authority never belongs to you.
 
-This file is the operator contract. Verify behavior against the SDK you actually call. In this workspace that is `@markov/sdk` (`MarkovClient`) talking to `apps/api`. A dedicated `@markovfyi/operator` package (GuardedResult, idempotency keys, paidFetch) is specified for S4/S5 and must not be invented before it exists.
+This file is the operator contract. On-chain client: `@markovfyi/operator` (`OperatorClient`, `GuardedResult`, `paidFetch`). HTTP/engine client: `@markov/sdk` (`MarkovClient`) talking to `apps/api`. The copy at `skills/markov-mandates/SKILL.md` is the same contract.
 
 ## Iron rules
 

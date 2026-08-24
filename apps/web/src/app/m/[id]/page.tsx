@@ -139,6 +139,22 @@ export default function MandatePage() {
               {"requestedAmount" in r && r.requestedAmount
                 ? ` asked ${formatAmount(Number(r.requestedAmount))}`
                 : ""}
+              {"sig" in r && r.sig ? (
+                <>
+                  {" "}
+                  <a
+                    href={
+                      typeof r.explorerUrl === "string" && r.explorerUrl
+                        ? r.explorerUrl
+                        : `https://solscan.io/tx/${String(r.sig)}?cluster=devnet`
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    solscan
+                  </a>
+                </>
+              ) : null}
             </span>
             <span className="meta">{new Date(r.ts * 1000).toISOString().slice(11, 19)}</span>
           </div>

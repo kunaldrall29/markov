@@ -10,6 +10,7 @@ coverage
 data/*.json
 !data/.gitkeep
 !data/devnet.example.json
+!data/devnet.json
 apps/web/.next
 **/*.tsbuildinfo
 .DS_Store
