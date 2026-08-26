@@ -1,23 +1,28 @@
 import { describe, expect, test } from "bun:test";
-import { handleSiteRequest } from "../src/handle";
-import { PAGES } from "../src/pages";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
-async function get(path: string) {
-  return handleSiteRequest(new Request(`http://docs.test${path}`));
+const ROOT = join(import.meta.dir, "..");
+const DOCS = join(ROOT, "docs");
+
+function read(rel: string) {
+  return readFileSync(join(ROOT, rel), "utf8");
 }
 
 describe("markov-site docs", () => {
-  test("home is protocol docs, not a markovhq restyle", async () => {
-    const res = await get("/");
-    const html = await res.text();
-    expect(res.status).toBe(200);
-    expect(html).toContain("https://markovhq.com");
-    expect(html).toContain("Not a restyle");
-    expect(html).not.toMatch(/seamless|robust/i);
+  test("home is protocol docs, not a markovhq restyle", () => {
+    const home = read("src/pages/index.tsx");
+    const css = read("src/css/custom.css");
+    const config = read("docusaurus.config.ts");
+    expect(home).toContain("https://markovhq.com");
+    expect(home).toContain("Docusaurus");
+    expect(css).toContain("Not the markovhq.com marketing site");
+    expect(config).toContain("Not a restyle of that site");
+    expect(`${home}\n${css}`).not.toMatch(/seamless|robust/i);
   });
 
-  test("docs index lists all six products as paths in this repo", async () => {
-    const html = await (await get("/docs")).text();
+  test("docs index lists all six products as paths in this repo", () => {
+    const html = read("docs/index.md");
     for (const name of [
       "markov-program",
       "markov-sdk",
@@ -31,8 +36,8 @@ describe("markov-site docs", () => {
     expect(html).not.toContain("migrate later");
   });
 
-  test("BlockReason page lists every variant", async () => {
-    const html = await (await get("/docs/block-reason")).text();
+  test("BlockReason page lists every variant", () => {
+    const html = read("docs/block-reason.md");
     for (const reason of [
       "Paused",
       "Revoked",
@@ -50,14 +55,30 @@ describe("markov-site docs", () => {
     }
   });
 
-  test("every registered page returns 200", async () => {
-    for (const page of PAGES) {
-      const res = await get(page.path);
-      expect(res.status).toBe(200);
+  test("every registered markdown page exists", () => {
+    const pages = [
+      "index.md",
+      "mandates.md",
+      "policy.md",
+      "receipts.md",
+      "kill-switch.md",
+      "owners.md",
+      "operators.md",
+      "venues.md",
+      "program.md",
+      "sdk.md",
+      "block-reason.md",
+      "data-api.md",
+      "security.md",
+    ];
+    for (const page of pages) {
+      expect(existsSync(join(DOCS, page))).toBe(true);
     }
+    const files = readdirSync(DOCS).filter((f) => f.endsWith(".md"));
+    expect(files.length).toBe(pages.length);
   });
 
-  test("unknown path 404", async () => {
-    expect((await get("/nope")).status).toBe(404);
+  test("llms.txt is a static asset", () => {
+    expect(read("static/llms.txt")).toContain("https://markovhq.com");
   });
 });

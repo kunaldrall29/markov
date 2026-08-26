@@ -47,6 +47,6 @@ Rule: a doc that describes code is written from the code, never before it.
 
 ## markov-site → `apps/site`
 
-Docs host in this repo (`bun run --filter @markov/site dev`, `:3001`). Marketing at [markovhq.com](https://markovhq.com) is a different property and is not restyled here.
+Docusaurus host in this repo (`bun run --filter @markov/site dev`, `:3001`). Free, in-repo. Marketing at [markovhq.com](https://markovhq.com) is a different property and is not restyled here.
 
 Live docs routes: `/` · `/docs` · `/docs/mandates` · `/docs/policy` · `/docs/receipts` · `/docs/kill-switch` · `/docs/owners` · `/docs/operators` · `/docs/venues` · `/docs/program` · `/docs/sdk` · `/docs/block-reason` · `/docs/data-api` · `/docs/security` · `/llms.txt`

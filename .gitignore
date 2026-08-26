@@ -13,6 +13,8 @@ data/*.sqlite
 !data/devnet.example.json
 !data/devnet.json
 apps/web/.next
+apps/site/.docusaurus
+apps/site/build
 **/*.tsbuildinfo
 .playwright-mcp
 target

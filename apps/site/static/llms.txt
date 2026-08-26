@@ -1,0 +1,8 @@
+# Markov
+
+The mandate layer for Solana. Owner deposits; operator acts only through policy; withdraw never leaves the owner. Receipts for actions and refusals. Float is the console in this same repository.
+
+This file is served from apps/site (Docusaurus static/). Source of truth: repo llms.txt and SPEC.md.
+
+Docs: /docs  BlockReason: /docs/block-reason  Security: /docs/security
+Marketing (other property): https://markovhq.com

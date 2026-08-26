@@ -20,7 +20,7 @@ This file describes **this repository**. The six products are directories here. 
 
 - [GitHub](https://github.com/kunaldrall29/markov): mandate engine, SDK, Float, agents, bot, docs host, Anchor programs
 - Live engine: `packages/engine`. On-chain port: `programs/mandate` (quote ids from FACTS only)
-- Docs host (this repo): `apps/site` → `bun run dev` → http://127.0.0.1:3001
+- Docs host (this repo): Docusaurus in `apps/site` → `bun run dev` → http://127.0.0.1:3001
 
 ## Optional
 

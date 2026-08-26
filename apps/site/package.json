@@ -2,13 +2,30 @@
   "name": "@markov/site",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts",
-    "build": "bun scripts/build.ts",
+    "dev": "docusaurus start --port 3001 --host 0.0.0.0 --no-open",
+    "start": "docusaurus start --port 3001 --host 0.0.0.0 --no-open",
+    "build": "docusaurus build",
+    "serve": "docusaurus serve --port 3001 --host 0.0.0.0 --no-open",
     "typecheck": "tsc --noEmit",
     "lint": "bun -e 'console.log(\"ok\")'",
     "test": "bun test"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.8.1",
+    "@docusaurus/preset-classic": "^3.8.1",
+    "prism-react-renderer": "^2.4.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^3.8.1",
+    "@docusaurus/tsconfig": "^3.8.1",
+    "@docusaurus/types": "^3.8.1",
+    "@types/react": "^19.1.0",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

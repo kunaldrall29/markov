@@ -1,3 +1,0 @@
-# Markov
-
-The mandate layer for Solana. Docs in this repository under apps/site. Marketing: https://markovhq.com

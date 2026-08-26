@@ -15,6 +15,16 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 - Next
 ```
 
+## 2026-08-26 — Docusaurus protocol docs
+
+- Goal: replace the homemade HTML docs host with a free docs framework in this repo.
+- Done: Docusaurus 3 in `apps/site` on `:3001`; same IA as before; Mintlify hosting deferred (needs an account).
+- Not done: Mintlify dashboard / `.mintlify.app` deploy.
+- Commands: `bun run --filter @markov/site dev` · `bun run --filter @markov/site build`
+- Next: keep shipping in this tree.
+
+---
+
 ## 2026-08-26 — six products in this repo
 
 - Goal: stop deferring to MarkovFyi remotes; build program, SDK, Float, agents, bot, and docs here.

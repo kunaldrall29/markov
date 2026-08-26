@@ -2,7 +2,7 @@
 
 ## Cursor Cloud specific instructions
 
-- Marketing landing page is live at https://markovhq.com. Do not rebuild, restyle, or change it. Protocol docs are `apps/site` in this repo (`http://127.0.0.1:3001`).
+- Marketing landing page is live at https://markovhq.com. Do not rebuild, restyle, or change it. Protocol docs are Docusaurus in `apps/site` (`http://127.0.0.1:3001`).
 - Product canon: `docs/PITCH.md`. Numbers: `docs/FACTS.md`. Semantics: `SPEC.md`. Security: `SECURITY.md`. Doc map: `docs/MAP.md`. Operator skill: `packages/sdk/SKILL.md`. Litepaper for protocol claims: v0.4.
 - This repository is the six products (`programs/`, `packages/`, `apps/web`, `apps/agents`, `apps/bot`, `apps/site`). Do not split the tree. Do not wait on MarkovFyi remotes.
 - Start with `bun run dev` (API `http://127.0.0.1:8787`, Float `http://127.0.0.1:3000`, docs `http://127.0.0.1:3001`). Extra services: `bun run dev:services`. Hello path: `bun run demo` or Float **Run four-beat demo**. Climax is a live refusal `blocked: over_cap`.

@@ -45,7 +45,7 @@ Refusals emit `ActionRefused` (`ActionRefused` in the live engine) with a `Block
 | float-web | `apps/web`, `apps/api`, `apps/indexer` |
 | float-agents | `apps/agents`, `apps/data-api` |
 | float-bot | `apps/bot` |
-| markov-site | `apps/site` (:3001 docs) |
+| markov-site | `apps/site` (Docusaurus, :3001 docs) |
 
 Demo mints: **USDC-d**, **DEMO**. Venues are stubs with the adapter shape mainnet venues will use.
 

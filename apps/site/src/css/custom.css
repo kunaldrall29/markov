@@ -1,0 +1,33 @@
+/* Protocol docs. Not the markovhq.com marketing site. */
+:root {
+  --ifm-color-primary: #1a1a1a;
+  --ifm-color-primary-dark: #111111;
+  --ifm-color-primary-darker: #0d0d0d;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #333333;
+  --ifm-color-primary-lighter: #444444;
+  --ifm-color-primary-lightest: #555555;
+  --ifm-code-font-size: 92%;
+  --ifm-font-family-base: system-ui, sans-serif;
+  --ifm-heading-font-family: system-ui, sans-serif;
+  --ifm-background-color: #fafafa;
+  --ifm-navbar-background-color: #ffffff;
+  --ifm-footer-background-color: #f0f0f0;
+  --ifm-link-color: #0645ad;
+  --ifm-navbar-link-color: #1a1a1a;
+  --ifm-navbar-link-hover-color: #0645ad;
+  --ifm-menu-color-active: #1a1a1a;
+  --ifm-font-color-base: #1a1a1a;
+  --ifm-footer-color: #555555;
+  --ifm-footer-link-color: #0645ad;
+  --ifm-hero-background-color: #fafafa;
+}
+
+.footer {
+  border-top: 1px solid #ddd;
+}
+
+.navbar {
+  box-shadow: none;
+  border-bottom: 1px solid #ddd;
+}

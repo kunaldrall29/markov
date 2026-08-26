@@ -1,5 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "noEmit": true },
-  "include": ["src", "tests", "scripts"]
+  "extends": "@docusaurus/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": []
+  },
+  "include": ["docusaurus.config.ts", "sidebars.ts", "src", "docs"],
+  "exclude": ["tests", "build", ".docusaurus", "node_modules"]
 }
