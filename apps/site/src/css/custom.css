@@ -31,3 +31,32 @@
   box-shadow: none;
   border-bottom: 1px solid #ddd;
 }
+
+html { overflow-x: clip; }
+
+.theme-doc-markdown table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-doc-markdown table :is(thead, tbody) {
+  display: table;
+  width: 100%;
+}
+
+.theme-doc-markdown pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 996px) {
+  .theme-doc-markdown {
+    overflow-wrap: anywhere;
+  }
+  .navbar__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

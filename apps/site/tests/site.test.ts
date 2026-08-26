@@ -81,4 +81,10 @@ describe("markov-site docs", () => {
   test("llms.txt is a static asset", () => {
     expect(read("static/llms.txt")).toContain("https://markovhq.com");
   });
+
+  test("docs CSS allows tables to scroll on a narrow screen", () => {
+    const css = read("src/css/custom.css");
+    expect(css).toContain("overflow-x: auto");
+    expect(css).toContain("@media (max-width: 996px)");
+  });
 });

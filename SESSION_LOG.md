@@ -15,6 +15,16 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 - Next
 ```
 
+## 2026-08-26 — mobile layout
+
+- Goal: make Float and Docusaurus usable on a phone.
+- Done: Float nav/receipts wrap at 760px; 44px tap targets; docs tables scroll; viewport meta.
+- Not done: markovhq.com (out of this repo).
+- Commands: `bun test` · `bun run dev`
+- Next: keep shipping in this tree.
+
+---
+
 ## 2026-08-26 — Docusaurus protocol docs
 
 - Goal: replace the homemade HTML docs host with a free docs framework in this repo.

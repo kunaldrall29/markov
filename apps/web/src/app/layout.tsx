@@ -1,11 +1,17 @@
 import type { ReactNode } from "react";
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Float — Markov",
   description: "Give an agent your capital. Keep the keys.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
