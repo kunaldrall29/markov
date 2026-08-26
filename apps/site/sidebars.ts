@@ -6,16 +6,19 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Concepts",
+      collapsed: false,
       items: ["mandates", "policy", "receipts", "kill-switch"],
     },
     {
       type: "category",
       label: "Guides",
+      collapsed: false,
       items: ["owners", "operators", "venues"],
     },
     {
       type: "category",
       label: "Reference",
+      collapsed: false,
       items: ["program", "sdk", "block-reason", "data-api", "security"],
     },
   ],
