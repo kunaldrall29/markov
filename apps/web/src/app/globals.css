@@ -52,7 +52,7 @@ h1 em { font-style: italic; color: var(--gold); }
   text-transform: uppercase;
   cursor: pointer;
 }
-.btn.gold { background: var(--gold); }
+.btn.gold { background: var(--gold); color: var(--ink); }
 .btn.ghost { background: transparent; color: var(--paper); border: 1px solid var(--edge); }
 .btn.ember { background: var(--ember); color: var(--paper); }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
