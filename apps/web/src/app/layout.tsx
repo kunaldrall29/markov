@@ -36,6 +36,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </svg>
             FLOAT
           </Link>
+          <input className="nav-toggle" id="nav-toggle" type="checkbox" />
+          <label className="nav-toggle-label" htmlFor="nav-toggle">
+            Menu
+          </label>
           <div className="nav-links">
             <Link href="/">Marketplace</Link>
             <Link href="/create">New mandate</Link>

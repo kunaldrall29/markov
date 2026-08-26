@@ -13,11 +13,12 @@ describe("Float mobile layout", () => {
 
   test("receipts stack instead of a three-column squeeze", () => {
     expect(css).toContain(".receipt > :nth-child(2)");
-    expect(css).toContain("grid-column: 1 / -1");
+    expect(css).toContain("flex: 1 1 100%");
+    expect(css).toContain("order: 3");
   });
 
-  test("nav links wrap onto their own row", () => {
-    expect(css).toContain(".nav-links");
-    expect(css).toContain("flex: 1 1 100%");
+  test("phone nav uses a Menu control", () => {
+    expect(css).toContain(".nav-toggle");
+    expect(css).toContain(".nav-toggle:checked ~ .nav-links");
   });
 });
