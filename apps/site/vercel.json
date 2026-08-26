@@ -1,3 +1,5 @@
 {
+  "buildCommand": "bun run build",
+  "outputDirectory": "public",
   "cleanUrls": true
 }

@@ -4,7 +4,7 @@
 
 Key facts: withdrawal authority never leaves the owner; refusals carry machine-readable BlockReason codes; the emergency key can only pause and revoke; unpause is owner-only; no token exists.
 
-This file describes **this repository** (Phase 0 monorepo). URLs below are live only if listed in `docs/FACTS.md`.
+This file describes **this repository**. The six products are directories here. URLs below are live only if listed in `docs/FACTS.md`.
 
 ## Docs (this repo)
 
@@ -18,11 +18,12 @@ This file describes **this repository** (Phase 0 monorepo). URLs below are live 
 
 ## Code
 
-- [GitHub](https://github.com/kunaldrall29/markov): mandate engine, SDK HTTP client, Float web/api, agents, bot, Anchor scaffolds
-- Live engine: `packages/engine`. Intended on-chain program: `programs/mandate` (not deployed)
+- [GitHub](https://github.com/kunaldrall29/markov): mandate engine, SDK, Float, agents, bot, docs host, Anchor programs
+- Live engine: `packages/engine`. On-chain port: `programs/mandate` (quote ids from FACTS only)
+- Docs host (this repo): `apps/site` → `bun run dev` → http://127.0.0.1:3001
 
 ## Optional
 
 - Marketing site (live): https://markovhq.com — **not this repository**; do not restyle it
 - Float local: `bun run dev` → http://127.0.0.1:3000
-- Intended public docs host (markov.fyi /docs, /litepaper): **not live** as of FACTS last refresh
+- Intended public docs host (markov.fyi): **not live** as of FACTS last refresh. Docs in this repo: `apps/site`.

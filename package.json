@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "bun scripts/dev.ts",
     "dev:api": "bun --filter @markov/api dev",
-    "dev:web": "bun --filter @markov/web dev",
+    "dev:site": "bun --filter @markov/site dev",
     "dev:services": "bun scripts/dev-services.ts",
     "test": "bun test packages apps",
     "typecheck": "bun --filter '*' typecheck",

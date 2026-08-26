@@ -1,6 +1,6 @@
 # @markov/sdk
 
-HTTP client for the local Markov API (`apps/api`). Not a signing SDK yet.
+HTTP client for `apps/api` in this repository.
 
 ```ts
 import { MarkovClient } from "@markov/sdk";
@@ -18,6 +18,4 @@ if (receipt.type === "ActionRefused") {
 }
 ```
 
-Operator rules: [`SKILL.md`](./SKILL.md). Semantics: [`../../SPEC.md`](../../SPEC.md).
-
-The ~20-line guarded-action quickstart and `@markovfyi/operator` land at S4 from that code. Until then this README is the HTTP client only.
+On-chain operators use `@markovfyi/operator` (`packages/operator`). GuardedResult: [`docs/guarded-result.md`](../../docs/guarded-result.md). Skill: [`SKILL.md`](./SKILL.md). Spec: [`../../SPEC.md`](../../SPEC.md).

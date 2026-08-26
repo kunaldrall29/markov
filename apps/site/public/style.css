@@ -1,0 +1,18 @@
+/* Protocol docs. Not the markovhq.com marketing site. */
+:root { --ink:#1a1a1a; --muted:#555; --line:#ddd; --bg:#fafafa; }
+* { box-sizing:border-box }
+html,body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui,sans-serif }
+a { color:#0645ad }
+header,footer { border-bottom:1px solid var(--line); padding:12px 20px }
+footer { border-bottom:0; border-top:1px solid var(--line); color:var(--muted); font-size:14px }
+nav a { margin-right:14px; text-decoration:none }
+nav a[aria-current="page"] { text-decoration:underline }
+main { max-width:46rem; padding:24px 20px 64px }
+h1 { font-size:1.6rem; font-weight:600; margin:0 0 12px }
+h2 { font-size:1.15rem; margin:28px 0 8px }
+p,li { color:var(--ink) }
+.muted { color:var(--muted) }
+code,pre { font-family:ui-monospace,monospace; font-size:0.92em }
+pre { background:#f0f0f0; padding:12px; overflow:auto }
+table { border-collapse:collapse; width:100% }
+th,td { border:1px solid var(--line); padding:6px 8px; text-align:left; font-size:14px }

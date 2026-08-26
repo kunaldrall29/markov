@@ -2,11 +2,10 @@
 
 ## Cursor Cloud specific instructions
 
-- Marketing landing page is live at https://markovhq.com. Do not rebuild, restyle, or change it. This repo is the protocol/product workspace (mandate engine + Float), not the site repo.
+- Marketing landing page is live at https://markovhq.com. Do not rebuild, restyle, or change it. Protocol docs are `apps/site` in this repo (`http://127.0.0.1:3001`).
 - Product canon: `docs/PITCH.md`. Numbers: `docs/FACTS.md`. Semantics: `SPEC.md`. Security: `SECURITY.md`. Doc map: `docs/MAP.md`. Operator skill: `packages/sdk/SKILL.md`. Litepaper for protocol claims: v0.4.
-- Runtime is Bun (`$HOME/.bun/bin` if it is not on PATH). Install with `bun install`. Do not add npm/yarn lockfiles.
-- Start with `bun run dev` (API `http://127.0.0.1:8787`, Float `http://127.0.0.1:3000`). Extra services: `bun run dev:services` (data-api `:8788`, indexer `:8790`, bot `:8789`). Hello path: `bun run demo` (in-process four-beat) or Float **Run four-beat demo**. Climax is a live refusal `blocked: over_cap`.
-- This repository is the complete Phase 0 project until the six MarkovFyi GitHub repos exist. Do not split the tree in this workspace.
+- This repository is the six products (`programs/`, `packages/`, `apps/web`, `apps/agents`, `apps/bot`, `apps/site`). Do not split the tree. Do not wait on MarkovFyi remotes.
+- Start with `bun run dev` (API `http://127.0.0.1:8787`, Float `http://127.0.0.1:3000`, docs `http://127.0.0.1:3001`). Extra services: `bun run dev:services`. Hello path: `bun run demo` or Float **Run four-beat demo**. Climax is a live refusal `blocked: over_cap`.
 - RPC: `SOLANA_RPC_URL` / `SOLANA_WS_URL` (Helius). Fallback constant only: `https://api.devnet.solana.com`.
 - Indexer uses local sqlite (`data/indexer.sqlite`). `DATABASE_URL` is reserved for later Postgres. `SUPABASE_SERVICE_ROLE_KEY` is server-side only, never in `apps/web`.
 - Ledger persists to `data/ledger.json` (gitignored). Delete it to reset.

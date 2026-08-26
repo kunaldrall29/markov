@@ -15,13 +15,13 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 - Next
 ```
 
-## 2026-08-26 — complete project in this monorepo
+## 2026-08-26 — six products in this repo
 
-- Goal: keep Phase 0 in `kunaldrall29/markov`; migrate to six MarkovFyi repos later.
-- Done: `apps/data-api` (GET 402 / POST spend), `apps/indexer` (sqlite + SQL), `apps/site` placeholder, Dockerfiles, Railway/Vercel stubs, CI, `packages/rpc`, bot `/link`, `docs/gates.md` + `docs/venues.md` from engine code.
-- Not done: GitHub org push, Helius, BotFather token, Supabase `markov-devnet`, public-devnet SOL for new keypairs.
-- Commands: `bun install` · `bun test` · `bun run demo` · `bun run dev` · `bun run dev:services`
-- Next: secrets + org remotes when splitting; do not start a repo split in this workspace.
+- Goal: stop deferring to MarkovFyi remotes; build program, SDK, Float, agents, bot, and docs here.
+- Done: `apps/site` docs IA from SPEC/gates; per-app READMEs; operator README + `docs/soft-gates.md`; `bun run dev` starts docs `:3001`; Float nav Docs link.
+- Not done: Helius, Telegram token, public-devnet faucet.
+- Commands: `bun install` · `bun test` · `bun run demo` · `bun run dev`
+- Next: keep shipping in this tree.
 
 ---
 

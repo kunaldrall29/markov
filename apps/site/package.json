@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bunx serve public -l 3001",
-    "start": "bunx serve public -l 3001",
-    "typecheck": "bun -e 'console.log(\"ok\")'",
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun scripts/build.ts",
+    "typecheck": "tsc --noEmit",
     "lint": "bun -e 'console.log(\"ok\")'",
-    "build": "bun -e 'console.log(\"ok\")'",
     "test": "bun test"
   }
 }

@@ -1,6 +1,6 @@
 # Working agreement
 
-This is the Phase 0 Markov monorepo (protocol semantics + Float). Marketing at https://markovhq.com is a different property — do not rebuild or restyle it.
+This is the Phase 0 Markov repository (protocol, Float, agents, bot, docs). Marketing at https://markovhq.com is a different property — do not rebuild or restyle it. Protocol docs are `apps/site`.
 
 ## Canon
 

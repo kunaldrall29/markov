@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="nav-links">
             <Link href="/">Marketplace</Link>
             <Link href="/create">New mandate</Link>
+            <a href={process.env.NEXT_PUBLIC_DOCS_URL ?? "http://127.0.0.1:3001"}>Docs</a>
             <a href="https://markovhq.com" target="_blank" rel="noreferrer">
               Markov
             </a>
