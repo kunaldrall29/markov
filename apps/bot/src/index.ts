@@ -2,56 +2,20 @@
  * Float bot — emergency key only.
  * Can pause and revoke. Cannot fund, trade, spend, or withdraw.
  */
-const API = process.env.API_URL ?? "http://127.0.0.1:8787";
-const ACTOR = process.env.BOT_ACTOR ?? "bot_emergency";
+import { handleCommand } from "./commands";
+
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const USERNAME = process.env.TELEGRAM_BOT_USERNAME ?? "";
+const port = Number(process.env.PORT ?? 8789);
 
-async function call(path: string, body?: unknown) {
-  const res = await fetch(`${API}${path}`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-actor": ACTOR },
-    body: body ? JSON.stringify(body) : "{}",
+export { handleCommand } from "./commands";
+
+function health() {
+  return Response.json({
+    service: "float-bot",
+    tokenSet: Boolean(TOKEN),
+    username: USERNAME,
   });
-  const text = await res.text();
-  if (!res.ok) throw new Error(text);
-  return JSON.parse(text);
-}
-
-function parseCommand(text: string): { cmd: string; id?: string } | null {
-  const parts = text.trim().split(/\s+/);
-  const cmd = parts[0]?.toLowerCase();
-  if (!cmd) return null;
-  return { cmd, id: parts[1] };
-}
-
-export async function handleCommand(text: string) {
-  const parsed = parseCommand(text);
-  if (!parsed) return "Send /pause <mandateId> or /revoke <mandateId>.";
-  const { cmd, id } = parsed;
-  if (cmd === "/start" || cmd === "/help") {
-    return [
-      "Float emergency bot.",
-      "I can pause or revoke a mandate. I cannot trade, spend, or withdraw.",
-      "/pause <id>",
-      "/revoke <id>",
-      "/status <id>",
-    ].join("\n");
-  }
-  if (!id) return "Mandate id required.";
-  if (cmd === "/pause") {
-    const r = await call(`/mandates/${id}/pause`);
-    return `Paused ${id} (${r.type}).`;
-  }
-  if (cmd === "/revoke") {
-    const r = await call(`/mandates/${id}/revoke`);
-    return `Revoked ${id} (${r.type}).`;
-  }
-  if (cmd === "/status") {
-    const res = await fetch(`${API}/mandates/${id}`);
-    const data = await res.json();
-    return `${id} state=${data.mandate?.state ?? "unknown"}`;
-  }
-  return "Unknown command. /help";
 }
 
 async function telegramLoop() {
@@ -94,5 +58,15 @@ async function telegramLoop() {
 }
 
 if (import.meta.main) {
+  Bun.serve({
+    port,
+    hostname: "0.0.0.0",
+    fetch(req) {
+      const url = new URL(req.url);
+      if (url.pathname === "/health" || url.pathname === "/") return health();
+      return new Response("not found", { status: 404 });
+    },
+  });
+  console.log("float-bot health on", port);
   await telegramLoop();
 }

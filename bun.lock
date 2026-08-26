@@ -29,6 +29,25 @@
       "name": "@markov/bot",
       "version": "0.1.0",
     },
+    "apps/data-api": {
+      "name": "@markov/data-api",
+      "version": "0.1.0",
+      "dependencies": {
+        "@markov/rpc": "workspace:*",
+        "hono": "^4.9.0",
+      },
+    },
+    "apps/indexer": {
+      "name": "@markov/indexer",
+      "version": "0.1.0",
+      "dependencies": {
+        "hono": "^4.9.0",
+      },
+    },
+    "apps/site": {
+      "name": "@markov/site",
+      "version": "0.1.0",
+    },
     "apps/web": {
       "name": "@markov/web",
       "version": "0.1.0",
@@ -58,6 +77,10 @@
         "@types/bun": "^1.2.20",
         "typescript": "^5.9.2",
       },
+    },
+    "packages/rpc": {
+      "name": "@markov/rpc",
+      "version": "0.1.0",
     },
     "packages/sdk": {
       "name": "@markov/sdk",
@@ -134,9 +157,17 @@
 
     "@markov/bot": ["@markov/bot@workspace:apps/bot"],
 
+    "@markov/data-api": ["@markov/data-api@workspace:apps/data-api"],
+
     "@markov/engine": ["@markov/engine@workspace:packages/engine"],
 
+    "@markov/indexer": ["@markov/indexer@workspace:apps/indexer"],
+
+    "@markov/rpc": ["@markov/rpc@workspace:packages/rpc"],
+
     "@markov/sdk": ["@markov/sdk@workspace:packages/sdk"],
+
+    "@markov/site": ["@markov/site@workspace:apps/site"],
 
     "@markov/web": ["@markov/web@workspace:apps/web"],
 

@@ -18,7 +18,7 @@ If docs and litepaper disagree, litepaper wins and the doc is wrong.
 
 ## Code vs docs
 
-A document that describes code is written from the code, never before it. Do not add `docs/gates.md`, `docs/venues.md`, `docs/guarded-result.md`, `docs/soft-gates.md`, or `docs/paid-fetch.md` until the sessions in `docs/MAP.md` have produced that code.
+A document that describes code is written from the code, never before it. Gate order: `docs/gates.md`. Venues: `docs/venues.md`.
 
 Refusals are features. Every execute path has an `ActionRefused` path with a `BlockReason`.
 
@@ -28,7 +28,7 @@ Refusals are features. Every execute path has an `ActionRefused` path with a `Bl
 
 ## Stack
 
-Bun workspaces. No npm/yarn lockfiles. Engine tests: `bun test`. Demo: `bun run demo`. Dev: `bun run dev` (API `:8787`, Float `:3000`).
+Bun workspaces. No npm/yarn lockfiles. Engine tests: `bun test`. Demo: `bun run demo`. Dev: `bun run dev` (API `:8787`, Float `:3000`). Services: `bun run dev:services`.
 
 ## Phase 0 freeze
 

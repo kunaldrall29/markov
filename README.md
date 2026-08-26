@@ -4,7 +4,7 @@ The mandate layer for Solana. Non-custodial accounts where an owner deposits cap
 
 Delegation stops being an act of trust and becomes an act of configuration.
 
-This repository is the **Phase 0 monorepo**: a spec-faithful TypeScript engine, Float (marketplace + console + kill switch), a pause/revoke-only bot, first-party agents, and Anchor scaffolds for the on-chain port. The marketing site is live at [markovhq.com](https://markovhq.com) and is **not** this repo.
+This repository is the **Phase 0 monorepo** — protocol, Float, agents, bot, indexer, data-api, and a docs placeholder — until the six MarkovFyi GitHub repos exist. The marketing site is live at [markovhq.com](https://markovhq.com) and is **not** this repo.
 
 Consumer line: **Give an agent your capital. Keep the keys.**
 
@@ -42,13 +42,17 @@ Refusals emit `ActionRefused` (`ActionRefused` in the live engine) with a `Block
 |---|---|---|
 | Mandate engine | `packages/engine` | Live semantics |
 | SDK (HTTP) | `packages/sdk` | Live client |
+| Operator SDK | `packages/operator` | `@markovfyi/operator` — GuardedResult, paidFetch |
+| RPC helper | `packages/rpc` | `SOLANA_RPC_URL` with fallback `https://api.devnet.solana.com` |
 | API | `apps/api` | Hono, `data/ledger.json` |
+| data-api | `apps/data-api` | x402: GET 402, POST spend+quote |
+| Indexer | `apps/indexer` | sqlite receipts; SQL committed |
 | Float | `apps/web` | Next.js marketplace + console |
 | Agents | `apps/agents` | DCA, dip, yield |
-| Bot | `apps/bot` | Pause/revoke only |
+| Bot | `apps/bot` | Pause/revoke + `/link` |
+| Site placeholder | `apps/site` | Not markovhq.com |
 | Mandate program | `programs/mandate` | Built (`target/deploy/mandate.so`); `bun run devnet:setup` |
 | Demo venues | `programs/demo_swap`, `programs/demo_yield` | Built; same setup script |
-| Operator SDK | `packages/operator` | `@markovfyi/operator` — GuardedResult, paidFetch |
 
 Demo mints: **USDC-d**, **DEMO**. Venues are stubs with the adapter shape mainnet venues will use.
 
@@ -61,6 +65,7 @@ bun install
 bun test
 bun run demo          # four-beat, in-process
 bun run dev           # API :8787 + Float :3000
+bun run dev:services  # API + data-api :8788 + indexer :8790 + bot :8789
 ```
 
 Open [http://127.0.0.1:3000](http://127.0.0.1:3000) and click **Run four-beat demo**. No wallet extension on this prototype.

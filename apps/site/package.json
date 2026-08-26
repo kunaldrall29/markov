@@ -1,0 +1,14 @@
+{
+  "name": "@markov/site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bunx serve public -l 3001",
+    "start": "bunx serve public -l 3001",
+    "typecheck": "bun -e 'console.log(\"ok\")'",
+    "lint": "bun -e 'console.log(\"ok\")'",
+    "build": "bun -e 'console.log(\"ok\")'",
+    "test": "bun test"
+  }
+}

@@ -4,7 +4,7 @@
 
 Devnet software, pre-audit. No mainnet deployment exists. Do not use with real value. A scoped external review and audit precede any guarded mainnet launch (Phase 1); until then, every deployment is disposable.
 
-This repository's live enforcement today is the TypeScript mandate engine (`packages/engine`). The Anchor port (`programs/mandate`) is not yet compiled or deployed. The same authority model and invariants apply to both.
+This repository's live enforcement today is the TypeScript mandate engine (`packages/engine`). Anchor programs exist under `programs/` and have been exercised on a local validator; a public-devnet deploy is recorded in `docs/FACTS.md` only when faucet/SOL allows. The same authority model and invariants apply to both.
 
 ## Authority model
 

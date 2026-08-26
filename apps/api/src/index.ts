@@ -18,11 +18,17 @@ const engine = loadEngine();
 seed(engine);
 persist(engine);
 
+const WEB_ORIGINS = [
+  "http://127.0.0.1:3000",
+  "http://localhost:3000",
+  ...(process.env.WEB_ORIGIN ? [process.env.WEB_ORIGIN] : []),
+];
+
 const app = new Hono();
 app.use(
   "*",
   cors({
-    origin: ["http://127.0.0.1:3000", "http://localhost:3000"],
+    origin: WEB_ORIGINS,
     allowHeaders: ["content-type", "x-actor"],
   }),
 );
@@ -191,6 +197,7 @@ app.post("/demo/four-beat", async (c) => {
 const port = Number(process.env.PORT ?? 8787);
 export default {
   port,
+  hostname: "0.0.0.0",
   fetch: app.fetch,
 };
 

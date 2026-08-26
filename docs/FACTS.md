@@ -2,13 +2,15 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-24.
+Last refreshed: 2026-08-26.
 
 ## Verified in this workspace
 
 | Claim | Status | Source / date |
 |---|---|---|
 | GitHub repository `kunaldrall29/markov` | Verified | `git remote` 2026-08-24 |
+| This repo is the Phase 0 monorepo until MarkovFyi split | Product decision | Kunal 2026-08-26 |
+| GitHub org `MarkovFyi` public repos | `markov-program`, `markov-sdk`, `float-web`, `.github` (read-only from this agent) | `gh repo list MarkovFyi` 2026-08-25 |
 | Marketing site live at https://markovhq.com | Verified as live per `AGENTS.md` / product canon | 2026-08-24 — re-check if citing externally |
 | Litepaper version for protocol claims | v0.4 | Internal canon; PDF/site path not hosted in this repo |
 | Owner-only withdraw; operator has no withdraw path | True of `packages/engine` | `MandateEngine.ownerWithdraw` + tests, 2026-08-24 |
@@ -21,7 +23,7 @@ Last refreshed: 2026-08-24.
 | Mandate + venues exercised on local validator | Yes — four-beat: under-policy execute, `OverTxCap` refusal tx, `Revoked` refusal tx, owner withdraw | `bun scripts/four-beat-devnet.ts` vs `solana-test-validator` 2026-08-24. Public explorer will not show local sigs. |
 | `Anchor.toml` program pubkeys | Local keypair addresses | mandate `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm`, demo_swap `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK`, demo_yield `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` |
 | markov.fyi docs/litepaper/Float URLs | **Not live** in this refresh | Intended site IA; GitHub is canonical until S9 |
-| GitHub org `MarkovFyi` | **Not verified** | This repo is `kunaldrall29/markov` |
+| GitHub org `MarkovFyi` | Exists; this product tree stays in `kunaldrall29/markov` until a later migrate | `gh api orgs/MarkovFyi` 2026-08-25 |
 | `security@markov.fyi` mailbox | Published in `SECURITY.md`; inbox not verified here | Treat as intended contact |
 
 ## External numbers (litepaper appendix — re-verify before public use)

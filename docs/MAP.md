@@ -1,6 +1,6 @@
 # Markov — Documentation Map
 
-This workspace is a **Phase 0 monorepo**. The six named products below are the intended repo split; until then, paths in this table are canonical. Status: **now** (in this commit), **Sn** (written in that build session, from real code), or **phase** (post-MVP).
+This workspace is a **Phase 0 monorepo**. The six named products below are the intended GitHub split; until then, this repository is the complete project. Paths in this table are canonical. Status: **now** (in this commit), **Sn** (written in that build session, from real code), or **phase** (post-MVP).
 
 Rule: a doc that describes code is written from the code, never before it.
 
@@ -19,8 +19,8 @@ Rule: a doc that describes code is written from the code, never before it.
 | SPEC.md | `SPEC.md` | Accounts, instructions, events, BlockReason, invariants | now |
 | SECURITY.md | `SECURITY.md` | Authority model, invariants, reporting | now |
 | docs/FACTS.md | `docs/FACTS.md` | Verified external claims, source + date | S0, grows every session |
-| docs/gates.md | — | Gate order table: gate → reason → event | S2 |
-| docs/venues.md | — | Adapter interface for venue programs | S3 |
+| docs/gates.md | `docs/gates.md` | Gate order table: gate → reason → event | now |
+| docs/venues.md | `docs/venues.md` | Adapter interface for venue programs | now |
 | CLAUDE.md, SESSION_LOG.md | `CLAUDE.md`, `SESSION_LOG.md` | Working agreement, session handoffs | S0 |
 
 ## markov-sdk → `packages/sdk`, `packages/engine`, `packages/operator`
@@ -34,21 +34,21 @@ Rule: a doc that describes code is written from the code, never before it.
 | docs/soft-gates.md | — | Freshness, idempotency, local halt | S4 remainder |
 | docs/paid-fetch.md | `docs/paid-fetch.md` | x402 spend via mandate spend budget | now |
 
-## float-web → `apps/web`, `apps/api`
+## float-web → `apps/web`, `apps/api`, `apps/indexer`
 
-README (run + deploy, S7) · docs/indexer.md (event parsing, tables, REST, S7) · docs/policy-presets.md (default policies + reasoning, S7).
+Local engine API + Float console. Indexer SQL in `apps/indexer/migrations/0001_init.sql` (sqlite locally; same names for later Postgres).
 
-## float-agents → `apps/agents`
+## float-agents → `apps/agents`, `apps/data-api`
 
-README (runner env + commands, S6) · docs/data-api.md (paid endpoint, chosen x402 branch, S5) · docs/demo.md → moves to `DEMO.md` (four-beat script, S9) · scripts/README (seed + reset, S9).
+Runner env + commands. x402: `GET /price/:symbol` returns 402; `POST` with `mandateId` spends then quotes.
 
 ## float-bot → `apps/bot`
 
-README (setup, /link flow, S8) · SECURITY.md (three-sentence authority model, S8).
+Pause/revoke plus `/link` from `TELEGRAM_BOT_USERNAME`.
 
-## markov-site (markov.fyi)
+## markov-site → `apps/site`
 
-Landing is **live** at [markovhq.com](https://markovhq.com) and is **not this repository**. Site docs IA (/litepaper, /docs) goes live at S9; until then GitHub is canonical.
+Placeholder only. Landing is **live** at [markovhq.com](https://markovhq.com) and is **not restyled here**. Site docs IA (/litepaper, /docs) still waits on S9; GitHub is canonical.
 
 Intended site IA (do not treat these URLs as live until FACTS says so):
 

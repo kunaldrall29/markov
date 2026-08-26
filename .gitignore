@@ -8,12 +8,13 @@ coverage
 .env
 .env.local
 data/*.json
+data/*.sqlite
 !data/.gitkeep
 !data/devnet.example.json
 !data/devnet.json
 apps/web/.next
 **/*.tsbuildinfo
-.DS_Store
+.playwright-mcp
 target
 test-ledger
 .anchor

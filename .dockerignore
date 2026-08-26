@@ -1,0 +1,11 @@
+node_modules
+.next
+target
+.git
+keys
+*.so
+data/*.json
+data/*.sqlite
+!data/devnet.example.json
+!data/.gitkeep
+apps/web/.next
