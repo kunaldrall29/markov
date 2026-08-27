@@ -17,6 +17,7 @@ interface Mandate {
   spendToday: number;
   vault: Record<string, number>;
   policy: { perTxCap: number; dailyCap: number };
+  strategyId: string | null;
 }
 
 interface Receipt {
@@ -25,10 +26,10 @@ interface Receipt {
   [k: string]: unknown;
 }
 
-function agentName(operator: string): "dca" | "dip" | "yield" {
-  if (operator === "op_dip") return "dip";
-  if (operator === "op_yield") return "yield";
-  return "dca";
+function tickName(operator: string): "steady" | "momentum" | "redteam" {
+  if (operator.includes("steady") || operator === "op_yield") return "steady";
+  if (operator.includes("redteam")) return "redteam";
+  return "momentum";
 }
 
 export default function MandatePage() {
@@ -99,7 +100,7 @@ export default function MandatePage() {
 
   const usdcd = mandate.vault["USDC-d"] ?? 0;
   const demo = mandate.vault.DEMO ?? 0;
-  const agent = agentName(mandate.operator);
+  const agent = tickName(mandate.operator);
 
   return (
     <main className="wrap" id="main">
@@ -120,6 +121,12 @@ export default function MandatePage() {
           <p className="meta">
             per-tx {formatAmount(mandate.policy.perTxCap)} · daily {formatAmount(mandate.policy.dailyCap)}
           </p>
+          {mandate.strategyId ? (
+            <p className="meta" style={{ marginTop: 8 }}>
+              strategy{" "}
+              <Link href={`/s/${mandate.strategyId}`}>{mandate.strategyId.slice(0, 12)}…</Link>
+            </p>
+          ) : null}
         </section>
         <section className="kill">
           <p className="meta gold">Kill switch · owner or emergency bot</p>

@@ -33,7 +33,10 @@ export function Nav() {
           Marketplace
         </Link>
         <Link href="/create" onClick={() => setOpen(false)}>
-          New mandate
+          Subscribe
+        </Link>
+        <Link href="/kill" onClick={() => setOpen(false)}>
+          Kill switch
         </Link>
         <a href={DOCS}>Docs</a>
         <a href="https://markovhq.com" target="_blank" rel="noopener noreferrer">

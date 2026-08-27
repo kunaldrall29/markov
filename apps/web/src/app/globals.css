@@ -84,6 +84,19 @@ h1 em { font-style: italic; color: var(--gold); }
 .card { background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; padding: 20px; }
 .card h3 { font-family: var(--serif); font-size: 28px; margin: 8px 0 10px; font-weight: 400; }
 .meta { font-family: var(--mono); font-size: 11px; color: var(--fog); letter-spacing: .06em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
+.chip {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border: 1px solid var(--edge);
+  padding: 4px 8px;
+  border-radius: 99px;
+  color: var(--fog);
+}
+.chip.warn { border-color: var(--ember); color: var(--ember); }
+.chip.gold { border-color: var(--gold); color: var(--gold); }
 .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
 
 .receipt {

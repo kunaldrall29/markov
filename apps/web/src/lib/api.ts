@@ -30,3 +30,29 @@ export function formatAmount(amount: number, decimals = 6): string {
   const body = frac ? `${whole}.${frac}` : String(whole);
   return amount < 0 ? `-${body}` : body;
 }
+
+export type StrategyCard = {
+  slug: string;
+  name: string;
+  blurb: string;
+  labeled?: string;
+  strategyId: string;
+  template: {
+    operator: string;
+    venue_allowlist: string[];
+    token_allowlist: string[];
+    caps: { per_tx: number; daily: number };
+    execution_bounds: { max_slippage_bps: number };
+    x402_budget: { per_call: number; daily: number };
+    expiry_default_days: number;
+  };
+  stats: {
+    actions: number;
+    refusals: number;
+    refusalRate: number;
+    volume: number;
+    subscribers: number;
+    tenureSecs: number;
+  };
+  receipts?: Array<Record<string, unknown> & { type: string; ts: number }>;
+};

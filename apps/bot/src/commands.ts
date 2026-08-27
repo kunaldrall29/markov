@@ -42,6 +42,7 @@ const HELP = [
   "/revoke <id>",
   "/status <id>",
   "/link <id>",
+  "/strategies",
   "/whoami",
 ].join("\n");
 
@@ -72,6 +73,25 @@ export async function handleCommand(text: string, chatId?: number) {
   if (cmd === "/whoami") {
     if (chatId == null) return "CLI has no Telegram chat id.";
     return `chat id ${chatId}`;
+  }
+  if (cmd === "/strategies") {
+    const res = await fetch(`${API}/strategies`);
+    if (!res.ok) return "strategies unavailable";
+    const rows = (await res.json()) as {
+      name?: string;
+      slug?: string;
+      template?: { operator?: string };
+      stats?: { actions?: number; refusals?: number };
+    }[];
+    if (!Array.isArray(rows) || rows.length === 0) return "No published strategies.";
+    return rows
+      .map((s) => {
+        const actions = s.stats?.actions ?? 0;
+        const refusals = s.stats?.refusals ?? 0;
+        const op = s.template?.operator ?? s.slug ?? "operator";
+        return `${s.name ?? s.slug}: ${op} — actions ${actions}, refusals ${refusals}`;
+      })
+      .join("\n");
   }
   if (cmd === "/link") {
     if (!id) return "Mandate id required. /link <mandateId>";
