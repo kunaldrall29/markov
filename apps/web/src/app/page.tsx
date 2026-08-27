@@ -20,7 +20,7 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="wrap">
+    <main className="wrap" id="main">
       <p className="eyebrow">Float · marketplace</p>
       <h1>
         Give an agent your capital. <em>Keep the keys.</em>
@@ -33,6 +33,15 @@ export default async function HomePage() {
       <FourBeatButton />
       {error ? (
         <p className="no">API not reachable ({error}). Start it with bun run dev.</p>
+      ) : operators.length === 0 ? (
+        <section className="card">
+          <p className="meta">Marketplace</p>
+          <h3>No operators yet.</h3>
+          <p className="lede" style={{ marginBottom: 0 }}>
+            The API has no registered operators. Restart with bun run dev so the first-party DCA, dip
+            buyer, and yield agents seed.
+          </p>
+        </section>
       ) : (
         <div className="grid">
           {operators.map((op) => (

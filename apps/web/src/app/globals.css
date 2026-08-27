@@ -18,6 +18,26 @@ a { color: inherit; text-decoration: none }
 button, input, select { font: inherit; color: inherit }
 img, svg { max-width: 100%; height: auto }
 code { overflow-wrap: anywhere }
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.skip {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 100;
+  background: var(--gold);
+  color: var(--ink);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.skip:focus {
+  top: 12px;
+}
 
 .nav {
   display: flex;
@@ -34,8 +54,7 @@ code { overflow-wrap: anywhere }
 .wordmark { display: flex; gap: 12px; align-items: center; letter-spacing: .32em; font-family: var(--mono); font-size: 12px; }
 .nav-links { display: flex; gap: 20px; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--fog); }
 .nav-links a:hover { color: var(--paper) }
-.nav-toggle { position: absolute; opacity: 0; pointer-events: none; }
-.nav-toggle-label { display: none; }
+.nav-toggle-btn { display: none; }
 
 .wrap { padding: 36px 28px 80px; max-width: 1120px; margin: 0 auto; }
 .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--slate); margin: 0 0 12px; }
@@ -105,17 +124,19 @@ input, select {
     padding: 12px 16px;
   }
   .wordmark { letter-spacing: 0.2em; }
-  .nav-toggle-label {
+  .nav-toggle-btn {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    margin-left: auto;
+    background: transparent;
+    border: 0;
     cursor: pointer;
     font-family: var(--mono);
     font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--fog);
-    margin-left: auto;
   }
   .nav-links {
     display: none;
@@ -125,7 +146,7 @@ input, select {
     gap: 0;
     padding: 4px 0 8px;
   }
-  .nav-toggle:checked ~ .nav-links {
+  .nav-links.open {
     display: flex;
   }
   .nav-links a {

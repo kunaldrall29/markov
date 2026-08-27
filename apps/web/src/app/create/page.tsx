@@ -19,6 +19,14 @@ function CreateForm() {
     e.preventDefault();
     setBusy(true);
     setErr("");
+    const fund = Number(amount);
+    const txCap = Number(perTx);
+    const dayCap = Number(daily);
+    if (!Number.isFinite(fund) || fund <= 0 || !Number.isFinite(txCap) || txCap <= 0 || !Number.isFinite(dayCap) || dayCap <= 0) {
+      setErr("Fund and caps must be positive numbers.");
+      setBusy(false);
+      return;
+    }
     try {
       const mandate = await api<{ id: string }>("/mandates", {
         method: "POST",
@@ -26,8 +34,8 @@ function CreateForm() {
           operator,
           fundAmount,
           policy: {
-            perTxCap: Math.round(Number(perTx) * 1_000_000),
-            dailyCap: Math.round(Number(daily) * 1_000_000),
+            perTxCap: Math.round(txCap * 1_000_000),
+            dailyCap: Math.round(dayCap * 1_000_000),
           },
         }),
       });
@@ -40,25 +48,45 @@ function CreateForm() {
 
   return (
     <form className="card" onSubmit={onSubmit} style={{ maxWidth: 520 }}>
-      <label>Operator</label>
-      <select value={operator} onChange={(e) => setOperator(e.target.value)}>
+      <label htmlFor="operator">Operator</label>
+      <select id="operator" value={operator} onChange={(e) => setOperator(e.target.value)}>
         <option value="op_dca">DCA (first-party agent)</option>
         <option value="op_dip">Dip buyer (first-party agent)</option>
         <option value="op_yield">Yield rotation (first-party agent)</option>
       </select>
-      <label>Fund (USDC-d)</label>
-      <input value={amount} onChange={(e) => setAmount(e.target.value)} />
-      <label>Per-tx cap (USDC-d)</label>
-      <input value={perTx} onChange={(e) => setPerTx(e.target.value)} />
-      <label>Daily cap (USDC-d)</label>
-      <input value={daily} onChange={(e) => setDaily(e.target.value)} />
+      <label htmlFor="fund">Fund (USDC-d)</label>
+      <input
+        id="fund"
+        inputMode="decimal"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
+      <label htmlFor="per-tx">Per-tx cap (USDC-d)</label>
+      <input
+        id="per-tx"
+        inputMode="decimal"
+        value={perTx}
+        onChange={(e) => setPerTx(e.target.value)}
+      />
+      <label htmlFor="daily">Daily cap (USDC-d)</label>
+      <input
+        id="daily"
+        inputMode="decimal"
+        value={daily}
+        onChange={(e) => setDaily(e.target.value)}
+      />
       <p className="meta" style={{ marginTop: 14 }}>
         Emergency key is the Float bot. It can pause or revoke, never withdraw. Operator cannot
-        move funds off the mandate except through allowlisted venues.
+        move funds off the mandate except through allowlisted venues. Caps can only tighten versus
+        the demo ceiling.
       </p>
-      {err ? <p className="no">{err}</p> : null}
+      {err ? (
+        <p className="no" role="alert">
+          {err}
+        </p>
+      ) : null}
       <div className="actions">
-        <button className="btn" disabled={busy} type="submit">
+        <button className="btn" disabled={busy} type="submit" aria-busy={busy}>
           {busy ? "Creating…" : "Create and fund"}
         </button>
       </div>
@@ -68,14 +96,14 @@ function CreateForm() {
 
 export default function CreatePage() {
   return (
-    <main className="wrap">
+    <main className="wrap" id="main">
       <p className="eyebrow">New mandate</p>
       <h1>Configure, then deposit.</h1>
       <p className="lede">
         You stay the owner. The operator gets a fenced right to act — not your keys. Thirty-day
         expiry unless you amend.
       </p>
-      <Suspense>
+      <Suspense fallback={<p className="meta">Loading form…</p>}>
         <CreateForm />
       </Suspense>
     </main>

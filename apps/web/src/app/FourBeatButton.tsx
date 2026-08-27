@@ -23,10 +23,20 @@ export function FourBeatButton() {
 
   return (
     <div style={{ margin: "0 0 28px" }}>
-      <button className="btn gold" disabled={busy} onClick={run} type="button">
+      <button
+        className="btn gold"
+        disabled={busy}
+        onClick={run}
+        type="button"
+        aria-busy={busy}
+      >
         {busy ? "Running four-beat…" : "Run four-beat demo"}
       </button>
-      {err ? <p className="no">{err}</p> : null}
+      {err ? (
+        <p className="no" role="alert">
+          {err}
+        </p>
+      ) : null}
     </div>
   );
 }

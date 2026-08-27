@@ -18,7 +18,12 @@ describe("Float mobile layout", () => {
   });
 
   test("phone nav uses a Menu control", () => {
-    expect(css).toContain(".nav-toggle");
-    expect(css).toContain(".nav-toggle:checked ~ .nav-links");
+    expect(css).toContain(".nav-toggle-btn");
+    expect(css).toContain(".nav-links.open");
+  });
+
+  test("keyboard focus is visible", () => {
+    expect(css).toContain(":focus-visible");
+    expect(css).toContain(".skip");
   });
 });

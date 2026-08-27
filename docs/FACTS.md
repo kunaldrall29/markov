@@ -2,7 +2,7 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-27.
+Last refreshed: 2026-08-27 (production/security pass in source; programs not redeployed).
 
 ## Verified in this workspace
 
@@ -20,6 +20,7 @@ Last refreshed: 2026-08-27.
 | No token in this prototype | True | repo contains no mint/token program for Markov |
 | Mandate program source | Yes | `programs/mandate/src/lib.rs` 2026-08-24 |
 | Mandate program on public Solana devnet | Yes — account executable, `solana program dump` matches `target/deploy/mandate.so` | `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` on `api.devnet.solana.com` 2026-08-27; tx `4DucDFEbSPNCcBaggW4QKeMfwdkcwVEYSsud33mzXdzKSYuktQP35d2o5vNS6aCiGqj1uV1Nt7JGMoBNH9AQEUAZ` |
+| CPI vault pinning in program **source** | Yes in `programs/{mandate,demo_swap,demo_yield}` | 2026-08-27. Live public-devnet mandate bytecode is the **pre-pin** dump that matched `target/deploy/mandate.so` at deploy time. Do not treat the live binary as this source until upgrade |
 | demo_swap / demo_yield on public Solana devnet | No account (`getAccountInfo` null) | 2026-08-27. Deployer `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` has 2.247 SOL left after mandate rent 2.750. Need ~3 more SOL on that pubkey, then retry venue deploy |
 | Telegram Float bot | Live on Telegram. `getMe` username `markov_float_bot`. Phone round-trip 2026-08-27: `/start` and `/help` return the emergency-bot copy; `/link` and `/status` without an id return mandate-id required. Token in gitignored `.env` only | Photo of `t.me/markov_float_bot` 2026-08-27. Do not write the token in this file. |
 | Mandate + venues exercised on local validator | Yes — four-beat: under-policy execute, `OverTxCap` refusal tx, `Revoked` refusal tx, owner withdraw | `bun scripts/four-beat-devnet.ts` vs `solana-test-validator` 2026-08-24. Public explorer will not show local sigs. |

@@ -2,6 +2,13 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-27 — production/security pass (no program deploy)
+
+- Goal: production-ready check and full security review before any further on-chain deploy; polish Float UI.
+- Done: CPI vault pinning in mandate / demo_swap / demo_yield source; HTTP mutations fail closed behind proxy or `HOST=0.0.0.0` without `MARKOV_API_SECRET`; `/health` returns `rpcHost` only; Telegram `/pause` `/revoke` require allowlist (`/whoami`); services default bind `127.0.0.1`; Float skip link, `error`/`not-found`, confirm revoke/withdraw, operator-matched tick, focus-visible. `bun test` 46 pass. `bun run typecheck` 0. `@markov/web` build 0.
+- Not done: no program deploy or upgrade. Public-devnet mandate bytecode is still the pre-pin binary. Venues still undeployed.
+- Next: Kunal — `TELEGRAM_ALLOWED_CHAT_IDS` from `/whoami`; ~3 SOL on deployer for venues **after** this source is the bytecode that ships; mandate upgrade needs a new `.so` + buffer SOL.
+
 ## Template
 
 ```

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { api, formatAmount } from "@/lib/api";
@@ -24,20 +25,31 @@ interface Receipt {
   [k: string]: unknown;
 }
 
+function agentName(operator: string): "dca" | "dip" | "yield" {
+  if (operator === "op_dip") return "dip";
+  if (operator === "op_yield") return "yield";
+  return "dca";
+}
+
 export default function MandatePage() {
   const { id } = useParams<{ id: string }>();
   const [mandate, setMandate] = useState<Mandate | null>(null);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [err, setErr] = useState("");
+  const [missing, setMissing] = useState(false);
 
   const refresh = useCallback(async () => {
     const data = await api<{ mandate: Mandate; receipts: Receipt[] }>(`/mandates/${id}`);
     setMandate(data.mandate);
     setReceipts([...data.receipts].reverse());
+    setMissing(false);
   }, [id]);
 
   useEffect(() => {
-    refresh().catch((e) => setErr(String(e)));
+    refresh().catch((e) => {
+      setErr(e instanceof Error ? e.message : String(e));
+      setMissing(true);
+    });
     const t = setInterval(() => refresh().catch(() => undefined), 2000);
     return () => clearInterval(t);
   }, [refresh]);
@@ -54,17 +66,35 @@ export default function MandatePage() {
 
   if (!mandate) {
     return (
-      <main className="wrap">
-        <p className="meta">{err || "Loading mandate…"}</p>
+      <main className="wrap" id="main">
+        <p className="eyebrow">Console</p>
+        {missing ? (
+          <>
+            <h1>
+              Mandate not found. <em>Nothing moved.</em>
+            </h1>
+            <p className="no" role="alert">
+              {err || "Unknown mandate."}
+            </p>
+            <div className="actions">
+              <Link className="btn" href="/">
+                Marketplace
+              </Link>
+            </div>
+          </>
+        ) : (
+          <p className="meta">Loading mandate…</p>
+        )}
       </main>
     );
   }
 
   const usdcd = mandate.vault["USDC-d"] ?? 0;
   const demo = mandate.vault.DEMO ?? 0;
+  const agent = agentName(mandate.operator);
 
   return (
-    <main className="wrap">
+    <main className="wrap" id="main">
       <p className="eyebrow">Console · {mandate.id}</p>
       <h1>
         {mandate.state === "Active" ? "Live." : mandate.state === "Paused" ? "Paused." : "Revoked."}{" "}
@@ -76,7 +106,8 @@ export default function MandatePage() {
           <h3>{formatAmount(usdcd)} USDC-d</h3>
           <p className="meta">{formatAmount(demo)} DEMO</p>
           <p className="meta" style={{ marginTop: 12 }}>
-            spent today {formatAmount(mandate.spentToday)} · data spend {formatAmount(mandate.spendToday)}
+            operator {mandate.operator} · spent today {formatAmount(mandate.spentToday)} · data spend{" "}
+            {formatAmount(mandate.spendToday)}
           </p>
           <p className="meta">
             per-tx {formatAmount(mandate.policy.perTxCap)} · daily {formatAmount(mandate.policy.dailyCap)}
@@ -90,23 +121,34 @@ export default function MandatePage() {
           </p>
           <div className="actions">
             {mandate.state === "Active" ? (
-              <button className="btn gold" onClick={() => act(`/mandates/${id}/pause`)}>
+              <button className="btn gold" type="button" onClick={() => act(`/mandates/${id}/pause`)}>
                 Pause
               </button>
             ) : null}
             {mandate.state === "Paused" ? (
-              <button className="btn ghost" onClick={() => act(`/mandates/${id}/unpause`)}>
+              <button className="btn ghost" type="button" onClick={() => act(`/mandates/${id}/unpause`)}>
                 Resume
               </button>
             ) : null}
             {mandate.state !== "Revoked" ? (
-              <button className="btn ember" onClick={() => act(`/mandates/${id}/revoke`, undefined, "bot_emergency")}>
+              <button
+                className="btn ember"
+                type="button"
+                onClick={() => {
+                  if (!window.confirm(`Revoke ${id}? This is terminal. Funds stay in the vault for you.`)) return;
+                  void act(`/mandates/${id}/revoke`, undefined, "bot_emergency");
+                }}
+              >
                 Revoke via bot
               </button>
             ) : null}
             <button
               className="btn ghost"
-              onClick={() => act(`/mandates/${id}/withdraw`, { token: "USDC-d", amount: usdcd })}
+              type="button"
+              onClick={() => {
+                if (!window.confirm(`Withdraw ${formatAmount(usdcd)} USDC-d to the owner?`)) return;
+                void act(`/mandates/${id}/withdraw`, { token: "USDC-d", amount: usdcd });
+              }}
               disabled={usdcd <= 0}
             >
               Withdraw USDC-d
@@ -116,17 +158,31 @@ export default function MandatePage() {
       </div>
 
       <div className="actions" style={{ margin: "22px 0" }}>
-        <button className="btn" onClick={() => act(`/agents/dca/tick`, { mandateId: id })}>
-          Tick DCA agent
+        <button
+          className="btn"
+          type="button"
+          onClick={() => act(`/agents/${agent}/tick`, { mandateId: id })}
+        >
+          Tick {agent} agent
         </button>
-        <button className="btn ghost" onClick={() => act(`/agents/dca/tick`, { mandateId: id, overCap: true })}>
+        <button
+          className="btn ghost"
+          type="button"
+          onClick={() => act(`/agents/${agent}/tick`, { mandateId: id, overCap: true })}
+        >
           Force over-cap
         </button>
       </div>
-      {err ? <p className="no">{err}</p> : null}
+      {err ? (
+        <p className="no" role="alert">
+          {err}
+        </p>
+      ) : null}
 
       <h3 style={{ fontFamily: "var(--serif)", fontWeight: 400, fontSize: 28 }}>Receipts</h3>
-      <p className="meta">Refusals are receipts. The climax is a live <code>blocked: over_cap</code>.</p>
+      <p className="meta">
+        Refusals are receipts. The climax is a live <code>blocked: over_cap</code>.
+      </p>
       <div className="card" style={{ marginTop: 12 }}>
         {receipts.length === 0 ? <p className="meta">No receipts yet.</p> : null}
         {receipts.map((r, i) => (
@@ -149,7 +205,7 @@ export default function MandatePage() {
                         : `https://solscan.io/tx/${String(r.sig)}?cluster=devnet`
                     }
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                   >
                     solscan
                   </a>
