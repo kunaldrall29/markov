@@ -19,6 +19,13 @@ export type ChainPolicy = {
   maxSlippageBps: number;
 };
 
+function encodeStrategyId(id?: Uint8Array | number[] | null): number[] | null {
+  if (!id) return null;
+  const arr = Array.from(id);
+  if (arr.length !== 32) throw new Error("strategy_id must be 32 bytes");
+  return arr;
+}
+
 function pad4(keys: PublicKey[]): PublicKey[] {
   const out = [...keys];
   while (out.length < 4) out.push(PublicKey.default);
@@ -82,14 +89,17 @@ export class OwnerClient {
     policy: ChainPolicy;
     quoteMint: PublicKey;
     otherMint: PublicKey;
+    strategyId?: Uint8Array | number[] | null;
   }): Promise<{ sig: string; mandate: PublicKey }> {
     const mandate = mandatePda(this.program.programId, args.owner.publicKey, args.seed);
+    const strategyId = encodeStrategyId(args.strategyId);
     const sig = await methods(this.program)
       .createMandate(
         new BN(args.seed.toString()),
         args.emergency,
         new BN(args.expiresTs.toString()),
         encodePolicy(args.policy),
+        strategyId,
       )
       .accounts({
         owner: args.owner.publicKey,

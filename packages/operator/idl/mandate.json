@@ -336,6 +336,14 @@
               "name": "Policy"
             }
           }
+        },
+        {
+          "name": "strategy_id",
+          "type": {
+            "option": {
+              "array": ["u8", 32]
+            }
+          }
         }
       ]
     },
@@ -1412,6 +1420,14 @@
             "type": {
               "defined": {
                 "name": "Policy"
+              }
+            }
+          },
+          {
+            "name": "strategy_id",
+            "type": {
+              "option": {
+                "array": ["u8", 32]
               }
             }
           }

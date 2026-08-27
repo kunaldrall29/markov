@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { variantName, type GuardedResult } from "../src/types";
+import mandateIdl from "../idl/mandate.json";
 
 describe("GuardedResult is data", () => {
   test("blocked is not thrown", () => {
@@ -40,5 +41,14 @@ describe("fresh quotes", () => {
     const maxAge = 5_000;
     expect(Date.now() - (Date.now() - 8_000) > maxAge).toBe(true);
     expect(Date.now() - (Date.now() - 100) > maxAge).toBe(false);
+  });
+});
+
+describe("mandate IDL", () => {
+  test("create_mandate carries strategy_id", () => {
+    const ix = (mandateIdl.instructions as { name: string; args: { name: string }[] }[]).find(
+      (i) => i.name === "create_mandate",
+    );
+    expect(ix?.args.some((a) => a.name === "strategy_id")).toBe(true);
   });
 });
