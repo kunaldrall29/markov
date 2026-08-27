@@ -32,7 +32,7 @@ Bun workspaces. No npm/yarn lockfiles. Engine tests: `bun test`. Demo: `bun run 
 
 ## Phase 0 freeze
 
-In: mandates, allowlists, caps, x402 spend budget, action **and** refusal receipts, Float, revoke-only bot, first-party agents (DCA, dip, yield), four-beat demo.
+In: mandates, allowlists, caps, x402 spend budget, action **and** refusal receipts, strategy templates + `strategy_id`, Float strategy marketplace, revoke-only bot, house operators (`markov-steady`, `markov-momentum`, `markov-redteam`), four-beat and strategy-vault demos.
 
 Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, landing-page work, real Jupiter/Orca unless proven.
 

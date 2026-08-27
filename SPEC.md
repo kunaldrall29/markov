@@ -49,6 +49,7 @@ PDA (intended): `[b"operator", authority]`.
 | nonce | u64 | increments on every execute/spend attempt |
 | vault | mint → amount | engine ledger; on-chain: ATA vaults |
 | yieldShares | u64 | demo_yield share accounting |
+| strategyId | hex sha256 or null | `sha256(canonical_json(PolicyTemplate v0))`. Off-chain template; field copied onto ActionExecuted / ActionRefused |
 
 ### Policy
 
@@ -64,7 +65,11 @@ PDA (intended): `[b"operator", authority]`.
 
 Create/amend reject empty or >4 allowlists (throw, not a `BlockReason`).
 
-### Vault
+### PolicyTemplate v0 (SDK)
+
+Off-chain JSON. `strategy_id = sha256(canonical_json(template))` with sorted keys and no whitespace (`packages/sdk`). Hash the **published** template, not owner overrides. `createMandateFromTemplate(template, overrides)` may only **tighten**: lower caps, shorter expiry, subset allowlists, lower slippage / x402 budgets. Loosening is a client error. Operator and fee terms cannot change via override.
+
+## Vault
 
 Only the owner can credit via `fund` or debit via `ownerWithdraw`. The operator never receives vault tokens. Operator movement is allowlisted venue apply (swap / deposit / withdraw_venue) or budgeted `spend`.
 
@@ -142,8 +147,8 @@ Engine `Receipt.type` is the live schema. Intended program events in parentheses
 | `Paused` / `Unpaused` / `Revoked` | lifecycle |
 | `OwnerWithdrew` | owner withdraw |
 
-`ActionExecuted` includes venue, tokenIn/tokenOut, amountIn/amountOut, nonce.
-`ActionRefused` includes kind, requestedAmount, reason, nonce.
+`ActionExecuted` includes venue, tokenIn/tokenOut, amountIn/amountOut, nonce, and `strategyId` when the mandate has one.
+`ActionRefused` includes kind, requestedAmount, reason, nonce, and `strategyId` when the mandate has one.
 
 Exactly one of `ActionExecuted` | `ActionRefused` per execute/spend.
 
@@ -153,7 +158,8 @@ Exactly one of `ActionExecuted` | `ActionRefused` per execute/spend.
 2. `ownerWithdraw` succeeds in Active, Paused, and Revoked (owner signer, sufficient balance).
 3. Emergency key: pause and revoke only. `unpause` requires owner. A compromised emergency key can only over-protect.
 4. Every execute/spend emits exactly one action or refusal receipt.
-5. Every `BlockReason` has at least one negative test.
+5. BlockReason strings are the engine/IDL set only: `Paused`, `Revoked`, `Expired`, `Unauthorized`, `ProgramNotAllowed`, `TokenNotAllowed`, `OverTxCap`, `OverDailyCap`, `OverSpendCap`, `OverSpendDailyCap`, `SlippageExceeded`.
+6. When a mandate has `strategyId`, every `ActionExecuted` and `ActionRefused` copies it. Aggregation of per-strategy track records does not require pooling.
 
 ## Demo venues (Phase 0)
 

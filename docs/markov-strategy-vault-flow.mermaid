@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant Op as Operator
+    participant SDK as markov-sdk
+    participant Pr as markov-program / engine
+    participant A as Owner A (cap 100)
+    participant B as Owner B (cap 100)
+    participant C as Owner C (cap 40)
+    participant Ix as indexer
+    participant Fl as Float
+
+    Op->>SDK: publish PolicyTemplate v0
+    SDK->>SDK: hash template = strategy_id
+    SDK->>Fl: strategy card listed
+    A->>Pr: create_mandate from template (defaults)
+    B->>Pr: create_mandate from template (defaults)
+    C->>Pr: create_mandate from template, per-tx cap lowered to 40
+    Note over A,C: funds stay in each owner's mandate account
+    Op->>Pr: execute_swap size 60 across all subscribers
+    Pr-->>Ix: ActionExecuted A ok (strategy_id)
+    Pr-->>Ix: ActionExecuted B ok (strategy_id)
+    Pr-->>Ix: ActionRefused C OverTxCap (strategy_id)
+    Ix->>Fl: strategy_stats update - actions 2, refusals 1
+    Fl-->>A: console feed + refusal flagged on card
+    C->>Pr: revoke (or Telegram /revoke via emergency key)
+    Op->>Pr: next attempt on C
+    Pr-->>Ix: ActionRefused C Revoked

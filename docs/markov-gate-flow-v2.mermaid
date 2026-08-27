@@ -1,0 +1,21 @@
+flowchart TD
+    P["Operator proposal<br/>execute or spend"] --> G1{"state Active?"}
+    G1 -- no --> R["ActionRefused<br/>BlockReason + strategy_id<br/>Paused / Revoked"]
+    G1 -- yes --> G2{"not expired?"}
+    G2 -- no --> R2["ActionRefused · Expired"]
+    G2 -- yes --> G3{"operator signature?"}
+    G3 -- no --> R3["ActionRefused · Unauthorized"]
+    G3 -- yes --> G4{"venue on program allowlist?"}
+    G4 -- no --> R4["ActionRefused · ProgramNotAllowed"]
+    G4 -- yes --> G5{"token on allowlist?"}
+    G5 -- no --> R5["ActionRefused · TokenNotAllowed"]
+    G5 -- yes --> G6{"within per-tx cap?"}
+    G6 -- no --> R6["ActionRefused · OverTxCap"]
+    G6 -- yes --> G7{"within daily cap?"}
+    G7 -- no --> R7["ActionRefused · OverDailyCap"]
+    G7 -- yes --> G8{"within spend caps?"}
+    G8 -- no --> R8["ActionRefused · OverSpendCap / OverSpendDailyCap"]
+    G8 -- yes --> G9{"slippage within bound?"}
+    G9 -- no --> R9["ActionRefused · SlippageExceeded"]
+    G9 -- yes --> CPI["CPI into allowlisted venue"]
+    CPI --> A["ActionExecuted<br/>verb · venue · size · strategy_id"]

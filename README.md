@@ -29,12 +29,11 @@ Gate stack (fixed, fail-closed): state → expiry → operator → program allow
 
 Refusals emit `ActionRefused` (`ActionRefused` in the live engine) with a `BlockReason`. Refusals are receipts, not errors.
 
-## Four-beat demo (the climax is a refusal)
+## Four-beat + strategy-vault demos
 
-1. Create a mandate and fund it (USDC-d).
-2. Agent pays for a quote (x402 spend) and trades under policy. Receipts land in the console.
-3. Over-cap intent is refused: `blocked: over_cap`.
-4. Emergency bot revokes. Next operator action is `blocked: revoked`. Owner withdraw still works.
+Four-beat: fund → under-policy execute → `OverTxCap` refusal → revoke → owner withdraw.
+
+Strategy-vault: one Momentum-Demo template, three owner mandates (A/B default cap, C per-tx 40). Fan-out size 60 executes on A+B and refuses C `OverTxCap`. Same `strategy_id` on every receipt. Funds never pool.
 
 ## Workspace
 
@@ -61,10 +60,10 @@ bun run dev           # API :8787 + Float :3000 + docs :3001
 bun run dev:services  # data-api :8788 + indexer :8790 + bot :8789
 ```
 
-Open [http://127.0.0.1:3000](http://127.0.0.1:3000) and click **Run four-beat demo**. Docs: [http://127.0.0.1:3001](http://127.0.0.1:3001). No wallet extension on this prototype.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). **Run four-beat demo** or **Run strategy-vault demo**. Docs: [http://127.0.0.1:3001](http://127.0.0.1:3001). No wallet extension on this prototype.
 
 ```bash
-bun run --filter @markov/agents start dca <mandateId>
+bun run --filter @markov/agents start momentum <mandateId>
 bun run --filter @markov/bot start '/revoke <mandateId>'
 ```
 
@@ -74,6 +73,5 @@ On-chain: `bun run devnet:setup` deploys to Solana devnet (needs SOL). `bun run 
 
 ## Scope freeze (Phase 0)
 
-In: mandates, allowlists, caps, x402 spend budget, executed **and** refused receipts, Float, revoke-only bot, first-party agents, four-beat demo.
-
-Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, marketing page, this repo restyling markovhq.com.
+- In: mandates, allowlists, caps, x402 spend budget, executed **and** refused receipts, `strategy_id` templates, Float strategy marketplace, revoke-only bot, house operators (`markov-steady`, `markov-momentum`, `markov-redteam`), four-beat + strategy-vault demos.
+- Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, marketing page, this repo restyling markovhq.com.

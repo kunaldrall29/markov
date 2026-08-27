@@ -37,6 +37,8 @@ Rule: a doc that describes code is written from the code, never before it.
 
 `apps/web/README.md` · `apps/indexer/README.md`
 
+MVP v2 writeup: `docs/markov-mvp-v2.md`. Diagrams: `docs/markov-architecture-v2.mermaid`, `docs/markov-gate-flow-v2.mermaid`, `docs/markov-strategy-vault-flow.mermaid`.
+
 ## float-agents → `apps/agents`, `apps/data-api`
 
 `apps/agents/README.md` · `apps/data-api/README.md`

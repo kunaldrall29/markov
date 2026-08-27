@@ -1,0 +1,17 @@
+flowchart TD
+    OW["Owner wallet"] --> FW["float-web · apps/web<br/>marketplace · subscribe · console · kill switch"]
+    FW --> SDK["markov-sdk · packages/sdk<br/>PolicyTemplate v0 · hash to strategy_id<br/>createMandateFromTemplate"]
+    AG["float-agents · apps/agents<br/>markov-steady · markov-momentum · markov-redteam<br/>strategy fan-out across subscriber mandates"] --> SDK
+    SDK --> PROG["markov-program · programs/mandate<br/>gate order fail-closed<br/>ActionExecuted + ActionRefused with strategy_id"]
+    PROG -->|CPI| DS["demo_swap"]
+    PROG -->|CPI| DY["demo_yield"]
+    PROG -. events .-> HEL["Helius WS"]
+    HEL --> IDX["indexer · apps/indexer"]
+    IDX --> SB[("ledger / sqlite markov-devnet<br/>operators · strategies · mandates · receipts")]
+    SB --> API["data-api · apps/data-api + apps/api<br/>strategy_stats · operator_stats"]
+    API --> FW
+    API --> BOT["float-bot · apps/bot<br/>revoke-only · alerts · /strategies"]
+    BOT -->|pause / revoke via emergency key| PROG
+    AG -->|spend under x402 budget| FAC["x402 facilitator<br/>devnet USDC settlement — FACTS F-X402-SETTLE-MINT"]
+    FAC --> PAID["priced demo endpoint"]
+    MINTS["own mints: USDC-d · DEMO"] -.-> PROG

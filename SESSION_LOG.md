@@ -2,6 +2,13 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-27 — MVP v2 start (strategy vaults, no program deploy)
+
+- Goal: land MVP v2 as source of truth in this tree: PolicyTemplate v0, `strategy_id` on engine/program source, house operators, Float strategy marketplace, fan-out, redteam sweep, indexer views. Do not deploy or upgrade on-chain programs.
+- Done: `docs/markov-mvp-v2.md` + three mermaid diagrams. SPEC/README/AGENTS freeze. Engine receipts copy `strategyId`. Program `Mandate.strategy_id` + receipt events (source only; live devnet bytecode still pre-pin / pre-strategy_id). SDK `createMandateFromTemplate` tighten-only + hash stability tests. API: `GET /strategies`, subscribe via `POST /mandates` `{ strategyId, overrides }`, fan-out, `POST /demo/strategy-vault` (A+B execute size 60, C cap 40 → OverTxCap), `POST /agents/redteam/sweep` (all 11 BlockReasons). Indexer `0002_strategy.sql` + `strategy_stats` / `operator_stats` views. Float cards are strategies; subscribe/tighten; `/s/[id]`, `/o/[id]`, `/kill`. Bot `/strategies`. House agents `steady|momentum|redteam`.
+- Not done: no `anchor build` / no program deploy. `F-X402-SETTLE-MINT` and `F-CANONICAL-DOMAIN` still open. Public-devnet mandate binary unchanged. Venues still undeployed.
+- Next: Kunal — `TELEGRAM_ALLOWED_CHAT_IDS`; ~3 SOL on deployer **after** vault-pin + `strategy_id` bytecode is what ships; mandate upgrade buffer SOL; hosting + `MARKOV_API_SECRET` if public HTTP.
+
 ## 2026-08-27 — production/security pass (no program deploy)
 
 - Goal: production-ready check and full security review before any further on-chain deploy; polish Float UI.

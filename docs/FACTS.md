@@ -2,7 +2,7 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-27 (production/security pass in source; programs not redeployed).
+Last refreshed: 2026-08-27 (MVP v2 in source: strategy templates + house operators; programs not redeployed).
 
 ## Verified in this workspace
 
@@ -28,6 +28,8 @@ Last refreshed: 2026-08-27 (production/security pass in source; programs not red
 | markov.fyi docs/litepaper/Float URLs | **Not live** in this refresh | Intended site IA; GitHub is canonical until S9 |
 | GitHub org `MarkovFyi` | Exists; this product tree is `kunaldrall29/markov` | `gh api orgs/MarkovFyi` 2026-08-25 |
 | `security@markov.fyi` mailbox | Published in `SECURITY.md`; inbox not verified here | Treat as intended contact |
+| `F-X402-SETTLE-MINT` | **Open** | Facilitators typically settle canonical devnet USDC, not `USDC-d`. Confirm when a facilitator is pinned. Blocking for live x402 spend on public devnet, not for the local engine spend stub |
+| `F-CANONICAL-DOMAIN` | **Open** | Decision 0. `markov.fyi/docs` 404; local Docusaurus `:3001`. Do not invent a canonical host |
 
 ## External numbers (litepaper appendix — re-verify before public use)
 
