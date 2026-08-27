@@ -16,6 +16,8 @@
     "@markov/rpc": "workspace:*",
     "@markov/sdk": "workspace:*",
     "@markovfyi/operator": "workspace:*",
-    "hono": "^4.9.0"
+    "bs58": "^6.0.0",
+    "hono": "^4.9.0",
+    "tweetnacl": "^1.0.3"
   }
 }

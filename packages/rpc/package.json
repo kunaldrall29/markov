@@ -11,5 +11,6 @@
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "build": "tsc --noEmit"
-  }
+  },
+  "dependencies": {}
 }

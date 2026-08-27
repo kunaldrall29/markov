@@ -27,6 +27,9 @@ export function listenHost(): string {
   return host && host.length > 0 ? host : "127.0.0.1";
 }
 
+export * from "./cluster";
+
+/** True when this process is bound to loopback (unsigned x-actor allowed). */
 export function isLoopbackHost(host = listenHost()): boolean {
   return host === "127.0.0.1" || host === "localhost" || host === "::1";
 }

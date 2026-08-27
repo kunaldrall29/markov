@@ -5,8 +5,18 @@ import { cors } from "hono/cors";
 import type { Intent, Policy } from "@markov/engine";
 import { TOKENS } from "@markov/engine";
 import { createMandateFromTemplate } from "@markov/sdk";
-import { listenHost, rpcHost } from "@markov/rpc";
-import { mutationAllowed } from "./auth";
+import {
+  assertMainnetAllowed,
+  engineDemoAllowed,
+  explorerTxUrl,
+  isLoopbackHost,
+  listenHost,
+  markovCluster,
+  rpcHost,
+  sha256Hex,
+} from "@markov/rpc";
+import { behindProxy, mutationAllowed, requestActor } from "./auth";
+import { verifyWalletAuth } from "./wallet-auth";
 import { fanOut, fanOutSwap, tickMomentum, tickSteady } from "./agents";
 import { fetchPrice } from "./data";
 import { runFourBeat } from "./four-beat";
@@ -25,6 +35,8 @@ let lastFourBeatAt = 0;
 let fourBeatBusy = false;
 let lastVaultAt = 0;
 
+assertMainnetAllowed();
+
 const engine = loadEngine();
 seed(engine);
 persist(engine);
@@ -35,17 +47,18 @@ const WEB_ORIGINS = [
   ...(process.env.WEB_ORIGIN ? [process.env.WEB_ORIGIN] : []),
 ];
 
-const app = new Hono();
+type Vars = { actor: string };
+const app = new Hono<{ Variables: Vars }>();
 app.use(
   "*",
   cors({
     origin: WEB_ORIGINS,
-    allowHeaders: ["content-type", "x-actor", "x-api-key"],
+    allowHeaders: ["content-type", "x-actor", "x-api-key", "x-owner-ts", "x-owner-sig"],
   }),
 );
 
-function actor(c: { req: { header: (n: string) => string | undefined } }) {
-  return c.req.header("x-actor") ?? ACTORS.owner;
+function actor(c: { get: (k: "actor") => string }) {
+  return c.get("actor");
 }
 
 function tightenPolicy(incoming: unknown): Policy {
@@ -82,10 +95,6 @@ function factsHost(rpc?: string) {
   }
 }
 
-function explorerTxUrl(sig: string) {
-  return `https://solscan.io/tx/${sig}?cluster=devnet`;
-}
-
 function stampExplorer(
   local: ReturnType<typeof runFourBeat>,
   chain: { beats: { name: string; receipts: { type: string; sig: string; explorerUrl: string; reason?: string }[] }[] },
@@ -112,8 +121,22 @@ function cappedAmount(raw: unknown): number | null {
 app.use("*", async (c, next) => {
   const method = c.req.method;
   if (method === "GET" || method === "HEAD" || method === "OPTIONS") return next();
-  if (mutationAllowed(c.req.raw.headers)) return next();
-  return c.json({ error: "unauthorized" }, 401);
+  const body = new Uint8Array(await c.req.raw.clone().arrayBuffer());
+  const ctx = {
+    method,
+    path: new URL(c.req.url).pathname,
+    bodyHash: await sha256Hex(body),
+  };
+  const headers = c.req.raw.headers;
+  if (!mutationAllowed(headers, ctx)) {
+    const wallet = verifyWalletAuth(headers, ctx);
+    const reason = wallet.ok ? "unauthorized" : (wallet.error ?? "unauthorized");
+    return c.json({ error: reason }, 401);
+  }
+  const who = requestActor(headers, ctx);
+  if (!who) return c.json({ error: "unauthorized" }, 401);
+  c.set("actor", who);
+  return next();
 });
 
 app.onError((err, c) => {
@@ -131,8 +154,11 @@ app.get("/health", (c) => {
     : null;
   return c.json({
     ok: true,
-    network: process.env.MARKOV_CLUSTER === "devnet" ? "solana-devnet" : "markov-localnet",
-    cluster: process.env.MARKOV_CLUSTER ?? "local",
+    network: markovCluster() === "devnet" ? "solana-devnet" : markovCluster(),
+    cluster: markovCluster(),
+    mainnetGate: process.env.MARKOV_MAINNET === "1",
+    engineDemo: engineDemoAllowed(),
+    walletAuth: true,
     operators: engine.operators.size,
     mandates: engine.mandates.size,
     receipts: engine.receipts.length,
@@ -172,7 +198,13 @@ app.get("/strategies/:id", (c) => {
   return c.json({ ...row, receipts });
 });
 
-app.get("/mandates", (c) => c.json([...engine.mandates.values()]));
+app.get("/mandates", (c) => {
+  const owner = c.req.query("owner")?.trim();
+  const rows = [...engine.mandates.values()];
+  if (owner) return c.json(rows.filter((m) => m.owner === owner));
+  if (isLoopbackHost() && !behindProxy(c.req.raw.headers)) return c.json(rows);
+  return c.json([]);
+});
 
 app.get("/mandates/:id", (c) => {
   const mandate = engine.mandate(c.req.param("id"));
@@ -199,7 +231,11 @@ app.get("/receipts", (c) => {
 
 app.post("/mandates", async (c) => {
   const body = await c.req.json();
-  let owner = body.owner ?? actor(c);
+  const who = actor(c);
+  if (typeof body.owner === "string" && body.owner && body.owner !== who) {
+    return c.json({ error: "owner must match signed wallet" }, 400);
+  }
+  let owner = who;
   let operator = body.operator;
   let policy = tightenPolicy(body.policy);
   let ttlSecs = body.ttlSecs ?? 30 * 24 * 3600;
@@ -285,6 +321,7 @@ app.post("/data/price", async (c) => {
 });
 
 app.post("/agents/:name/tick", async (c) => {
+  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
   const body = await c.req.json();
   const name = c.req.param("name");
   const receipts =
@@ -298,12 +335,14 @@ app.post("/agents/:name/tick", async (c) => {
 });
 
 app.post("/agents/redteam/sweep", (c) => {
+  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
   const out = exerciseAllBlockReasons(engine);
   persist(engine);
   return c.json(out);
 });
 
 app.post("/strategies/:id/fan-out", async (c) => {
+  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
   const published = strategyById(c.req.param("id")) ?? publishedStrategies().find((s) => s.slug === c.req.param("id"));
   if (!published) return c.json({ error: "unknown strategy" }, 404);
   const body = await c.req.json().catch(() => ({} as { amountIn?: number; overCap?: boolean; agent?: string }));
@@ -319,6 +358,7 @@ app.post("/strategies/:id/fan-out", async (c) => {
 });
 
 app.post("/demo/four-beat", async (c) => {
+  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
   const now = Date.now();
   if (fourBeatBusy || now - lastFourBeatAt < FOUR_BEAT_COOLDOWN_MS) {
     return c.json({ error: "four-beat cooldown" }, 429);
@@ -328,7 +368,7 @@ app.post("/demo/four-beat", async (c) => {
   try {
     const result = runFourBeat(engine);
     persist(engine);
-    if (process.env.MARKOV_CLUSTER === "devnet" && existsSync(DEVNET_FACTS) && existsSync(OWNER_KEY)) {
+    if (markovCluster() === "devnet" && existsSync(DEVNET_FACTS) && existsSync(OWNER_KEY)) {
       try {
         const { runFourBeatDevnet } = await import("../../../scripts/four-beat-devnet");
         const chain = await runFourBeatDevnet();
@@ -345,6 +385,7 @@ app.post("/demo/four-beat", async (c) => {
 });
 
 app.post("/demo/strategy-vault", (c) => {
+  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
   const now = Date.now();
   if (now - lastVaultAt < FOUR_BEAT_COOLDOWN_MS) {
     return c.json({ error: "strategy-vault cooldown" }, 429);

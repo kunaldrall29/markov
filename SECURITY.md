@@ -28,16 +28,25 @@ Every administrative or emergency capability in the system is strictly protectiv
 
 The full threat model (rug, rogue execution, spam, wash-delegation, abandonment, venue failure, protocol failure) is in the litepaper, section 10.
 
-## HTTP and Telegram (Phase 0)
+## HTTP, wallet, and Telegram (Phase 0)
 
-Float has no browser wallet. `x-actor` is a demo label, not authentication.
+Float mutations are owner-signed. The browser wallet (Phantom or Solflare) proves `x-actor` with `x-owner-ts` and `x-owner-sig` over:
 
-- Local demo: bind `127.0.0.1` (default). Mutations are allowed only on that loopback bind, and **not** when `X-Forwarded-For` / `X-Real-IP` / `Forwarded` is present.
-- Any public or proxied deploy: set `MARKOV_API_SECRET` and send it as `x-api-key`. `HOST=0.0.0.0` without a secret refuses mutations.
+`Float ${METHOD} ${path} ${sha256(body)} ${pubkey} at ${unix} on ${cluster}`
+
+Skew is 300s on localnet/devnet and 60s on mainnet. Signatures are single-use inside that window. `POST /mandates` sets owner to the verified pubkey and ignores a spoofed `body.owner`.
+
+- Local demo: bind `127.0.0.1` (default). Unsigned `x-actor` (including `owner_demo`) is allowed only on that loopback bind, and **not** when `X-Forwarded-For` / `X-Real-IP` / `Forwarded` is present.
+- Any public or proxied deploy: wallet signature **or** `MARKOV_API_SECRET` as `x-api-key` (bot / operator clients). `HOST=0.0.0.0` without a wallet or secret refuses mutations.
+- `MARKOV_CLUSTER=mainnet-beta` refuses unsigned mutations and will not boot unless `MARKOV_MAINNET=1` after audit. Engine demo routes (four-beat, strategy-vault, fan-out, ticks, redteam sweep) are off on mainnet.
 - Telegram pause/revoke is gated by `TELEGRAM_ALLOWED_CHAT_IDS` (or `data/telegram-allow.json`). `/whoami` prints the chat id. First-chat auto-lock is opt-in (`TELEGRAM_ALLOW_FIRST_CHAT=1`) and must not be used on a public bot.
-- `/health` returns `rpcHost` only — never the full RPC URL (Helius keys live in the URL).
+- `/health` returns `rpcHost` only — never the full RPC URL (Helius keys live in the URL). The wallet adapter connection uses a public RPC URL and will not forward a URL that contains `api-key`.
 
-Until wallet signatures exist, treat the HTTP API as a local-trust surface.
+Treat a public HTTP API without wallet signatures or `MARKOV_API_SECRET` as fail-closed.
+
+## Mainnet
+
+No mainnet deployment exists. Do not set `MARKOV_MAINNET=1` until an external audit lands. Owner withdraw remains ungated by mandate state on-chain and in the engine. CPI into `demo_swap` / `demo_yield` must pin pool vaults. Live public-devnet bytecode may lag this source until upgrade.
 
 ## Reporting a vulnerability
 
