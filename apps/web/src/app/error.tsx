@@ -1,5 +1,7 @@
 "use client";
 
+import { copy } from "@/lib/copy";
+
 export default function ErrorPage({
   error,
   reset,
@@ -9,14 +11,12 @@ export default function ErrorPage({
 }) {
   return (
     <main className="wrap" id="main">
-      <p className="eyebrow">Error</p>
-      <h1>
-        Something broke. <em>Your keys are still yours.</em>
-      </h1>
-      <p className="lede">{error.message || "The page failed to render."}</p>
+      <p className="eyebrow">{copy.errors.tryAgain}</p>
+      <h1>{copy.errors.generic}</h1>
+      <p className="lede">{error.message || copy.toast.failed}</p>
       <div className="actions">
         <button className="btn" type="button" onClick={reset}>
-          Try again
+          {copy.errors.tryAgain}
         </button>
       </div>
     </main>

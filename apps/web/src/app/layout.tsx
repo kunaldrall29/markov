@@ -1,11 +1,34 @@
 import type { ReactNode } from "react";
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Nav } from "./Nav";
+import { ToastHost } from "@/components/Toast";
+import { copy } from "@/lib/copy";
+import { tokenCss } from "@/lib/tokens";
+
+const display = Fraunces({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+});
+const body = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-body",
+  display: "swap",
+});
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Float — Markov",
-  description: "Give an agent your capital. Keep the keys.",
+  description: copy.console.withdrawLine,
 };
 
 export const viewport: Viewport = {
@@ -16,21 +39,18 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
+        <style dangerouslySetInnerHTML={{ __html: tokenCss() }} />
       </head>
       <body>
         <a className="skip" href="#main">
-          Skip to content
+          {copy.skip}
         </a>
-        <Nav />
-        {children}
+        <ToastHost>
+          <Nav />
+          {children}
+        </ToastHost>
       </body>
     </html>
   );

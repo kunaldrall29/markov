@@ -25,6 +25,8 @@ describe("Float mobile layout", () => {
   test("strategy cards use chip chips", () => {
     expect(css).toContain(".chips");
     expect(css).toContain(".chip.warn");
+    expect(css).toContain(".policy-chip.refusal");
+    expect(css).toContain(".policy-chip.authority");
   });
 
   test("keyboard focus is visible", () => {

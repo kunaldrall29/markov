@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "name": "Float authority-light",
+    "note": "Accent is the ice lamp an operator carries only while a mandate is Active — a cool instrument glow, not a dashboard green and not a luxury gold."
+  },
+  "color": {
+    "base": "#0a0a0b",
+    "surface": "#111318",
+    "text": "#e6eaee",
+    "muted": "#9aa3ad",
+    "edge": "#1e242c",
+    "authority": "#8ec8d8",
+    "authority-dim": "#4a7380",
+    "action-ok": "#9aada3",
+    "refusal": "#7c8eb0",
+    "refusal-surface": "#151a24",
+    "kill": "#c5d0e4"
+  },
+  "type": {
+    "display": "Fraunces",
+    "body": "IBM Plex Sans",
+    "mono": "IBM Plex Mono",
+    "scale": {
+      "display": { "size": "clamp(2rem, 6vw, 4rem)", "weight": 500, "lineHeight": 0.95 },
+      "title": { "size": "1.75rem", "weight": 500, "lineHeight": 1.1 },
+      "body": { "size": "1rem", "weight": 400, "lineHeight": 1.6 },
+      "mono": { "size": "0.75rem", "weight": 400, "lineHeight": 1.45 }
+    }
+  },
+  "space": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "24px",
+    "6": "40px",
+    "7": "64px"
+  },
+  "radius": {
+    "sm": "2px",
+    "md": "6px",
+    "pill": "999px"
+  },
+  "badgeFamily": {
+    "state": ["Paused", "Revoked", "Expired"],
+    "auth": ["Unauthorized"],
+    "allowlist": ["ProgramNotAllowed", "TokenNotAllowed"],
+    "cap": ["OverTxCap", "OverDailyCap", "OverSpendCap", "OverSpendDailyCap"],
+    "bound": ["SlippageExceeded"]
+  },
+  "motion": {
+    "receiptArrive": "180ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+    "refusalArrive": "220ms cubic-bezier(0.16, 1, 0.3, 1)",
+    "reduced": "instant state change, no transform"
+  }
+}

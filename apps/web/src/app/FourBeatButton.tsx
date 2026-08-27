@@ -3,9 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/api";
+import { copy } from "@/lib/copy";
+import { useToast } from "@/components/Toast";
 
 export function FourBeatButton() {
   const router = useRouter();
+  const toast = useToast();
   const [busy, setBusy] = useState<"four" | "vault" | "">("");
   const [err, setErr] = useState("");
 
@@ -14,9 +17,10 @@ export function FourBeatButton() {
     setErr("");
     try {
       const result = await api<{ mandateId: string }>("/demo/four-beat", { method: "POST" });
+      toast(copy.subscribe.created);
       router.push(`/m/${result.mandateId}`);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "demo failed");
+      setErr(e instanceof Error ? e.message : copy.toast.failed);
       setBusy("");
     }
   }
@@ -28,7 +32,7 @@ export function FourBeatButton() {
       await api("/demo/strategy-vault", { method: "POST" });
       router.push("/s/momentum");
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "demo failed");
+      setErr(e instanceof Error ? e.message : copy.toast.failed);
       setBusy("");
     }
   }
@@ -37,13 +41,13 @@ export function FourBeatButton() {
     <div style={{ margin: "0 0 28px" }}>
       <div className="actions" style={{ marginTop: 0 }}>
         <button
-          className="btn gold"
+          className="btn authority"
           disabled={Boolean(busy)}
           onClick={runFour}
           type="button"
           aria-busy={busy === "four"}
         >
-          {busy === "four" ? "Running four-beat…" : "Run four-beat demo"}
+          {busy === "four" ? copy.demo.fourBusy : copy.demo.four}
         </button>
         <button
           className="btn ghost"
@@ -52,7 +56,7 @@ export function FourBeatButton() {
           type="button"
           aria-busy={busy === "vault"}
         >
-          {busy === "vault" ? "Running strategy-vault…" : "Run strategy-vault demo"}
+          {busy === "vault" ? copy.demo.vaultBusy : copy.demo.vault}
         </button>
       </div>
       {err ? (

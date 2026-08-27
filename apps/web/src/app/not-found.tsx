@@ -1,19 +1,17 @@
 import Link from "next/link";
+import { copy } from "@/lib/copy";
 
 export default function NotFound() {
   return (
     <main className="wrap" id="main">
-      <p className="eyebrow">404</p>
-      <h1>
-        Page not found. <em>The marketplace is still here.</em>
-      </h1>
-      <p className="lede">That URL does not match a Float route.</p>
+      <p className="eyebrow">{copy.errors.marketplace}</p>
+      <h1>{copy.errors.notFound}</h1>
       <div className="actions">
         <Link className="btn" href="/">
-          Marketplace
+          {copy.errors.marketplace}
         </Link>
         <Link className="btn ghost" href="/create">
-          New mandate
+          {copy.nav.subscribe}
         </Link>
       </div>
     </main>

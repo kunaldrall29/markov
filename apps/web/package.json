@@ -10,6 +10,8 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@markov/engine": "workspace:*",
+    "@markov/sdk": "workspace:*",
     "next": "^15.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

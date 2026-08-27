@@ -2,15 +2,21 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, formatAmount, type StrategyCard } from "@/lib/api";
-import { blockLabel } from "@/lib/reasons";
+import { copy } from "@/lib/copy";
+import { PolicyChip } from "@/components/PolicyChip";
+import { ReceiptRow, type ReceiptLike } from "@/components/ReceiptRow";
+import { RecordStrip } from "@/components/RecordStrip";
+import { useToast } from "@/components/Toast";
 
 export default function StrategyPage() {
   const { id } = useParams<{ id: string }>();
+  const toast = useToast();
   const [row, setRow] = useState<StrategyCard | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [refusalsOnly, setRefusalsOnly] = useState(false);
 
   const refresh = useCallback(async () => {
     const data = await api<StrategyCard>(`/strategies/${id}`);
@@ -30,6 +36,12 @@ export default function StrategyPage() {
     };
   }, [refresh]);
 
+  const receipts = useMemo(() => {
+    const all = [...(row?.receipts ?? [])].reverse() as ReceiptLike[];
+    if (!refusalsOnly) return all;
+    return all.filter((r) => r.type === "ActionRefused");
+  }, [row, refusalsOnly]);
+
   async function fanOut() {
     setBusy(true);
     setErr("");
@@ -37,7 +49,7 @@ export default function StrategyPage() {
       await api(`/strategies/${id}/fan-out`, { method: "POST", body: JSON.stringify({}) });
       await refresh();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "failed");
+      setErr(e instanceof Error ? e.message : copy.toast.failed);
     } finally {
       setBusy(false);
     }
@@ -48,9 +60,10 @@ export default function StrategyPage() {
     setErr("");
     try {
       await api(`/agents/redteam/sweep`, { method: "POST" });
+      toast(copy.strategy.sweepToast);
       await refresh();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "failed");
+      setErr(e instanceof Error ? e.message : copy.toast.failed);
     } finally {
       setBusy(false);
     }
@@ -59,83 +72,72 @@ export default function StrategyPage() {
   if (!row) {
     return (
       <main className="wrap" id="main">
-        <p className="eyebrow">Strategy</p>
+        <p className="eyebrow">{copy.strategy.eyebrow}</p>
         {err ? (
           <p className="no" role="alert">
             {err}
           </p>
         ) : (
-          <p className="meta">Loading strategy…</p>
+          <p className="meta">{copy.strategy.loading}</p>
         )}
       </main>
     );
   }
 
-  const receipts = [...(row.receipts ?? [])].reverse();
-
   return (
     <main className="wrap" id="main">
       <p className="eyebrow">
-        Strategy · {row.slug}
-        {row.labeled ? " · labeled redteam" : ""}
+        {copy.strategy.eyebrow} · {row.slug}
+        {row.labeled ? ` · ${copy.strategy.labeled}` : ""}
       </p>
       <h1>
         {row.name}. <em>{row.stats.refusals} refusals.</em>
       </h1>
       <p className="lede">{row.blurb}</p>
+      <RecordStrip
+        actions={row.stats.actions}
+        refusals={row.stats.refusals}
+        tenureSecs={row.stats.tenureSecs}
+        feesBps={row.stats.feesBps ?? row.template.fee_terms?.mgmt_bps ?? 0}
+      />
       <div className="chips">
-        <span className="chip">actions {row.stats.actions}</span>
-        <span className={`chip ${row.stats.refusals ? "warn" : ""}`}>refusals {row.stats.refusals}</span>
-        <span className="chip">subs {row.stats.subscribers}</span>
-        <span className="chip">vol {formatAmount(row.stats.volume)}</span>
-        <span className="chip gold">per-tx {formatAmount(row.template.caps.per_tx)}</span>
-        <span className="chip">operator {row.template.operator}</span>
+        <PolicyChip tone="authority">per-tx ≤ {formatAmount(row.template.caps.per_tx)}</PolicyChip>
+        <PolicyChip>daily ≤ {formatAmount(row.template.caps.daily)}</PolicyChip>
+        {row.template.venue_allowlist.map((v) => (
+          <PolicyChip key={v}>{v}</PolicyChip>
+        ))}
+        <PolicyChip>subs {row.stats.subscribers}</PolicyChip>
+        <PolicyChip>pnl {formatAmount(row.stats.pnl ?? 0)}</PolicyChip>
       </div>
-      <p className="meta" style={{ marginBottom: 18 }}>
-        strategy_id {row.strategyId.slice(0, 16)}…
-      </p>
       <div className="actions" style={{ marginTop: 0, marginBottom: 22 }}>
         <Link className="btn" href={`/create?strategy=${row.slug}`}>
-          Subscribe
+          {copy.strategy.subscribe}
         </Link>
         <Link className="btn ghost" href={`/o/${row.template.operator}`}>
-          Operator
+          {copy.strategy.operator}
         </Link>
         <button className="btn ghost" type="button" disabled={busy} onClick={fanOut}>
-          Fan-out tick
+          {copy.strategy.fanOut}
         </button>
         {row.slug === "redteam" ? (
-          <button className="btn ember" type="button" disabled={busy} onClick={sweep}>
-            Redteam sweep
+          <button className="btn kill" type="button" disabled={busy} onClick={sweep}>
+            {copy.strategy.sweep}
           </button>
         ) : null}
+        <button className="btn ghost" type="button" onClick={() => setRefusalsOnly((v) => !v)}>
+          {refusalsOnly ? copy.strategy.allFilter : copy.strategy.refusalsFilter}
+        </button>
       </div>
       {err ? (
         <p className="no" role="alert">
           {err}
         </p>
       ) : null}
-      <h3 style={{ fontFamily: "var(--serif)", fontWeight: 400, fontSize: 28 }}>Receipts</h3>
-      <p className="meta">Refusals are receipts. Same strategy_id on every row — not a pool.</p>
+      <h3 style={{ fontFamily: "var(--serif)", fontWeight: 500, fontSize: 28 }}>{copy.console.receipts}</h3>
       <div className="card" style={{ marginTop: 12 }}>
-        {receipts.length === 0 ? <p className="meta">No strategy receipts yet.</p> : null}
+        {receipts.length === 0 ? <p className="meta">{copy.strategy.empty}</p> : null}
         {receipts.map((r, i) => (
-          <div className="receipt" key={`${r.type}-${r.ts}-${i}`}>
-            <span className={r.type.includes("Refused") || r.type === "Revoked" ? "no" : "ok"}>{r.type}</span>
-            <span>
-              {"mandateId" in r && r.mandateId ? (
-                <>
-                  <Link href={`/m/${String(r.mandateId)}`}>{String(r.mandateId)}</Link>{" "}
-                </>
-              ) : null}
-              {"reason" in r && r.reason ? blockLabel(r.reason) : ""}
-              {"amountIn" in r && r.amountIn ? ` in ${formatAmount(Number(r.amountIn))}` : ""}
-              {"requestedAmount" in r && r.requestedAmount
-                ? ` asked ${formatAmount(Number(r.requestedAmount))}`
-                : ""}
-            </span>
-            <span className="meta">{new Date(r.ts * 1000).toISOString().slice(11, 19)}</span>
-          </div>
+          <ReceiptRow key={`${r.type}-${r.ts}-${i}`} receipt={r} />
         ))}
       </div>
     </main>

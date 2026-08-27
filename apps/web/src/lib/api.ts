@@ -1,4 +1,4 @@
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8787";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8787";
 
 function errorMessage(text: string): string {
   try {
@@ -11,7 +11,7 @@ function errorMessage(text: string): string {
 }
 
 export async function api<T>(path: string, init?: RequestInit, actor = "owner_demo"): Promise<T> {
-  const res = await fetch(`${API}${path}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     ...init,
     cache: "no-store",
     headers: {
@@ -45,14 +45,40 @@ export type StrategyCard = {
     execution_bounds: { max_slippage_bps: number };
     x402_budget: { per_call: number; daily: number };
     expiry_default_days: number;
+    fee_terms?: { mgmt_bps: number; perf_bps: number };
   };
   stats: {
     actions: number;
     refusals: number;
     refusalRate: number;
     volume: number;
+    pnl?: number;
     subscribers: number;
     tenureSecs: number;
+    feesBps?: number;
   };
   receipts?: Array<Record<string, unknown> & { type: string; ts: number }>;
 };
+
+export type MandateHud = {
+  pnl: number;
+  capProximity: { dailyPct: number; spendPct: number };
+};
+
+export type OperatorRow = {
+  authority: string;
+  name: string;
+  blurb: string;
+  kind: string;
+  feeBps: number;
+  stats: {
+    actions: number;
+    refusals: number;
+    volume: number;
+    pnl?: number;
+    mandates: number;
+    tenureSecs?: number;
+  } | null;
+  strategies: StrategyCard[];
+};
+

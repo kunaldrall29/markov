@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { api, formatAmount } from "@/lib/api";
+import { copy } from "@/lib/copy";
+import { KillSwitch } from "@/components/KillSwitch";
+import { useToast } from "@/components/Toast";
 
 interface Mandate {
   id: string;
@@ -14,28 +17,26 @@ interface Mandate {
 }
 
 export default function KillPage() {
+  const toast = useToast();
   const [rows, setRows] = useState<Mandate[]>([]);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [armed, setArmed] = useState<string | null>(null);
+
+  const [ready, setReady] = useState(false);
 
   const refresh = useCallback(async () => {
     const data = await api<Mandate[]>("/mandates");
     setRows(data);
+    setReady(true);
   }, []);
 
   useEffect(() => {
-    refresh().catch((e) => setErr(e instanceof Error ? e.message : String(e)));
+    refresh().catch((e) => {
+      setErr(e instanceof Error ? e.message : String(e));
+      setReady(true);
+    });
   }, [refresh]);
-
-  async function act(id: string, path: string, actor?: string) {
-    setErr("");
-    try {
-      await api(path, { method: "POST" }, actor);
-      await refresh();
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "failed");
-    }
-  }
 
   async function pauseAll() {
     setBusy(true);
@@ -45,9 +46,10 @@ export default function KillPage() {
         if (m.state !== "Active") continue;
         await api(`/mandates/${m.id}/pause`, { method: "POST" });
       }
+      toast(copy.kill.pausedAll);
       await refresh();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "failed");
+      setErr(e instanceof Error ? e.message : copy.toast.failed);
     } finally {
       setBusy(false);
     }
@@ -55,19 +57,16 @@ export default function KillPage() {
 
   return (
     <main className="wrap" id="main">
-      <p className="eyebrow">Portfolio · kill switch</p>
+      <p className="eyebrow">{copy.kill.eyebrow}</p>
       <h1>
-        Freeze every operator. <em>Funds stay put.</em>
+        {copy.kill.title} <em>{copy.kill.fundsStay}</em>
       </h1>
-      <p className="lede">
-        Pause all active mandates, or revoke one. Neither path moves capital. Owner withdraw still
-        works in every state, including Revoked.
-      </p>
-      <div className="kill" style={{ marginBottom: 22 }}>
-        <p className="meta gold">Emergency</p>
+      <p className="lede">{copy.kill.lede}</p>
+      <div className="kill-breaker" style={{ marginBottom: 22 }}>
+        <p className="meta authority">{copy.nav.kill}</p>
         <div className="actions">
-          <button className="btn gold" type="button" disabled={busy} onClick={pauseAll}>
-            Pause all active
+          <button className="btn authority" type="button" disabled={busy} onClick={pauseAll}>
+            {copy.kill.pauseAll}
           </button>
         </div>
       </div>
@@ -77,7 +76,8 @@ export default function KillPage() {
         </p>
       ) : null}
       <div className="card">
-        {rows.length === 0 ? <p className="meta">No mandates.</p> : null}
+        {!ready ? <p className="meta">{copy.kill.loading}</p> : null}
+        {ready && rows.length === 0 ? <p className="meta">{copy.kill.empty}</p> : null}
         {rows.map((m) => (
           <div className="receipt" key={m.id}>
             <span>
@@ -88,21 +88,28 @@ export default function KillPage() {
             </span>
             <span className="actions" style={{ marginTop: 0 }}>
               {m.state === "Active" ? (
-                <button className="btn gold" type="button" onClick={() => act(m.id, `/mandates/${m.id}/pause`)}>
-                  Pause
+                <button
+                  className="btn authority"
+                  type="button"
+                  onClick={() => api(`/mandates/${m.id}/pause`, { method: "POST" }).then(refresh)}
+                >
+                  {copy.console.pause}
                 </button>
               ) : null}
               {m.state !== "Revoked" ? (
-                <button
-                  className="btn ember"
-                  type="button"
-                  onClick={() => {
-                    if (!window.confirm(`Revoke ${m.id}? Terminal. Funds stay in the vault.`)) return;
-                    void act(m.id, `/mandates/${m.id}/revoke`, "bot_emergency");
+                <KillSwitch
+                  armed={armed === m.id}
+                  onArm={() => setArmed(m.id)}
+                  onRevoke={() => {
+                    setArmed(null);
+                    void api(`/mandates/${m.id}/revoke`, { method: "POST" }, "bot_emergency")
+                      .then(() => {
+                        toast(copy.console.revokedToast);
+                        return refresh();
+                      })
+                      .catch((e) => setErr(e instanceof Error ? e.message : copy.toast.failed));
                   }}
-                >
-                  Revoke
-                </button>
+                />
               ) : null}
             </span>
           </div>

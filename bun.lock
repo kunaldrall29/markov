@@ -24,6 +24,8 @@
       "version": "0.1.0",
       "dependencies": {
         "@markov/engine": "workspace:*",
+        "@markov/rpc": "workspace:*",
+        "@markov/sdk": "workspace:*",
         "@markovfyi/operator": "workspace:*",
         "hono": "^4.9.0",
       },
@@ -73,6 +75,8 @@
       "name": "@markov/web",
       "version": "0.1.0",
       "dependencies": {
+        "@markov/engine": "workspace:*",
+        "@markov/sdk": "workspace:*",
         "next": "^15.5.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
