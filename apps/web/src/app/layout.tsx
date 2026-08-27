@@ -3,7 +3,7 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Nav } from "./Nav";
-import { ToastHost } from "@/components/Toast";
+import { Providers } from "@/components/Providers";
 import { copy } from "@/lib/copy";
 import { tokenCss } from "@/lib/tokens";
 
@@ -47,10 +47,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip" href="#main">
           {copy.skip}
         </a>
-        <ToastHost>
+        <Providers>
           <Nav />
           {children}
-        </ToastHost>
+        </Providers>
       </body>
     </html>
   );

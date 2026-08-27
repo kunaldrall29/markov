@@ -2,15 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { api } from "@/lib/api";
+import { engineDemoAllowed } from "@markov/rpc";
 import { copy } from "@/lib/copy";
+import { useApi } from "@/lib/useApi";
 import { useToast } from "@/components/Toast";
 
 export function FourBeatButton() {
   const router = useRouter();
   const toast = useToast();
+  const { api } = useApi();
   const [busy, setBusy] = useState<"four" | "vault" | "">("");
   const [err, setErr] = useState("");
+
+  if (!engineDemoAllowed()) return null;
 
   async function runFour() {
     setBusy("four");
@@ -39,7 +43,8 @@ export function FourBeatButton() {
 
   return (
     <div style={{ margin: "0 0 28px" }}>
-      <div className="actions" style={{ marginTop: 0 }}>
+      <p className="meta">{copy.demo.engineNotWallet}</p>
+      <div className="actions" style={{ marginTop: 8 }}>
         <button
           className="btn authority"
           disabled={Boolean(busy)}

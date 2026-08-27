@@ -3,8 +3,9 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { applyOverrides, type PolicyTemplate } from "@markov/sdk/overrides";
-import { api, type StrategyCard } from "@/lib/api";
+import { type StrategyCard } from "@/lib/api";
 import { copy } from "@/lib/copy";
+import { useApi } from "@/lib/useApi";
 import { CapStepper } from "@/components/CapStepper";
 import { PolicyChip } from "@/components/PolicyChip";
 import { TemplateDiff } from "@/components/TemplateDiff";
@@ -28,6 +29,7 @@ function CreateForm() {
   const params = useSearchParams();
   const router = useRouter();
   const toast = useToast();
+  const { api, connected } = useApi();
   const requested = params.get("strategy") ?? params.get("operator") ?? "momentum";
   const [strategies, setStrategies] = useState<StrategyCard[]>([]);
   const [slug, setSlug] = useState(requested);
@@ -54,7 +56,7 @@ function CreateForm() {
         }
       })
       .catch((e) => setErr(e instanceof Error ? e.message : copy.marketplace.error));
-  }, [requested]);
+  }, [requested, api]);
 
   const selected = strategies.find((s) => s.slug === slug) ?? strategies[0];
   const templateTx = selected ? selected.template.caps.per_tx / 1_000_000 : 0;
@@ -117,6 +119,7 @@ function CreateForm() {
 
   return (
     <form className="card" onSubmit={onSubmit} style={{ maxWidth: 640 }} aria-busy={busy}>
+      <p className="meta">{connected ? copy.wallet.hint : copy.wallet.required}</p>
       <p className="steps">
         {copy.subscribe.stepTemplate} → {copy.subscribe.stepCaps} → {copy.subscribe.stepDiff} →{" "}
         {copy.subscribe.stepFund}

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, formatAmount } from "@/lib/api";
+import { formatAmount } from "@/lib/api";
 import { copy } from "@/lib/copy";
+import { useApi } from "@/lib/useApi";
+import { engineDemoAllowed } from "@markov/rpc";
 import { CapProximity } from "@/components/CapProximity";
 import { KillSwitch, WithdrawButton } from "@/components/KillSwitch";
 import { ReceiptRow, receiptKey, type ReceiptLike } from "@/components/ReceiptRow";
@@ -44,6 +46,7 @@ function headline(state: string) {
 export default function MandatePage() {
   const { id } = useParams<{ id: string }>();
   const toast = useToast();
+  const { api, publicKey, connected } = useApi();
   const [mandate, setMandate] = useState<Mandate | null>(null);
   const [receipts, setReceipts] = useState<ReceiptLike[]>([]);
   const [hud, setHud] = useState<Hud | null>(null);
@@ -68,7 +71,7 @@ export default function MandatePage() {
     setReceipts(next);
     setHud(data.hud ?? null);
     setMissing(false);
-  }, [id]);
+  }, [id, api]);
 
   useEffect(() => {
     let alive = true;
@@ -89,15 +92,14 @@ export default function MandatePage() {
     };
   }, [refresh, missing]);
 
-  async function act(path: string, body?: unknown, actor?: string, done?: string) {
+  async function act(path: string, body?: unknown, done?: string) {
     setErr("");
     setPending(path);
     try {
-      const out = await api<{ sig?: string; explorerUrl?: string }>(
-        path,
-        { method: "POST", body: body ? JSON.stringify(body) : undefined },
-        actor,
-      );
+      const out = await api<{ sig?: string; explorerUrl?: string }>(path, {
+        method: "POST",
+        body: body ? JSON.stringify(body) : undefined,
+      });
       if (done) toast(done);
       if (out && typeof out.sig === "string" && out.sig) {
         toast(`${done ?? "Confirmed"} · ${out.sig.slice(0, 8)}`);
@@ -136,6 +138,8 @@ export default function MandatePage() {
   const usdcd = mandate.vault["USDC-d"] ?? 0;
   const demo = mandate.vault.DEMO ?? 0;
   const agent = tickName(mandate.operator);
+  const ownerOk = !publicKey || publicKey === mandate.owner;
+  const locked = Boolean(pending) || !ownerOk;
 
   return (
     <main className="wrap" id="main">
@@ -146,6 +150,10 @@ export default function MandatePage() {
         {headline(mandate.state)} <em>{copy.console.withdrawLine}</em>
       </h1>
       <p className="linked">{copy.console.botLinked}</p>
+      <p className="meta pubkey">
+        {copy.console.eyebrow} owner {mandate.owner}
+        {connected && !ownerOk ? ` · ${copy.wallet.notOwner}` : ""}
+      </p>
       <div className="grid">
         <section className={`card${mandate.state === "Active" ? " mandate-live" : ""}`}>
           <p className="meta">{copy.console.balances}</p>
@@ -171,13 +179,14 @@ export default function MandatePage() {
           <p className="lede" style={{ margin: "8px 0 14px" }}>
             {copy.console.pauseHelp}
           </p>
+          {!connected ? <p className="meta">{copy.wallet.required}</p> : null}
           <div className="actions">
             {mandate.state === "Active" ? (
               <button
                 className="btn authority"
                 type="button"
-                disabled={Boolean(pending)}
-                onClick={() => act(`/mandates/${id}/pause`, undefined, undefined, copy.console.pausedToast)}
+                disabled={locked}
+                onClick={() => act(`/mandates/${id}/pause`, undefined, copy.console.pausedToast)}
               >
                 {copy.console.pause}
               </button>
@@ -186,8 +195,8 @@ export default function MandatePage() {
               <button
                 className="btn ghost"
                 type="button"
-                disabled={Boolean(pending)}
-                onClick={() => act(`/mandates/${id}/unpause`, undefined, undefined, copy.console.resumedToast)}
+                disabled={locked}
+                onClick={() => act(`/mandates/${id}/unpause`, undefined, copy.console.resumedToast)}
               >
                 {copy.console.resume}
               </button>
@@ -195,24 +204,23 @@ export default function MandatePage() {
             {mandate.state !== "Revoked" ? (
               <KillSwitch
                 armed={armed}
-                pending={Boolean(pending)}
+                pending={locked}
                 onArm={() => setArmed(true)}
                 onRevoke={() => {
                   setArmed(false);
-                  void act(`/mandates/${id}/revoke`, undefined, "bot_emergency", copy.console.revokedToast);
+                  void act(`/mandates/${id}/revoke`, undefined, copy.console.revokedToast);
                 }}
               />
             ) : null}
             <WithdrawButton
               amount={usdcd}
               state={mandate.state}
-              pending={Boolean(pending)}
+              pending={locked}
               label={copy.console.withdraw}
               onWithdraw={() =>
                 void act(
                   `/mandates/${id}/withdraw`,
                   { token: "USDC-d", amount: usdcd },
-                  undefined,
                   copy.console.withdrawnToast,
                 )
               }
@@ -221,24 +229,29 @@ export default function MandatePage() {
         </section>
       </div>
 
-      <div className="actions" style={{ margin: "22px 0" }}>
-        <button
-          className="btn"
-          type="button"
-          disabled={Boolean(pending)}
-          onClick={() => act(`/agents/${agent}/tick`, { mandateId: id })}
-        >
-          {copy.console.tick}
-        </button>
-        <button
-          className="btn ghost"
-          type="button"
-          disabled={Boolean(pending)}
-          onClick={() => act(`/agents/${agent}/tick`, { mandateId: id, overCap: true })}
-        >
-          {copy.console.overCap}
-        </button>
-      </div>
+      {engineDemoAllowed() ? (
+        <div className="actions" style={{ margin: "22px 0" }}>
+          <p className="meta" style={{ flex: "1 1 100%" }}>
+            {copy.demo.engineNotWallet}
+          </p>
+          <button
+            className="btn"
+            type="button"
+            disabled={Boolean(pending)}
+            onClick={() => act(`/agents/${agent}/tick`, { mandateId: id })}
+          >
+            {copy.console.tick}
+          </button>
+          <button
+            className="btn ghost"
+            type="button"
+            disabled={Boolean(pending)}
+            onClick={() => act(`/agents/${agent}/tick`, { mandateId: id, overCap: true })}
+          >
+            {copy.console.overCap}
+          </button>
+        </div>
+      ) : null}
       {pending ? <p className="pending">{copy.subscribe.pending}</p> : null}
       {err ? (
         <p className="no" role="alert">

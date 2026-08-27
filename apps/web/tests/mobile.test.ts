@@ -20,6 +20,24 @@ describe("Float mobile layout", () => {
   test("phone nav uses a Menu control", () => {
     expect(css).toContain(".nav-toggle-btn");
     expect(css).toContain(".nav-links.open");
+    expect(css).toContain(".nav-end");
+    expect(css).toContain(".wallet-btn");
+  });
+
+  test("posters scale instead of overflowing 1200px", () => {
+    expect(css).toContain("aspect-ratio: 1200 / 630");
+    expect(css).toContain("max-width: 1200px");
+  });
+
+  test("kill rows stack on a phone", () => {
+    expect(css).toContain(".kill-row");
+    expect(css).toContain("flex-direction: column");
+  });
+
+  test("safe-area insets pad nav wrap and toast", () => {
+    expect(css).toContain("env(safe-area-inset-top)");
+    expect(css).toContain("env(safe-area-inset-bottom)");
+    expect(css).toContain("env(safe-area-inset-left)");
   });
 
   test("strategy cards use chip chips", () => {

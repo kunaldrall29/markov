@@ -9,8 +9,8 @@
 - RPC: `SOLANA_RPC_URL` / `SOLANA_WS_URL` (Helius). Fallback constant only: `https://api.devnet.solana.com`.
 - Indexer uses local sqlite (`data/indexer.sqlite`). `DATABASE_URL` is reserved for later Postgres. `SUPABASE_SERVICE_ROLE_KEY` is server-side only, never in `apps/web`.
 - Ledger persists to `data/ledger.json` (gitignored). Delete it to reset.
-- Float prototype uses demo owner `owner_demo`. No browser wallet is required.
-- Bot is pause/revoke only (`bot_emergency`). Telegram is optional via `TELEGRAM_BOT_TOKEN`. A compromised bot can only protect the owner.
+- Float uses Phantom / Solflare via a custom connect control. Mutations send a per-request owner signature (`x-actor`, `x-owner-ts`, `x-owner-sig`). Loopback still accepts unsigned `owner_demo` for local tests. Optimistic UI is off.
+- Bot is pause/revoke only (`bot_emergency` with `x-api-key` when `MARKOV_API_SECRET` is set). Telegram is optional via `TELEGRAM_BOT_TOKEN`. A compromised bot can only protect the owner.
 - Phase 0 freeze: no copilot, launch radar, pooled mandates, score/credit, token, or landing-page work. Stub venues (`demo_swap`, `demo_yield`) are intentional. House operators: `markov-steady`, `markov-momentum`, `markov-redteam`. Strategy cards, not operator cards.
 - Refusals are **successful transactions**. Look for `ActionRefused` / `GuardedResult.status === "blocked"`, not `err`.
 - Never call `demo_swap` / `demo_yield` with the operator key. Operator flow goes through `@markovfyi/operator`.

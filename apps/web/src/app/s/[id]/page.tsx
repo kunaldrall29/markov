@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { api, formatAmount, type StrategyCard } from "@/lib/api";
+import { formatAmount, type StrategyCard } from "@/lib/api";
 import { copy } from "@/lib/copy";
+import { useApi } from "@/lib/useApi";
+import { engineDemoAllowed } from "@markov/rpc";
 import { PolicyChip } from "@/components/PolicyChip";
 import { ReceiptRow, type ReceiptLike } from "@/components/ReceiptRow";
 import { RecordStrip } from "@/components/RecordStrip";
@@ -13,6 +15,7 @@ import { useToast } from "@/components/Toast";
 export default function StrategyPage() {
   const { id } = useParams<{ id: string }>();
   const toast = useToast();
+  const { api } = useApi();
   const [row, setRow] = useState<StrategyCard | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -21,7 +24,7 @@ export default function StrategyPage() {
   const refresh = useCallback(async () => {
     const data = await api<StrategyCard>(`/strategies/${id}`);
     setRow(data);
-  }, [id]);
+  }, [id, api]);
 
   useEffect(() => {
     let alive = true;
@@ -116,10 +119,12 @@ export default function StrategyPage() {
         <Link className="btn ghost" href={`/o/${row.template.operator}`}>
           {copy.strategy.operator}
         </Link>
-        <button className="btn ghost" type="button" disabled={busy} onClick={fanOut}>
-          {copy.strategy.fanOut}
-        </button>
-        {row.slug === "redteam" ? (
+        {engineDemoAllowed() ? (
+          <button className="btn ghost" type="button" disabled={busy} onClick={fanOut}>
+            {copy.strategy.fanOut}
+          </button>
+        ) : null}
+        {engineDemoAllowed() && row.slug === "redteam" ? (
           <button className="btn kill" type="button" disabled={busy} onClick={sweep}>
             {copy.strategy.sweep}
           </button>

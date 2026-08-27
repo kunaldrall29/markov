@@ -1,6 +1,6 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8787";
 
-function errorMessage(text: string): string {
+export function errorMessage(text: string): string {
   try {
     const parsed = JSON.parse(text) as { error?: unknown };
     if (typeof parsed.error === "string" && parsed.error) return parsed.error;
@@ -29,6 +29,11 @@ export function formatAmount(amount: number, decimals = 6): string {
   const frac = String(Math.abs(amount) % 10 ** decimals).padStart(decimals, "0").replace(/0+$/, "");
   const body = frac ? `${whole}.${frac}` : String(whole);
   return amount < 0 ? `-${body}` : body;
+}
+
+export function shortPubkey(pk: string): string {
+  if (pk.length <= 12) return pk;
+  return `${pk.slice(0, 4)}…${pk.slice(-4)}`;
 }
 
 export type StrategyCard = {
@@ -81,4 +86,3 @@ export type OperatorRow = {
   } | null;
   strategies: StrategyCard[];
 };
-

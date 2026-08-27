@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { api, formatAmount } from "@/lib/api";
+import { formatAmount } from "@/lib/api";
 import { copy } from "@/lib/copy";
+import { useApi } from "@/lib/useApi";
 import { KillSwitch } from "@/components/KillSwitch";
 import { useToast } from "@/components/Toast";
 
@@ -18,6 +19,7 @@ interface Mandate {
 
 export default function KillPage() {
   const toast = useToast();
+  const { api, publicKey, connected } = useApi();
   const [rows, setRows] = useState<Mandate[]>([]);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,10 +28,11 @@ export default function KillPage() {
   const [ready, setReady] = useState(false);
 
   const refresh = useCallback(async () => {
-    const data = await api<Mandate[]>("/mandates");
+    const owner = publicKey ?? "owner_demo";
+    const data = await api<Mandate[]>(`/mandates?owner=${encodeURIComponent(owner)}`);
     setRows(data);
     setReady(true);
-  }, []);
+  }, [api, publicKey]);
 
   useEffect(() => {
     refresh().catch((e) => {
@@ -62,6 +65,7 @@ export default function KillPage() {
         {copy.kill.title} <em>{copy.kill.fundsStay}</em>
       </h1>
       <p className="lede">{copy.kill.lede}</p>
+      <p className="meta">{connected ? copy.wallet.hint : copy.wallet.required}</p>
       <div className="kill-breaker" style={{ marginBottom: 22 }}>
         <p className="meta authority">{copy.nav.kill}</p>
         <div className="actions">
@@ -79,19 +83,23 @@ export default function KillPage() {
         {!ready ? <p className="meta">{copy.kill.loading}</p> : null}
         {ready && rows.length === 0 ? <p className="meta">{copy.kill.empty}</p> : null}
         {rows.map((m) => (
-          <div className="receipt" key={m.id}>
-            <span>
+          <div className="kill-row" key={m.id}>
+            <div>
               <Link href={`/m/${m.id}`}>{m.id}</Link>
-            </span>
-            <span>
-              {m.state} · {m.operator} · {formatAmount(m.vault["USDC-d"] ?? 0)} USDC-d
-            </span>
-            <span className="actions" style={{ marginTop: 0 }}>
+              <p className="meta pubkey">
+                {m.state} · {m.operator} · {formatAmount(m.vault["USDC-d"] ?? 0)} USDC-d
+              </p>
+            </div>
+            <div className="actions">
               {m.state === "Active" ? (
                 <button
                   className="btn authority"
                   type="button"
-                  onClick={() => api(`/mandates/${m.id}/pause`, { method: "POST" }).then(refresh)}
+                  onClick={() =>
+                    api(`/mandates/${m.id}/pause`, { method: "POST" })
+                      .then(refresh)
+                      .catch((e) => setErr(e instanceof Error ? e.message : copy.toast.failed))
+                  }
                 >
                   {copy.console.pause}
                 </button>
@@ -102,7 +110,7 @@ export default function KillPage() {
                   onArm={() => setArmed(m.id)}
                   onRevoke={() => {
                     setArmed(null);
-                    void api(`/mandates/${m.id}/revoke`, { method: "POST" }, "bot_emergency")
+                    void api(`/mandates/${m.id}/revoke`, { method: "POST" })
                       .then(() => {
                         toast(copy.console.revokedToast);
                         return refresh();
@@ -111,7 +119,7 @@ export default function KillPage() {
                   }}
                 />
               ) : null}
-            </span>
+            </div>
           </div>
         ))}
       </div>

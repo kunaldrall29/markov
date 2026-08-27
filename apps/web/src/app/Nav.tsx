@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { markovCluster } from "@markov/rpc";
+import { WalletButton } from "@/components/WalletButton";
 import { copy } from "@/lib/copy";
 
 const DOCS = process.env.NEXT_PUBLIC_DOCS_URL ?? "http://127.0.0.1:3001";
@@ -26,15 +28,6 @@ export function Nav() {
         </svg>
         FLOAT
       </Link>
-      <button
-        type="button"
-        className="nav-toggle-btn"
-        aria-expanded={open}
-        aria-controls="nav-links"
-        onClick={() => setOpen((v) => !v)}
-      >
-        {copy.nav.menu}
-      </button>
       <div className={open ? "nav-links open" : "nav-links"} id="nav-links">
         <Link href="/" onClick={() => setOpen(false)}>
           {copy.nav.marketplace}
@@ -52,6 +45,19 @@ export function Nav() {
         <a href="https://markovhq.com" target="_blank" rel="noopener noreferrer">
           {copy.nav.markov}
         </a>
+        <span className="cluster-chip">{markovCluster()}</span>
+      </div>
+      <div className="nav-end">
+        <WalletButton />
+        <button
+          type="button"
+          className="nav-toggle-btn"
+          aria-expanded={open}
+          aria-controls="nav-links"
+          onClick={() => setOpen((v) => !v)}
+        >
+          {copy.nav.menu}
+        </button>
       </div>
     </nav>
   );

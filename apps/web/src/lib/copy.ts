@@ -10,6 +10,17 @@ export const copy = {
     markov: "Markov",
     menu: "Menu",
   },
+  wallet: {
+    connect: "Connect",
+    connecting: "Connecting…",
+    disconnect: "Disconnect",
+    pick: "Choose a wallet",
+    install: "Install",
+    close: "Close",
+    required: "Connect a wallet to act as owner.",
+    hint: "Connect Phantom or Solflare. Local loopback still accepts the demo owner.",
+    notOwner: "This mandate belongs to another owner.",
+  },
   marketplace: {
     eyebrow: "Marketplace",
     empty: "No strategies yet — publish the first.",
@@ -113,6 +124,7 @@ export const copy = {
     fourBusy: "Running four-beat…",
     vault: "Run strategy-vault demo",
     vaultBusy: "Running strategy-vault…",
+    engineNotWallet: "Engine demo — not your wallet.",
   },
   errors: {
     generic: "Something broke. Your keys are still yours.",
