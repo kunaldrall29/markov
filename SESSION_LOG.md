@@ -15,6 +15,56 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 - Next
 ```
 
+## 2026-08-27 — Markov devnet MVP status
+
+HEAD `079bd20`. No commits since 2026-08-26. FACTS `c046286`.
+
+BUILT AND VERIFIED
+- markov-program: `bun run demo:devnet` exit 0 on `http://127.0.0.1:8899` (mandate `DEp8YvRGXXq4Suzr7Dr5qZFsGaQbnKurjxtA9MwXQ6C5`; OverTxCap then Revoked). `solana program dump` of `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm`, `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK`, `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` `cmp` equal to `target/deploy/{mandate,demo_swap,demo_yield}.so`.
+- markov-sdk: `bun test packages apps` 35 pass 0 fail; typecheck `@markov/sdk` `@markov/engine` `@markovfyi/operator` `@markov/rpc` exit 0.
+- float-web: web tests pass; `bun run --filter @markov/web typecheck` 0; `bun run --filter @markov/web build` 0. api four-beat test pass. indexer sqlite test pass.
+- float-agents: data-api tests pass; typecheck `@markov/agents` `@markov/data-api` 0.
+- float-bot: bot tests pass; typecheck 0. `handleCommand("/status mdt_0001")` → `mdt_0001 state=Revoked`.
+- markov-site: site tests pass; typecheck 0; `bun run --filter @markov/site build` 0.
+
+LIVE
+- `http://127.0.0.1:8787/health` 200 `ok:true` `rpc:http://127.0.0.1:8899`
+- `http://127.0.0.1:8788/health` 200; `GET /price/DEMO` 402
+- `http://127.0.0.1:8789/health` 200 `tokenSet:false`
+- `http://127.0.0.1:8790/health` 200; `POST /sync` `{"pulled":88}`
+- `http://127.0.0.1:3000/` 200 title `Float — Markov`
+- `http://127.0.0.1:3001/docs` 200 Docusaurus
+- `https://markovhq.com` 200 title `Markov — Give an agent your capital. Keep the keys.`
+- `https://markov.fyi` 200 same etag as markovhq.com
+- `https://markov.fyi/litepaper` 200 title `Litepaper — Markov` v0.4
+- local `:8899` program IDs executable; bytecode = `target/deploy/*.so`
+
+BUILT, NOT VERIFIED
+- `bun run typecheck` exit 2: `@markov/api` `@markov/indexer` TS2307 `node:fs`/`node:path` (api also TS5097 `.ts` import).
+- `anchor build` not run. No `#[test]` in `programs/`.
+- `GET :8789/status` 404. Telegram `/status` not sent (`tokenSet:false`).
+- Public `getAccountInfo` for the three `Anchor.toml` IDs on `https://api.devnet.solana.com`: null.
+- `https://float.markov.fyi` 404; `https://data.markov.fyi` 404; `https://docs.markov.fyi` 404.
+- `https://float-web.vercel.app` 200 title `Float` h1 `Your Place on the Water,Always Waiting.` (not this repo).
+- `:8791` connection refused.
+
+IN PROGRESS
+S9. Done: `https://markov.fyi/litepaper` 200 v0.4; local Docusaurus `:3001/docs` 200. Remaining: `https://markov.fyi/docs` 404; `DEMO.md` absent; `scripts/README.md` absent. MAP S7 paths `docs/indexer.md`, `docs/policy-presets.md`, `docs/data-api.md` absent.
+
+NOT STARTED
+Phase 1–3 in `docs/PITCH.md` (audit/mainnet, copilot, launch radar, scores/bonds/credit). MAP has no S1.
+
+BLOCKED / NEEDS KUNAL
+- Public deploy: deployer `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` `getBalance` 0 on `https://api.devnet.solana.com`. Need SOL on that account. Unblocks program accounts at `Anchor.toml` IDs on public devnet.
+- Telegram: `TELEGRAM_BOT_TOKEN` unset. Need the bot token. Unblocks Telegram `/status`.
+
+RISKS
+- `Anchor.toml` IDs `getAccountInfo` null on `https://api.devnet.solana.com`; deployer lamports 0.
+- `bun run typecheck` exit 2 (`@markov/api`, `@markov/indexer`).
+- `docs/FACTS.md` (2026-08-26) `markov.fyi docs/litepaper/Float URLs | Not live` vs `https://markov.fyi/litepaper` HTTP 200 v0.4. `c046286` FACTS rows (six products; tree is `kunaldrall29/markov`) match `git remote` and `docs/MAP.md`.
+
+---
+
 ## 2026-08-26 — mobile layout
 
 - Goal: make Float and Docusaurus usable on a phone.
