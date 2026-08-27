@@ -46,13 +46,21 @@ export default function MandatePage() {
   }, [id]);
 
   useEffect(() => {
+    let alive = true;
     refresh().catch((e) => {
+      if (!alive) return;
       setErr(e instanceof Error ? e.message : String(e));
       setMissing(true);
     });
+    if (missing) return () => {
+      alive = false;
+    };
     const t = setInterval(() => refresh().catch(() => undefined), 2000);
-    return () => clearInterval(t);
-  }, [refresh]);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, [refresh, missing]);
 
   async function act(path: string, body?: unknown, actor?: string) {
     setErr("");
