@@ -4,12 +4,16 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Intent, Policy } from "@markov/engine";
 import { TOKENS } from "@markov/engine";
+import { createMandateFromTemplate } from "@markov/sdk";
 import { listenHost, rpcHost } from "@markov/rpc";
 import { mutationAllowed } from "./auth";
-import { tickDca, tickDip, tickYield } from "./agents";
+import { fanOut, fanOutSwap, tickMomentum, tickSteady } from "./agents";
 import { fetchPrice } from "./data";
 import { runFourBeat } from "./four-beat";
-import { ACTORS, DEMO_POLICY, seed } from "./seed";
+import { exerciseAllBlockReasons } from "./redteam";
+import { ACTORS, DEMO_POLICY, publishedStrategies, seed, strategyById } from "./seed";
+import { operatorStats, strategyStats } from "./stats";
+import { runStrategyVaultDemo } from "./strategy-vault";
 import { loadEngine, persist } from "./store";
 
 const ROOT = join(import.meta.dir, "../../..");
@@ -19,6 +23,7 @@ const MAX_FUND = 10_000 * 1_000_000;
 const FOUR_BEAT_COOLDOWN_MS = 10_000;
 let lastFourBeatAt = 0;
 let fourBeatBusy = false;
+let lastVaultAt = 0;
 
 const engine = loadEngine();
 seed(engine);
@@ -138,6 +143,35 @@ app.get("/health", (c) => {
 
 app.get("/operators", (c) => c.json([...engine.operators.values()]));
 
+app.get("/operators/:id", (c) => {
+  const id = c.req.param("id");
+  const profile = engine.operators.get(id);
+  if (!profile) return c.json({ error: "unknown operator" }, 404);
+  const stats = operatorStats(engine.receipts, [...engine.mandates.values()]).find((s) => s.operator === id);
+  const strategies = strategyStats(engine.receipts, [...engine.mandates.values()]).filter(
+    (s) => s.template.operator === id,
+  );
+  return c.json({ ...profile, stats: stats?.stats ?? null, strategies });
+});
+
+app.get("/stats/operators", (c) =>
+  c.json(operatorStats(engine.receipts, [...engine.mandates.values()])),
+);
+
+app.get("/strategies", (c) => c.json(strategyStats(engine.receipts, [...engine.mandates.values()])));
+
+app.get("/strategies/:id", (c) => {
+  const id = c.req.param("id");
+  const row = strategyStats(engine.receipts, [...engine.mandates.values()]).find(
+    (s) => s.strategyId === id || s.slug === id,
+  );
+  if (!row) return c.json({ error: "unknown strategy" }, 404);
+  const receipts = engine.receipts.filter(
+    (r) => (r.type === "ActionExecuted" || r.type === "ActionRefused") && "strategyId" in r && r.strategyId === row.strategyId,
+  );
+  return c.json({ ...row, receipts });
+});
+
 app.get("/mandates", (c) => c.json([...engine.mandates.values()]));
 
 app.get("/mandates/:id", (c) => {
@@ -156,12 +190,32 @@ app.get("/receipts", (c) => {
 
 app.post("/mandates", async (c) => {
   const body = await c.req.json();
+  let owner = body.owner ?? actor(c);
+  let operator = body.operator;
+  let policy = tightenPolicy(body.policy);
+  let ttlSecs = body.ttlSecs ?? 30 * 24 * 3600;
+  let strategyId: string | null = null;
+  if (body.strategyId) {
+    const published = strategyById(body.strategyId) ?? publishedStrategies().find((s) => s.slug === body.strategyId);
+    if (!published) return c.json({ error: "unknown strategy" }, 404);
+    try {
+      const built = createMandateFromTemplate(published.template, body.overrides);
+      operator = built.operator;
+      policy = built.policy;
+      ttlSecs = built.ttlSecs;
+      strategyId = built.strategyId;
+    } catch (err) {
+      return c.json({ error: err instanceof Error ? err.message : "invalid overrides" }, 400);
+    }
+  }
+  if (!operator) return c.json({ error: "operator required" }, 400);
   const mandate = engine.createMandate({
-    owner: body.owner ?? actor(c),
-    operator: body.operator,
+    owner,
+    operator,
     emergencyKey: ACTORS.emergency,
-    policy: tightenPolicy(body.policy),
-    ttlSecs: body.ttlSecs ?? 30 * 24 * 3600,
+    policy,
+    ttlSecs,
+    strategyId,
   });
   const fundAmount = cappedAmount(body.fundAmount);
   if (fundAmount) {
@@ -225,13 +279,34 @@ app.post("/agents/:name/tick", async (c) => {
   const body = await c.req.json();
   const name = c.req.param("name");
   const receipts =
-    name === "dip"
-      ? tickDip(engine, body.mandateId, Boolean(body.overCap))
-      : name === "yield"
-        ? tickYield(engine, body.mandateId, Boolean(body.overCap))
-        : tickDca(engine, body.mandateId, Boolean(body.overCap));
+    name === "steady" || name === "yield"
+      ? tickSteady(engine, body.mandateId, Boolean(body.overCap))
+      : name === "redteam"
+        ? tickMomentum(engine, body.mandateId, true)
+        : tickMomentum(engine, body.mandateId, Boolean(body.overCap));
   persist(engine);
   return c.json({ receipts });
+});
+
+app.post("/agents/redteam/sweep", (c) => {
+  const out = exerciseAllBlockReasons(engine);
+  persist(engine);
+  return c.json(out);
+});
+
+app.post("/strategies/:id/fan-out", async (c) => {
+  const published = strategyById(c.req.param("id")) ?? publishedStrategies().find((s) => s.slug === c.req.param("id"));
+  if (!published) return c.json({ error: "unknown strategy" }, 404);
+  const body = await c.req.json().catch(() => ({} as { amountIn?: number; overCap?: boolean; agent?: string }));
+  if (typeof body.amountIn === "number" && body.amountIn > 0) {
+    const rows = fanOutSwap(engine, published.strategyId, body.amountIn);
+    persist(engine);
+    return c.json({ strategyId: published.strategyId, rows });
+  }
+  const tick = published.slug === "steady" ? tickSteady : tickMomentum;
+  const rows = fanOut(engine, published.strategyId, tick, Boolean(body.overCap));
+  persist(engine);
+  return c.json({ strategyId: published.strategyId, rows });
 });
 
 app.post("/demo/four-beat", async (c) => {
@@ -258,6 +333,17 @@ app.post("/demo/four-beat", async (c) => {
   } finally {
     fourBeatBusy = false;
   }
+});
+
+app.post("/demo/strategy-vault", (c) => {
+  const now = Date.now();
+  if (now - lastVaultAt < FOUR_BEAT_COOLDOWN_MS) {
+    return c.json({ error: "strategy-vault cooldown" }, 429);
+  }
+  lastVaultAt = now;
+  const result = runStrategyVaultDemo(engine);
+  persist(engine);
+  return c.json(result);
 });
 
 const port = Number(process.env.PORT ?? 8787);

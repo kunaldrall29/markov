@@ -10,8 +10,16 @@ function apiHeaders(): Record<string, string> {
   };
 }
 
-export async function tick(name: "dca" | "dip" | "yield", mandateId: string, overCap = false) {
-  const res = await fetch(`${API}/agents/${name}/tick`, {
+export type AgentName = "steady" | "momentum" | "redteam" | "dca" | "dip" | "yield";
+
+export function canonicalAgent(name: string): "steady" | "momentum" | "redteam" {
+  if (name === "steady" || name === "yield") return "steady";
+  if (name === "redteam") return "redteam";
+  return "momentum";
+}
+
+export async function tick(name: AgentName, mandateId: string, overCap = false) {
+  const res = await fetch(`${API}/agents/${canonicalAgent(name)}/tick`, {
     method: "POST",
     headers: apiHeaders(),
     body: JSON.stringify({ mandateId, overCap }),
@@ -24,7 +32,7 @@ const port = Number(process.env.PORT ?? 0);
 
 if (import.meta.main) {
   if (port > 0) {
-    const name = (process.env.AGENT_NAME as "dca" | "dip" | "yield") ?? "dca";
+    const name = canonicalAgent((process.env.AGENT_NAME as AgentName) ?? "momentum");
     const hostname = listenHost();
     Bun.serve({
       port,
@@ -50,11 +58,11 @@ if (import.meta.main) {
       }, cadence);
     }
   } else {
-    const name = (Bun.argv[2] as "dca" | "dip" | "yield") ?? "dca";
+    const name = canonicalAgent((Bun.argv[2] as AgentName) ?? "momentum");
     const mandateId = Bun.argv[3];
     const overCap = Bun.argv.includes("--over-cap");
     if (!mandateId) {
-      console.log("usage: bun src/index.ts dca <mandateId> [--over-cap]");
+      console.log("usage: bun src/index.ts momentum <mandateId> [--over-cap]");
       process.exit(1);
     }
     const out = await tick(name, mandateId, overCap);

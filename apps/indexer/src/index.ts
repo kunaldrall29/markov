@@ -2,7 +2,16 @@ import { Hono } from "hono";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { isLoopbackHost, listenHost } from "@markov/rpc";
-import { fromEngineReceipt, insertReceipt, listReceipts, openDb, upsertMandate } from "./db";
+import {
+  fromEngineReceipt,
+  insertReceipt,
+  listOperatorStats,
+  listReceipts,
+  listStrategyStats,
+  openDb,
+  upsertMandate,
+  upsertStrategy,
+} from "./db";
 
 const API = process.env.API_URL ?? "http://127.0.0.1:8787";
 const sqlitePath = process.env.INDEXER_SQLITE ?? join(import.meta.dir, "../../../data/indexer.sqlite");
@@ -34,6 +43,9 @@ export function createIndexer(database = db) {
     return c.json(listReceipts(database, mandateId));
   });
 
+  app.get("/strategy_stats", (c) => c.json(listStrategyStats(database)));
+  app.get("/operator_stats", (c) => c.json(listOperatorStats(database)));
+
   app.post("/sync", async (c) => {
     if (!syncAllowed(c)) return c.json({ error: "unauthorized" }, 401);
     const pulled = await syncFromApi(database);
@@ -44,12 +56,33 @@ export function createIndexer(database = db) {
 }
 
 export async function syncFromApi(database = db): Promise<number> {
-  const [mandatesRes, receiptsRes] = await Promise.all([
+  const [mandatesRes, receiptsRes, strategiesRes] = await Promise.all([
     fetch(`${API}/mandates`),
     fetch(`${API}/receipts`),
+    fetch(`${API}/strategies`),
   ]);
   if (!mandatesRes.ok || !receiptsRes.ok) {
     throw new Error("api sync failed");
+  }
+  if (strategiesRes.ok) {
+    const strategies = (await strategiesRes.json()) as {
+      strategyId: string;
+      slug?: string;
+      name?: string;
+      template?: { operator?: string };
+      operator?: string;
+    }[];
+    const publishedAt = Math.floor(Date.now() / 1000);
+    for (const s of strategies) {
+      upsertStrategy(database, {
+        strategy_id: s.strategyId,
+        operator: s.template?.operator ?? s.operator ?? "",
+        name: s.name ?? null,
+        slug: s.slug ?? null,
+        template_json: JSON.stringify(s.template ?? s),
+        published_at: publishedAt,
+      });
+    }
   }
   const mandates = (await mandatesRes.json()) as {
     id: string;
@@ -57,6 +90,7 @@ export async function syncFromApi(database = db): Promise<number> {
     operator: string;
     state: string;
     createdTs?: number;
+    strategyId?: string | null;
   }[];
   for (const m of mandates) {
     upsertMandate(database, {
@@ -65,6 +99,7 @@ export async function syncFromApi(database = db): Promise<number> {
       operator: m.operator,
       state: m.state,
       created_ts: m.createdTs ?? null,
+      strategy_id: m.strategyId ?? null,
     });
   }
   database.run("delete from receipts");
