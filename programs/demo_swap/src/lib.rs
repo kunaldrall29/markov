@@ -36,6 +36,13 @@ pub mod demo_swap {
         let a_to_b = src_mint == pool.mint_a && dst_mint == pool.mint_b;
         let b_to_a = src_mint == pool.mint_b && dst_mint == pool.mint_a;
         require!(a_to_b || b_to_a, SwapError::WrongMints);
+        let (expected_source, expected_dest) = if a_to_b {
+            (pool.vault_a, pool.vault_b)
+        } else {
+            (pool.vault_b, pool.vault_a)
+        };
+        require_keys_eq!(ctx.accounts.pool_source.key(), expected_source, SwapError::BadVault);
+        require_keys_eq!(ctx.accounts.pool_dest.key(), expected_dest, SwapError::BadVault);
 
         let fee = amount_in
             .checked_mul(pool.fee_bps as u64)

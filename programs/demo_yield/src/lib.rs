@@ -30,6 +30,8 @@ pub mod demo_yield {
 
     pub fn deposit(ctx: Context<Move>, amount: u64) -> Result<u64> {
         require!(amount > 0, YieldError::InvalidAmount);
+        require_keys_eq!(ctx.accounts.vault.key(), ctx.accounts.pool.vault, YieldError::BadVault);
+        require_keys_eq!(ctx.accounts.vault.mint, ctx.accounts.pool.mint, YieldError::BadVault);
         let shares = amount
             .checked_mul(1_000_000)
             .ok_or(YieldError::Math)?
@@ -52,6 +54,8 @@ pub mod demo_yield {
 
     pub fn withdraw(ctx: Context<Move>, shares: u64) -> Result<u64> {
         require!(shares > 0, YieldError::InvalidAmount);
+        require_keys_eq!(ctx.accounts.vault.key(), ctx.accounts.pool.vault, YieldError::BadVault);
+        require_keys_eq!(ctx.accounts.vault.mint, ctx.accounts.pool.mint, YieldError::BadVault);
         require!(shares <= ctx.accounts.pool.total_shares, YieldError::Insufficient);
         let amount = shares
             .checked_mul(ctx.accounts.pool.share_value)

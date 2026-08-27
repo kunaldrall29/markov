@@ -189,6 +189,12 @@ pub mod mandate {
         let mint_out = ctx.accounts.mint_out.key();
         let venue = ctx.accounts.swap_program.key();
         let pool = load_swap_pool(&ctx.accounts.pool)?;
+        assert_swap_vaults(
+            &pool,
+            mint_in,
+            ctx.accounts.pool_source.key(),
+            ctx.accounts.pool_dest.key(),
+        )?;
         let expected = quote_swap(&pool, mint_in, amount_in)?;
 
         if let Some(reason) = gate_swap(
@@ -265,6 +271,8 @@ pub mod mandate {
         let caller = ctx.accounts.caller.key();
         let mint = ctx.accounts.mint.key();
         let venue = ctx.accounts.yield_program.key();
+        let pool = load_yield_pool(&ctx.accounts.pool)?;
+        require_keys_eq!(ctx.accounts.pool_vault.key(), pool.vault, MandateError::InvalidVenue);
 
         if let Some(reason) = gate_move(
             &ctx.accounts.mandate,
@@ -306,7 +314,6 @@ pub mod mandate {
             amount,
         )?;
 
-        let pool = load_yield_pool(&ctx.accounts.pool)?;
         let shares = amount
             .checked_mul(1_000_000)
             .ok_or(MandateError::Math)?
@@ -346,6 +353,7 @@ pub mod mandate {
         let mint = ctx.accounts.mint.key();
         let venue = ctx.accounts.yield_program.key();
         let pool = load_yield_pool(&ctx.accounts.pool)?;
+        require_keys_eq!(ctx.accounts.pool_vault.key(), pool.vault, MandateError::InvalidVenue);
         let amount = shares
             .checked_mul(pool.share_value)
             .ok_or(MandateError::Math)?
@@ -553,6 +561,19 @@ fn program_allowed(p: &Policy, id: &Pubkey) -> bool {
 fn token_allowed(p: &Policy, id: &Pubkey) -> bool {
     let n = (p.token_len as usize).min(4);
     p.tokens[..n].iter().any(|x| x == id)
+}
+
+fn assert_swap_vaults(pool: &SwapPool, mint_in: Pubkey, pool_source: Pubkey, pool_dest: Pubkey) -> Result<()> {
+    let (expected_source, expected_dest) = if mint_in == pool.mint_a {
+        (pool.vault_a, pool.vault_b)
+    } else if mint_in == pool.mint_b {
+        (pool.vault_b, pool.vault_a)
+    } else {
+        return err!(MandateError::WrongMint);
+    };
+    require_keys_eq!(pool_source, expected_source, MandateError::InvalidVenue);
+    require_keys_eq!(pool_dest, expected_dest, MandateError::InvalidVenue);
+    Ok(())
 }
 
 fn load_swap_pool(info: &AccountInfo) -> Result<SwapPool> {
