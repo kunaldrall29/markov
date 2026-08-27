@@ -21,3 +21,4 @@
 - `bun run demo` is in-process engine four-beat. `bun run demo:devnet` is live Solana (RPC from `data/devnet.json`).
 - Anchor `EventParser` names events in camelCase (`actionRefused`). Compare case-insensitively or refusals look like executes.
 - Do not commit `data/devnet.json` with `rpc` pointing at localhost. That file is pubkeys for public devnet.
+- Git: author and committer are `kunaldrall29 <kunaldrall29@gmail.com>` only. Never add `Co-authored-by`. Never credit a tool, model, or builder in commits, tags, or pull request text.

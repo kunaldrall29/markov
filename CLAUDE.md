@@ -36,6 +36,10 @@ In: mandates, allowlists, caps, x402 spend budget, action **and** refusal receip
 
 Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, landing-page work, real Jupiter/Orca unless proven.
 
+## Git
+
+Author and committer: `kunaldrall29 <kunaldrall29@gmail.com>` only. No `Co-authored-by`. No tool, model, or builder credits in commits or pull request text.
+
 ## Handoff
 
 Append `SESSION_LOG.md` when you stop. Next session starts there.
