@@ -10,5 +10,8 @@
     "lint": "tsc --noEmit",
     "build": "tsc --noEmit",
     "test": "bun test"
+  },
+  "dependencies": {
+    "@markov/rpc": "workspace:*"
   }
 }

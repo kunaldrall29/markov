@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { isLoopbackHost, listenHost } from "@markov/rpc";
 import { fromEngineReceipt, insertReceipt, listReceipts, openDb, upsertMandate } from "./db";
 
 const API = process.env.API_URL ?? "http://127.0.0.1:8787";
@@ -8,6 +9,14 @@ const sqlitePath = process.env.INDEXER_SQLITE ?? join(import.meta.dir, "../../..
 
 mkdirSync(dirname(sqlitePath), { recursive: true });
 const db = openDb(sqlitePath.endsWith(":memory:") ? ":memory:" : sqlitePath);
+
+function syncAllowed(c: { req: { header: (n: string) => string | undefined } }) {
+  const secret = process.env.MARKOV_API_SECRET?.trim();
+  if (secret) return c.req.header("x-api-key") === secret;
+  const forwarded = c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || c.req.header("forwarded");
+  if (forwarded) return false;
+  return isLoopbackHost();
+}
 
 export function createIndexer(database = db) {
   const app = new Hono();
@@ -26,6 +35,7 @@ export function createIndexer(database = db) {
   });
 
   app.post("/sync", async (c) => {
+    if (!syncAllowed(c)) return c.json({ error: "unauthorized" }, 401);
     const pulled = await syncFromApi(database);
     return c.json({ pulled });
   });
@@ -67,10 +77,11 @@ export async function syncFromApi(database = db): Promise<number> {
 
 const app = createIndexer();
 const port = Number(process.env.PORT ?? 8790);
+const hostname = listenHost();
 
 export default {
   port,
-  hostname: "0.0.0.0",
+  hostname,
   fetch: app.fetch,
 };
 
@@ -81,5 +92,5 @@ if (import.meta.main) {
       syncFromApi().catch((err) => console.warn("indexer sync", err));
     }, cadence);
   }
-  console.log(`indexer on :${port}`);
+  console.log(`indexer on ${hostname}:${port}`);
 }

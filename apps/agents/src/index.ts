@@ -1,9 +1,19 @@
+import { listenHost } from "@markov/rpc";
+
 const API = process.env.API_URL ?? "http://127.0.0.1:8787";
+
+function apiHeaders(): Record<string, string> {
+  const secret = process.env.MARKOV_API_SECRET?.trim();
+  return {
+    "content-type": "application/json",
+    ...(secret ? { "x-api-key": secret } : {}),
+  };
+}
 
 export async function tick(name: "dca" | "dip" | "yield", mandateId: string, overCap = false) {
   const res = await fetch(`${API}/agents/${name}/tick`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: apiHeaders(),
     body: JSON.stringify({ mandateId, overCap }),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -15,9 +25,10 @@ const port = Number(process.env.PORT ?? 0);
 if (import.meta.main) {
   if (port > 0) {
     const name = (process.env.AGENT_NAME as "dca" | "dip" | "yield") ?? "dca";
+    const hostname = listenHost();
     Bun.serve({
       port,
-      hostname: "0.0.0.0",
+      hostname,
       fetch(req) {
         const url = new URL(req.url);
         if (url.pathname === "/health" || url.pathname === "/") {
@@ -30,7 +41,7 @@ if (import.meta.main) {
         return new Response("not found", { status: 404 });
       },
     });
-    console.log("agents health on", port, name);
+    console.log("agents health on", hostname, port, name);
     const cadence = Number(process.env.CADENCE_MS ?? 0);
     const mandateId = process.env.MANDATE_ADDRESS;
     if (cadence > 0 && mandateId) {

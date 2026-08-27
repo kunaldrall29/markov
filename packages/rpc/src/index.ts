@@ -11,3 +11,23 @@ export function wsUrl(): string {
   if (fromEnv && fromEnv.length > 0) return fromEnv;
   return rpcUrl().replace("https://", "wss://").replace("http://", "ws://");
 }
+
+/** Hostname only — never return a URL that may embed an API key. */
+export function rpcHost(): string {
+  try {
+    return new URL(rpcUrl()).host;
+  } catch {
+    return "invalid-rpc";
+  }
+}
+
+/** Loopback unless HOST is set (Render/public bind: HOST=0.0.0.0). */
+export function listenHost(): string {
+  const host = process.env.HOST?.trim();
+  return host && host.length > 0 ? host : "127.0.0.1";
+}
+
+export function isLoopbackHost(host = listenHost()): boolean {
+  return host === "127.0.0.1" || host === "localhost" || host === "::1";
+}
+

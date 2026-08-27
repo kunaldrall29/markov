@@ -2,6 +2,7 @@
  * Float bot — emergency key only.
  * Can pause and revoke. Cannot fund, trade, spend, or withdraw.
  */
+import { listenHost } from "@markov/rpc";
 import { handleCommand } from "./commands";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -44,7 +45,7 @@ async function telegramLoop() {
       const chat = update.message?.chat.id;
       if (!text || !chat) continue;
       try {
-        const reply = await handleCommand(text);
+        const reply = await handleCommand(text, chat);
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -58,15 +59,16 @@ async function telegramLoop() {
 }
 
 if (import.meta.main) {
+  const hostname = listenHost();
   Bun.serve({
     port,
-    hostname: "0.0.0.0",
+    hostname,
     fetch(req) {
       const url = new URL(req.url);
       if (url.pathname === "/health" || url.pathname === "/") return health();
       return new Response("not found", { status: 404 });
     },
   });
-  console.log("float-bot health on", port);
+  console.log("float-bot health on", hostname, port);
   await telegramLoop();
 }

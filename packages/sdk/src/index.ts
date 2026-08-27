@@ -16,11 +16,13 @@ export class MarkovClient {
   ) {}
 
   private async req<T>(path: string, init?: RequestInit): Promise<T> {
+    const secret = process.env.MARKOV_API_SECRET?.trim();
     const res = await fetch(`${this.baseUrl}${path}`, {
       ...init,
       headers: {
         "content-type": "application/json",
         "x-actor": this.actor,
+        ...(secret ? { "x-api-key": secret } : {}),
         ...(init?.headers ?? {}),
       },
     });
@@ -96,7 +98,7 @@ export class MarkovClient {
     });
   }
 
-  tickAgent(agent: "dca" | "dip", mandateId: string, overCap = false) {
+  tickAgent(agent: "dca" | "dip" | "yield", mandateId: string, overCap = false) {
     return this.req<{ receipts: Receipt[] }>(`/agents/${agent}/tick`, {
       method: "POST",
       body: JSON.stringify({ mandateId, overCap }),

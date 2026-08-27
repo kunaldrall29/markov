@@ -2,8 +2,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import type { Intent } from "@markov/engine";
+import type { Intent, Policy } from "@markov/engine";
 import { TOKENS } from "@markov/engine";
+import { listenHost, rpcHost } from "@markov/rpc";
+import { mutationAllowed } from "./auth";
 import { tickDca, tickDip, tickYield } from "./agents";
 import { fetchPrice } from "./data";
 import { runFourBeat } from "./four-beat";
@@ -13,6 +15,10 @@ import { loadEngine, persist } from "./store";
 const ROOT = join(import.meta.dir, "../../..");
 const DEVNET_FACTS = join(ROOT, "data/devnet.json");
 const OWNER_KEY = join(ROOT, "keys/owner.json");
+const MAX_FUND = 10_000 * 1_000_000;
+const FOUR_BEAT_COOLDOWN_MS = 10_000;
+let lastFourBeatAt = 0;
+let fourBeatBusy = false;
 
 const engine = loadEngine();
 seed(engine);
@@ -29,12 +35,46 @@ app.use(
   "*",
   cors({
     origin: WEB_ORIGINS,
-    allowHeaders: ["content-type", "x-actor"],
+    allowHeaders: ["content-type", "x-actor", "x-api-key"],
   }),
 );
 
 function actor(c: { req: { header: (n: string) => string | undefined } }) {
   return c.req.header("x-actor") ?? ACTORS.owner;
+}
+
+function tightenPolicy(incoming: unknown): Policy {
+  if (!incoming || typeof incoming !== "object") return { ...DEMO_POLICY };
+  const body = incoming as Record<string, unknown>;
+  const perTx = Number(body.perTxCap);
+  const daily = Number(body.dailyCap);
+  const spendCall = Number(body.spendPerCallCap);
+  const spendDaily = Number(body.spendDailyCap);
+  const slip = Number(body.maxSlippageBps);
+  return {
+    ...DEMO_POLICY,
+    perTxCap: Number.isFinite(perTx) && perTx > 0 ? Math.min(perTx, DEMO_POLICY.perTxCap) : DEMO_POLICY.perTxCap,
+    dailyCap: Number.isFinite(daily) && daily > 0 ? Math.min(daily, DEMO_POLICY.dailyCap) : DEMO_POLICY.dailyCap,
+    spendPerCallCap:
+      Number.isFinite(spendCall) && spendCall > 0
+        ? Math.min(spendCall, DEMO_POLICY.spendPerCallCap)
+        : DEMO_POLICY.spendPerCallCap,
+    spendDailyCap:
+      Number.isFinite(spendDaily) && spendDaily > 0
+        ? Math.min(spendDaily, DEMO_POLICY.spendDailyCap)
+        : DEMO_POLICY.spendDailyCap,
+    maxSlippageBps:
+      Number.isFinite(slip) && slip >= 0 ? Math.min(slip, DEMO_POLICY.maxSlippageBps) : DEMO_POLICY.maxSlippageBps,
+  };
+}
+
+function factsHost(rpc?: string) {
+  if (!rpc) return rpcHost();
+  try {
+    return new URL(rpc).host;
+  } catch {
+    return "invalid-rpc";
+  }
 }
 
 function explorerTxUrl(sig: string) {
@@ -52,14 +92,30 @@ function stampExplorer(
       if (idx < 0) continue;
       const [hit] = queue.splice(idx, 1);
       if (!hit) continue;
-      if ("sig" in receipt || true) {
-        (receipt as { sig?: string; explorerUrl?: string }).sig = hit.sig;
-        (receipt as { sig?: string; explorerUrl?: string }).explorerUrl =
-          hit.explorerUrl || explorerTxUrl(hit.sig);
-      }
+      (receipt as { sig?: string; explorerUrl?: string }).sig = hit.sig;
+      (receipt as { sig?: string; explorerUrl?: string }).explorerUrl = hit.explorerUrl || explorerTxUrl(hit.sig);
     }
   }
 }
+
+function cappedAmount(raw: unknown): number | null {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return Math.min(n, MAX_FUND);
+}
+
+app.use("*", async (c, next) => {
+  const method = c.req.method;
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") return next();
+  if (mutationAllowed(c.req.raw.headers)) return next();
+  return c.json({ error: "unauthorized" }, 401);
+});
+
+app.onError((err, c) => {
+  const message = err instanceof Error ? err.message : "error";
+  const status = message.startsWith("unknown mandate") ? 404 : 400;
+  return c.json({ error: message }, status);
+});
 
 app.get("/health", (c) => {
   const facts = existsSync(DEVNET_FACTS)
@@ -76,7 +132,7 @@ app.get("/health", (c) => {
     mandates: engine.mandates.size,
     receipts: engine.receipts.length,
     programs: facts?.programs ?? null,
-    rpc: facts?.rpc ?? null,
+    rpcHost: factsHost(facts?.rpc),
   });
 });
 
@@ -103,12 +159,13 @@ app.post("/mandates", async (c) => {
   const mandate = engine.createMandate({
     owner: body.owner ?? actor(c),
     operator: body.operator,
-    emergencyKey: body.emergencyKey ?? ACTORS.emergency,
-    policy: { ...DEMO_POLICY, ...body.policy },
+    emergencyKey: ACTORS.emergency,
+    policy: tightenPolicy(body.policy),
     ttlSecs: body.ttlSecs ?? 30 * 24 * 3600,
   });
-  if (body.fundAmount) {
-    engine.fund(mandate.id, mandate.owner, TOKENS.usdcd, Number(body.fundAmount));
+  const fundAmount = cappedAmount(body.fundAmount);
+  if (fundAmount) {
+    engine.fund(mandate.id, mandate.owner, TOKENS.usdcd, fundAmount);
   }
   persist(engine);
   return c.json(engine.mandate(mandate.id));
@@ -116,7 +173,9 @@ app.post("/mandates", async (c) => {
 
 app.post("/mandates/:id/fund", async (c) => {
   const body = await c.req.json();
-  const receipt = engine.fund(c.req.param("id"), actor(c), body.token ?? TOKENS.usdcd, Number(body.amount));
+  const amount = cappedAmount(body.amount);
+  if (amount == null) return c.json({ error: "invalid amount" }, 400);
+  const receipt = engine.fund(c.req.param("id"), actor(c), body.token ?? TOKENS.usdcd, amount);
   persist(engine);
   return c.json(receipt);
 });
@@ -148,12 +207,9 @@ app.post("/mandates/:id/revoke", (c) => {
 
 app.post("/mandates/:id/withdraw", async (c) => {
   const body = await c.req.json();
-  const receipt = engine.ownerWithdraw(
-    c.req.param("id"),
-    actor(c),
-    body.token ?? TOKENS.usdcd,
-    Number(body.amount),
-  );
+  const amount = cappedAmount(body.amount);
+  if (amount == null) return c.json({ error: "invalid amount" }, 400);
+  const receipt = engine.ownerWithdraw(c.req.param("id"), actor(c), body.token ?? TOKENS.usdcd, amount);
   persist(engine);
   return c.json(receipt);
 });
@@ -179,26 +235,37 @@ app.post("/agents/:name/tick", async (c) => {
 });
 
 app.post("/demo/four-beat", async (c) => {
-  const result = runFourBeat(engine);
-  persist(engine);
-  if (process.env.MARKOV_CLUSTER === "devnet" && existsSync(DEVNET_FACTS) && existsSync(OWNER_KEY)) {
-    try {
-      const { runFourBeatDevnet } = await import("../../../scripts/four-beat-devnet.ts");
-      const chain = await runFourBeatDevnet();
-      stampExplorer(result, chain);
-      persist(engine);
-    } catch (err) {
-      console.warn("devnet four-beat overlay skipped:", err instanceof Error ? err.message : err);
-    }
+  const now = Date.now();
+  if (fourBeatBusy || now - lastFourBeatAt < FOUR_BEAT_COOLDOWN_MS) {
+    return c.json({ error: "four-beat cooldown" }, 429);
   }
-  return c.json(result);
+  fourBeatBusy = true;
+  lastFourBeatAt = now;
+  try {
+    const result = runFourBeat(engine);
+    persist(engine);
+    if (process.env.MARKOV_CLUSTER === "devnet" && existsSync(DEVNET_FACTS) && existsSync(OWNER_KEY)) {
+      try {
+        const { runFourBeatDevnet } = await import("../../../scripts/four-beat-devnet");
+        const chain = await runFourBeatDevnet();
+        stampExplorer(result, chain);
+        persist(engine);
+      } catch (err) {
+        console.warn("devnet four-beat overlay skipped:", err instanceof Error ? err.message : err);
+      }
+    }
+    return c.json(result);
+  } finally {
+    fourBeatBusy = false;
+  }
 });
 
 const port = Number(process.env.PORT ?? 8787);
+const hostname = listenHost();
 export default {
   port,
-  hostname: "0.0.0.0",
+  hostname,
   fetch: app.fetch,
 };
 
-console.log(`markov api on :${port}`);
+console.log(`markov api on ${hostname}:${port}`);

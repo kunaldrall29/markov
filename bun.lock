@@ -15,6 +15,9 @@
     "apps/agents": {
       "name": "@markov/agents",
       "version": "0.1.0",
+      "dependencies": {
+        "@markov/rpc": "workspace:*",
+      },
     },
     "apps/api": {
       "name": "@markov/api",
@@ -28,6 +31,9 @@
     "apps/bot": {
       "name": "@markov/bot",
       "version": "0.1.0",
+      "dependencies": {
+        "@markov/rpc": "workspace:*",
+      },
     },
     "apps/data-api": {
       "name": "@markov/data-api",
@@ -41,6 +47,7 @@
       "name": "@markov/indexer",
       "version": "0.1.0",
       "dependencies": {
+        "@markov/rpc": "workspace:*",
         "hono": "^4.9.0",
       },
     },
