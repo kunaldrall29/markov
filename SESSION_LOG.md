@@ -15,6 +15,16 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 - Next
 ```
 
+## 2026-08-27 — public-devnet mandate + Telegram token
+
+- Goal: use the 5 SOL airdrop and the Float bot token.
+- Done: deployer `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` held 5.000 SOL; mandate `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` deployed on `api.devnet.solana.com`; dump matches `target/deploy/mandate.so`; tx `4DucDFEbSPNCcBaggW4QKeMfwdkcwVEYSsud33mzXdzKSYuktQP35d2o5vNS6aCiGqj1uV1Nt7JGMoBNH9AQEUAZ`. Token stored in gitignored `.env` with `TELEGRAM_BOT_USERNAME=markov_float_bot`.
+- Not done: `demo_swap` / `demo_yield` still null on public devnet (deployer 2.247 SOL left). Telegram `getMe` HTTP 401 Unauthorized. Token not committed.
+- Commands: `solana program deploy target/deploy/mandate.so --program-id keys/mandate.json -u https://api.devnet.solana.com -k keys/deployer.json`
+- Next: ~3 more SOL on the deployer pubkey; a BotFather token that `getMe` accepts.
+
+---
+
 ## 2026-08-27 — Markov devnet MVP status
 
 HEAD `079bd20`. No commits since 2026-08-26. FACTS `c046286`.

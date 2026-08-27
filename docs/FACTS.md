@@ -2,7 +2,7 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-26.
+Last refreshed: 2026-08-27.
 
 ## Verified in this workspace
 
@@ -19,7 +19,9 @@ Last refreshed: 2026-08-26.
 | First-party agents use the public execute path | True of `apps/api` + `apps/agents` | 2026-08-24 |
 | No token in this prototype | True | repo contains no mint/token program for Markov |
 | Mandate program source | Yes | `programs/mandate/src/lib.rs` 2026-08-24 |
-| Mandate program on public Solana devnet | Pending faucet (deployer 0 SOL on `api.devnet.solana.com` as of 2026-08-24; faucet.solana.com requires GitHub + captcha) | Same program keypairs as `Anchor.toml`; retry `bun run devnet:setup` when SOL lands |
+| Mandate program on public Solana devnet | Yes — account executable, `solana program dump` matches `target/deploy/mandate.so` | `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` on `api.devnet.solana.com` 2026-08-27; tx `4DucDFEbSPNCcBaggW4QKeMfwdkcwVEYSsud33mzXdzKSYuktQP35d2o5vNS6aCiGqj1uV1Nt7JGMoBNH9AQEUAZ` |
+| demo_swap / demo_yield on public Solana devnet | No account (`getAccountInfo` null) | 2026-08-27. Deployer `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` has 2.247 SOL left after mandate rent 2.750. Need ~3 more SOL on that pubkey, then retry venue deploy |
+| Telegram Float bot | Username `markov_float_bot` (`t.me/markov_float_bot`). Token lives in gitignored `.env` only. `getMe` returned HTTP 401 Unauthorized this check | 2026-08-27. Do not write the token in this file. |
 | Mandate + venues exercised on local validator | Yes — four-beat: under-policy execute, `OverTxCap` refusal tx, `Revoked` refusal tx, owner withdraw | `bun scripts/four-beat-devnet.ts` vs `solana-test-validator` 2026-08-24. Public explorer will not show local sigs. |
 | `Anchor.toml` program pubkeys | Local keypair addresses | mandate `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm`, demo_swap `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK`, demo_yield `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` |
 | markov.fyi docs/litepaper/Float URLs | **Not live** in this refresh | Intended site IA; GitHub is canonical until S9 |
