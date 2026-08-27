@@ -12,7 +12,7 @@ import { fetchPrice } from "./data";
 import { runFourBeat } from "./four-beat";
 import { exerciseAllBlockReasons } from "./redteam";
 import { ACTORS, DEMO_POLICY, publishedStrategies, seed, strategyById } from "./seed";
-import { operatorStats, strategyStats } from "./stats";
+import { operatorStats, pnlQuote, capProximity, strategyStats } from "./stats";
 import { runStrategyVaultDemo } from "./strategy-vault";
 import { loadEngine, persist } from "./store";
 
@@ -177,7 +177,16 @@ app.get("/mandates", (c) => c.json([...engine.mandates.values()]));
 app.get("/mandates/:id", (c) => {
   const mandate = engine.mandate(c.req.param("id"));
   const receipts = engine.receipts.filter((r) => "mandateId" in r && r.mandateId === mandate.id);
-  return c.json({ mandate, receipts });
+  const hud = {
+    pnl: pnlQuote(receipts),
+    capProximity: capProximity(
+      mandate.spentToday,
+      mandate.policy.dailyCap,
+      mandate.spendToday,
+      mandate.policy.spendDailyCap,
+    ),
+  };
+  return c.json({ mandate, receipts, hud });
 });
 
 app.get("/receipts", (c) => {

@@ -1,20 +1,8 @@
-import { PROGRAMS, TOKENS, type BlockReason, type MandateEngine, type Receipt } from "@markov/engine";
+import { BLOCK_REASONS, PROGRAMS, TOKENS, type BlockReason, type MandateEngine, type Receipt } from "@markov/engine";
 import { REDTEAM_TEMPLATE, strategyIdFromTemplate } from "@markov/sdk";
 import { ACTORS } from "./seed";
 
-const ALL: BlockReason[] = [
-  "Paused",
-  "Revoked",
-  "Expired",
-  "Unauthorized",
-  "ProgramNotAllowed",
-  "TokenNotAllowed",
-  "OverTxCap",
-  "OverDailyCap",
-  "OverSpendCap",
-  "OverSpendDailyCap",
-  "SlippageExceeded",
-];
+const ALL: BlockReason[] = [...BLOCK_REASONS];
 
 function swap(e: MandateEngine, id: string, operator: string, amountIn: number, minOut = 1) {
   return e.execute(id, operator, {

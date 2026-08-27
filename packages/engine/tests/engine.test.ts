@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  BLOCK_REASONS,
   MandateEngine,
   PROGRAMS,
   TOKENS,
@@ -312,5 +313,11 @@ describe("venues", () => {
     });
     expect(w.type).toBe("ActionExecuted");
     if (w.type === "ActionExecuted") expect(w.amountOut).toBeGreaterThan(20_000_000);
+  });
+});
+
+describe("BlockReason enum", () => {
+  test("exposes eleven reasons", () => {
+    expect(BLOCK_REASONS).toHaveLength(11);
   });
 });

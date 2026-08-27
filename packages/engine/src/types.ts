@@ -13,18 +13,21 @@ export type TokenId = (typeof TOKENS)[keyof typeof TOKENS];
 
 export type MandateState = "Active" | "Paused" | "Revoked";
 
-export type BlockReason =
-  | "Paused"
-  | "Revoked"
-  | "Expired"
-  | "Unauthorized"
-  | "ProgramNotAllowed"
-  | "TokenNotAllowed"
-  | "OverTxCap"
-  | "OverDailyCap"
-  | "OverSpendCap"
-  | "OverSpendDailyCap"
-  | "SlippageExceeded";
+export const BLOCK_REASONS = [
+  "Paused",
+  "Revoked",
+  "Expired",
+  "Unauthorized",
+  "ProgramNotAllowed",
+  "TokenNotAllowed",
+  "OverTxCap",
+  "OverDailyCap",
+  "OverSpendCap",
+  "OverSpendDailyCap",
+  "SlippageExceeded",
+] as const;
+
+export type BlockReason = (typeof BLOCK_REASONS)[number];
 
 export type ActionKind = "swap" | "deposit" | "withdraw_venue" | "spend";
 
