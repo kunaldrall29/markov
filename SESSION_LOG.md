@@ -15,6 +15,15 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 - Next
 ```
 
+## 2026-08-27 — Telegram bot token accepted
+
+- Goal: attach `t.me/markov_float_bot` with a token Telegram accepts.
+- Done: `getMe` ok username `markov_float_bot` id 8751826628; `setMyCommands` help/status/pause/revoke/link; `http://127.0.0.1:8789/health` `tokenSet:true` `username:markov_float_bot`; CLI `/status mdt_0001` → `mdt_0001 state=Revoked`; `/link mdt_0001` → `https://t.me/markov_float_bot?start=mdt_0001`. Bot process polling. Token not committed.
+- Not done: no Telegram chat_id yet, so no in-app `/status` round-trip. Venues still undeployed (deployer 2.247 SOL).
+- Next: open `t.me/markov_float_bot` and send `/help`. ~3 more SOL on deployer for venue programs.
+
+---
+
 ## 2026-08-27 — public-devnet mandate + Telegram token
 
 - Goal: use the 5 SOL airdrop and the Float bot token.
