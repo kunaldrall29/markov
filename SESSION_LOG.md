@@ -2,6 +2,15 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-27 — Float authority-light UI
+
+- Goal: design Float (not markovhq.com) around the refusal receipt, then implement it in `apps/web`. Tokens are the contract. No wallet adapter. No program deploy.
+- Palette: base `#0a0a0b` · surface `#111318` · text `#e6eaee` · muted `#9aa3ad` · edge `#1e242c` · authority `#8ec8d8` (ice lamp, Active only) · action-ok `#9aada3` · refusal `#7c8eb0`. Type: Fraunces / IBM Plex Sans / IBM Plex Mono tabular.
+- Done: `apps/web/design-tokens.json` is the only hex source. `BLOCK_REASONS` from `@markov/engine/types` drives badges. Copy in `copy.ts`. Screens: marketplace live stream, `/s/[id]`, subscribe template→caps→diff→fund, console, `/kill`, `/o/[id]` + OG 1200×630, `/bot`, `/sheet`. `GET /mandates/:id` returns `hud` (`pnl`, `capProximity`). `withdrawDisabled` ignores mandate state. Receipt arrival is the only motion (`prefers-reduced-motion` instant).
+- Verified: `bun test packages apps` 62 pass (hex lint, 11 reasons, withdraw never gated by Paused/Revoked). `@markov/web` typecheck 0, build 0. API: tighten subscribe `mdt_0033`; loosen HTTP 400 `overrides may only lower per-tx cap`; OverTxCap then `Revoked`; `OwnerWithdrew` 79.98 USDC-d after revoke. UI: `/m/mdt_0034` Revoked with Withdraw enabled. OG `image/png` 1200×630.
+- Not done: no browser wallet. No program deploy. Lighthouse not run. Live public-devnet bytecode still pre-`strategy_id`.
+- Next: same Kunal list as MVP v2.
+
 ## 2026-08-27 — MVP v2 start (strategy vaults, no program deploy)
 
 - Goal: land MVP v2 as source of truth in this tree: PolicyTemplate v0, `strategy_id` on engine/program source, house operators, Float strategy marketplace, fan-out, redteam sweep, indexer views. Do not deploy or upgrade on-chain programs.
