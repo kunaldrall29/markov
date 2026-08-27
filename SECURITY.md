@@ -37,7 +37,8 @@ Float mutations are owner-signed. The browser wallet (Phantom or Solflare) prove
 Skew is 300s on localnet/devnet and 60s on mainnet. Signatures are single-use inside that window. `POST /mandates` sets owner to the verified pubkey and ignores a spoofed `body.owner`.
 
 - Local demo: bind `127.0.0.1` (default). Unsigned `x-actor` (including `owner_demo`) is allowed only on that loopback bind, and **not** when `X-Forwarded-For` / `X-Real-IP` / `Forwarded` is present.
-- Any public or proxied deploy: wallet signature **or** `MARKOV_API_SECRET` as `x-api-key` (bot / operator clients). `HOST=0.0.0.0` without a wallet or secret refuses mutations.
+- Any public or proxied deploy: wallet signature **or** `MARKOV_API_SECRET` as `x-api-key` (bot / operator clients). `HOST=0.0.0.0` without a wallet or secret refuses mutations. Set `MARKOV_PUBLIC=1` or a non-loopback `WEB_ORIGIN` to fail closed even when the process binds `127.0.0.1` behind a proxy that strips forwarded-client headers.
+- Engine demo routes (four-beat, strategy-vault, fan-out, ticks, redteam sweep) are loopback-only and off on mainnet. They execute as the mandate operator and must not run on a shared public API.
 - `MARKOV_CLUSTER=mainnet-beta` refuses unsigned mutations and will not boot unless `MARKOV_MAINNET=1` after audit. Engine demo routes (four-beat, strategy-vault, fan-out, ticks, redteam sweep) are off on mainnet.
 - Telegram pause/revoke is gated by `TELEGRAM_ALLOWED_CHAT_IDS` (or `data/telegram-allow.json`). `/whoami` prints the chat id. First-chat auto-lock is opt-in (`TELEGRAM_ALLOW_FIRST_CHAT=1`) and must not be used on a public bot.
 - `/health` returns `rpcHost` only — never the full RPC URL (Helius keys live in the URL). The wallet adapter connection uses a public RPC URL and will not forward a URL that contains `api-key`.

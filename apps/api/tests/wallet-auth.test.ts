@@ -11,7 +11,7 @@ import {
 import { mutationAllowed, requestActor } from "../src/auth";
 import { consumeNonce, resetNonces, verifyWalletAuth, type MutationCtx } from "../src/wallet-auth";
 
-const KEYS = ["MARKOV_API_SECRET", "HOST", "MARKOV_CLUSTER", "MARKOV_MAINNET"] as const;
+const KEYS = ["MARKOV_API_SECRET", "HOST", "MARKOV_CLUSTER", "MARKOV_MAINNET", "MARKOV_PUBLIC", "WEB_ORIGIN"] as const;
 let saved: Record<string, string | undefined> = {};
 
 function pair() {
@@ -52,6 +52,8 @@ beforeEach(() => {
   delete process.env.MARKOV_API_SECRET;
   delete process.env.HOST;
   delete process.env.MARKOV_MAINNET;
+  delete process.env.MARKOV_PUBLIC;
+  delete process.env.WEB_ORIGIN;
   process.env.MARKOV_CLUSTER = "devnet";
   resetNonces();
 });

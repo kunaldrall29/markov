@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { behindProxy, mutationAllowed } from "../src/auth";
+import { behindProxy, mutationAllowed, requestActor, treatAsPublic } from "../src/auth";
 import { resetNonces } from "../src/wallet-auth";
 
-const KEYS = ["MARKOV_API_SECRET", "HOST", "MARKOV_CLUSTER", "MARKOV_MAINNET"] as const;
+const KEYS = ["MARKOV_API_SECRET", "HOST", "MARKOV_CLUSTER", "MARKOV_MAINNET", "MARKOV_PUBLIC", "WEB_ORIGIN"] as const;
 let saved: Record<string, string | undefined> = {};
 
 beforeEach(() => {
@@ -11,6 +11,8 @@ beforeEach(() => {
   delete process.env.MARKOV_API_SECRET;
   delete process.env.HOST;
   delete process.env.MARKOV_MAINNET;
+  delete process.env.MARKOV_PUBLIC;
+  delete process.env.WEB_ORIGIN;
   process.env.MARKOV_CLUSTER = "devnet";
   resetNonces();
 });
@@ -47,5 +49,19 @@ describe("api mutation gate", () => {
   test("mainnet unsigned fails closed", () => {
     process.env.MARKOV_CLUSTER = "mainnet-beta";
     expect(mutationAllowed({ get: () => null })).toBe(false);
+  });
+
+  test("MARKOV_PUBLIC and a public WEB_ORIGIN fail closed on loopback", () => {
+    process.env.MARKOV_PUBLIC = "1";
+    expect(treatAsPublic({ get: () => null })).toBe(true);
+    expect(mutationAllowed({ get: () => null })).toBe(false);
+    delete process.env.MARKOV_PUBLIC;
+    process.env.WEB_ORIGIN = "https://float.example";
+    expect(treatAsPublic({ get: () => null })).toBe(true);
+    expect(mutationAllowed({ get: () => null })).toBe(false);
+    expect(requestActor({ get: () => null })).toBeNull();
+    process.env.WEB_ORIGIN = "http://127.0.0.1:3000";
+    expect(treatAsPublic({ get: () => null })).toBe(false);
+    expect(mutationAllowed({ get: () => null })).toBe(true);
   });
 });

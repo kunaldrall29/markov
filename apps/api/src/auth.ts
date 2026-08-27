@@ -14,6 +14,21 @@ export function behindProxy(c: HeaderSource): boolean {
   return Boolean(header(c, "x-forwarded-for") || header(c, "x-real-ip") || header(c, "forwarded"));
 }
 
+/** True when this process should not trust unsigned loopback demo actors. */
+export function treatAsPublic(c: HeaderSource): boolean {
+  if (behindProxy(c)) return true;
+  if (!isLoopbackHost()) return true;
+  if (process.env.MARKOV_PUBLIC === "1") return true;
+  const origin = process.env.WEB_ORIGIN?.trim();
+  if (!origin) return false;
+  try {
+    const host = new URL(origin).hostname;
+    return host !== "127.0.0.1" && host !== "localhost" && host !== "::1";
+  } catch {
+    return true;
+  }
+}
+
 function apiKeyOk(c: HeaderSource): boolean {
   const secret = process.env.MARKOV_API_SECRET?.trim();
   if (!secret) return false;
@@ -47,7 +62,7 @@ export function mutationAllowed(c: HeaderSource, ctx?: MutationCtx): boolean {
   if (apiKeyOk(c)) return true;
   const secret = process.env.MARKOV_API_SECRET?.trim();
   if (secret) return false;
-  if (behindProxy(c)) return false;
+  if (treatAsPublic(c)) return false;
   if (markovCluster() === "mainnet-beta") return false;
   return isLoopbackHost();
 }
@@ -66,6 +81,7 @@ export function requestActor(c: HeaderSource, ctx?: MutationCtx, fallback = "own
   const claimed = header(c, "x-actor")?.trim();
   if (apiKeyOk(c) && claimed) return claimed;
   if (markovCluster() === "mainnet-beta") return null;
-  if (isLoopbackHost() && !behindProxy(c)) return claimed || fallback;
+  if (treatAsPublic(c)) return null;
+  if (isLoopbackHost()) return claimed || fallback;
   return null;
 }

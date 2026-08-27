@@ -15,7 +15,7 @@ import {
   rpcHost,
   sha256Hex,
 } from "@markov/rpc";
-import { behindProxy, mutationAllowed, requestActor } from "./auth";
+import { behindProxy, mutationAllowed, requestActor, treatAsPublic } from "./auth";
 import { verifyWalletAuth } from "./wallet-auth";
 import { fanOut, fanOutSwap, tickMomentum, tickSteady } from "./agents";
 import { fetchPrice } from "./data";
@@ -321,7 +321,9 @@ app.post("/data/price", async (c) => {
 });
 
 app.post("/agents/:name/tick", async (c) => {
-  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
+  if (!engineDemoAllowed() || treatAsPublic(c.req.raw.headers)) {
+    return c.json({ error: "engine demo disabled" }, 403);
+  }
   const body = await c.req.json();
   const name = c.req.param("name");
   const receipts =
@@ -335,14 +337,18 @@ app.post("/agents/:name/tick", async (c) => {
 });
 
 app.post("/agents/redteam/sweep", (c) => {
-  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
+  if (!engineDemoAllowed() || treatAsPublic(c.req.raw.headers)) {
+    return c.json({ error: "engine demo disabled" }, 403);
+  }
   const out = exerciseAllBlockReasons(engine);
   persist(engine);
   return c.json(out);
 });
 
 app.post("/strategies/:id/fan-out", async (c) => {
-  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
+  if (!engineDemoAllowed() || treatAsPublic(c.req.raw.headers)) {
+    return c.json({ error: "engine demo disabled" }, 403);
+  }
   const published = strategyById(c.req.param("id")) ?? publishedStrategies().find((s) => s.slug === c.req.param("id"));
   if (!published) return c.json({ error: "unknown strategy" }, 404);
   const body = await c.req.json().catch(() => ({} as { amountIn?: number; overCap?: boolean; agent?: string }));
@@ -358,7 +364,9 @@ app.post("/strategies/:id/fan-out", async (c) => {
 });
 
 app.post("/demo/four-beat", async (c) => {
-  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
+  if (!engineDemoAllowed() || treatAsPublic(c.req.raw.headers)) {
+    return c.json({ error: "engine demo disabled" }, 403);
+  }
   const now = Date.now();
   if (fourBeatBusy || now - lastFourBeatAt < FOUR_BEAT_COOLDOWN_MS) {
     return c.json({ error: "four-beat cooldown" }, 429);
@@ -385,7 +393,9 @@ app.post("/demo/four-beat", async (c) => {
 });
 
 app.post("/demo/strategy-vault", (c) => {
-  if (!engineDemoAllowed()) return c.json({ error: "engine demo disabled" }, 403);
+  if (!engineDemoAllowed() || treatAsPublic(c.req.raw.headers)) {
+    return c.json({ error: "engine demo disabled" }, 403);
+  }
   const now = Date.now();
   if (now - lastVaultAt < FOUR_BEAT_COOLDOWN_MS) {
     return c.json({ error: "strategy-vault cooldown" }, 429);
