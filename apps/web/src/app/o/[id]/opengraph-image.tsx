@@ -29,43 +29,36 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   }
 
   const color = tokens.color;
+  const refusalLine = `${refusals} ${refusals === 1 ? "refusal" : "refusals"}`;
+  const recordLine = `${actions} actions · ${days}d tenure`;
+
   return new ImageResponse(
     (
       <div
         style={{
-          width: "100%",
-          height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          width: "100%",
+          height: "100%",
           background: color.base,
           color: color.text,
           padding: 72,
-          border: `1px solid ${color["authority-dim"]}`,
         }}
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              fontSize: 18,
-              letterSpacing: "0.32em",
-              textTransform: "uppercase",
-              color: color.muted,
-            }}
-          >
+          <div style={{ display: "flex", fontSize: 18, letterSpacing: "0.32em", color: color.muted }}>
             {copy.product}
           </div>
-          <div style={{ fontSize: 44, marginTop: 16 }}>{name}</div>
-          <div style={{ fontSize: 22, color: color.muted, marginTop: 8 }}>{handle}</div>
+          <div style={{ display: "flex", fontSize: 44, marginTop: 16 }}>{name}</div>
+          <div style={{ display: "flex", fontSize: 22, color: color.muted, marginTop: 8 }}>{handle}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 96, color: color.refusal, lineHeight: 0.9 }}>
-            {refusals} {refusals === 1 ? "refusal" : "refusals"}
+          <div style={{ display: "flex", fontSize: 96, color: color.refusal, lineHeight: 0.9 }}>{refusalLine}</div>
+          <div style={{ display: "flex", fontSize: 24, color: color.muted, marginTop: 24 }}>{recordLine}</div>
+          <div style={{ display: "flex", fontSize: 18, color: color.muted, marginTop: 12 }}>
+            {copy.marketplace.chainLabel}
           </div>
-          <div style={{ fontSize: 24, color: color.muted, marginTop: 24 }}>
-            {actions} actions · {days}d tenure
-          </div>
-          <div style={{ fontSize: 18, color: color.muted, marginTop: 12 }}>{copy.marketplace.chainLabel}</div>
         </div>
       </div>
     ),
