@@ -2,7 +2,7 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-27 (MVP v2 in source: strategy templates + house operators; programs not redeployed).
+Last refreshed: 2026-08-27 (wallet auth + mobile Float; public-devnet program upgrade still SOL-blocked).
 
 ## Verified in this workspace
 
@@ -19,9 +19,11 @@ Last refreshed: 2026-08-27 (MVP v2 in source: strategy templates + house operato
 | First-party agents use the public execute path | True of `apps/api` + `apps/agents` | 2026-08-24 |
 | No token in this prototype | True | repo contains no mint/token program for Markov |
 | Mandate program source | Yes | `programs/mandate/src/lib.rs` 2026-08-24 |
-| Mandate program on public Solana devnet | Yes — account executable, `solana program dump` matches `target/deploy/mandate.so` | `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` on `api.devnet.solana.com` 2026-08-27; tx `4DucDFEbSPNCcBaggW4QKeMfwdkcwVEYSsud33mzXdzKSYuktQP35d2o5vNS6aCiGqj1uV1Nt7JGMoBNH9AQEUAZ` |
-| CPI vault pinning in program **source** | Yes in `programs/{mandate,demo_swap,demo_yield}` | 2026-08-27. Live public-devnet mandate bytecode is the **pre-pin** dump that matched `target/deploy/mandate.so` at deploy time. Do not treat the live binary as this source until upgrade |
-| demo_swap / demo_yield on public Solana devnet | No account (`getAccountInfo` null) | 2026-08-27. Deployer `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` has 2.247 SOL left after mandate rent 2.750. Need ~3 more SOL on that pubkey, then retry venue deploy |
+| Mandate program on public Solana devnet | Yes — executable, upgrade authority `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` | `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` on `api.devnet.solana.com` 2026-08-27; last slot 488892144; data length 394880. Source `.so` after this session's `anchor build` is 403424 bytes and `cmp` differs from the live dump |
+| CPI vault pinning / `strategy_id` in program **source** | Yes in `programs/{mandate,demo_swap,demo_yield}` and OwnerClient IDL | 2026-08-27. Live public-devnet mandate bytecode is still the **pre-pin / pre-strategy_id** dump. Upgrade attempted 2026-08-27: needs 2.809 SOL + fee; deployer holds 2.247 SOL. Airdrop faucet 429 / dry. Do not treat the live binary as this source until upgrade |
+| demo_swap / demo_yield on public Solana devnet | No account (`Unable to find the account`) | 2026-08-27. Same deployer still 2.247 SOL. Need ~3 more SOL, then venue deploy **after** mandate upgrade |
+| Float wallet auth | Per-request ed25519 (`x-actor` + `x-owner-ts` + `x-owner-sig`). Loopback unsigned `owner_demo` remains. Mainnet gated by `MARKOV_MAINNET=1` | API tests + live curl 2026-08-27: spoofed `body.owner` HTTP 400; signed create owned by pubkey; replay 401; proxy unsigned 401 |
+| Lighthouse accessibility | Marketplace 100, mandate console 100 (mobile preset) | `npx lighthouse@12.8.2` vs `http://127.0.0.1:3000` and `/m/mdt_0035` 2026-08-27 |
 | Telegram Float bot | Live on Telegram. `getMe` username `markov_float_bot`. Phone round-trip 2026-08-27: `/start` and `/help` return the emergency-bot copy; `/link` and `/status` without an id return mandate-id required. Token in gitignored `.env` only | Photo of `t.me/markov_float_bot` 2026-08-27. Do not write the token in this file. |
 | Mandate + venues exercised on local validator | Yes — four-beat: under-policy execute, `OverTxCap` refusal tx, `Revoked` refusal tx, owner withdraw | `bun scripts/four-beat-devnet.ts` vs `solana-test-validator` 2026-08-24. Public explorer will not show local sigs. |
 | `Anchor.toml` program pubkeys | Local keypair addresses | mandate `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm`, demo_swap `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK`, demo_yield `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` |

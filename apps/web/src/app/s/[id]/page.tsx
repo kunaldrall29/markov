@@ -138,7 +138,7 @@ export default function StrategyPage() {
           {err}
         </p>
       ) : null}
-      <h3 style={{ fontFamily: "var(--serif)", fontWeight: 500, fontSize: 28 }}>{copy.console.receipts}</h3>
+      <h2 className="display-lg">{copy.console.receipts}</h2>
       <div className="card" style={{ marginTop: 12 }}>
         {receipts.length === 0 ? <p className="meta">{copy.strategy.empty}</p> : null}
         {receipts.map((r, i) => (

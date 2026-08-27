@@ -157,7 +157,7 @@ export default function MandatePage() {
       <div className="grid">
         <section className={`card${mandate.state === "Active" ? " mandate-live" : ""}`}>
           <p className="meta">{copy.console.balances}</p>
-          <h3>{formatAmount(usdcd)} USDC-d</h3>
+          <p className="display-lg">{formatAmount(usdcd)} USDC-d</p>
           <p className="meta">{formatAmount(demo)} DEMO</p>
           <p className="meta" style={{ marginTop: 12 }}>
             {mandate.operator} · pnl {formatAmount(hud?.pnl ?? 0)}
@@ -259,7 +259,7 @@ export default function MandatePage() {
         </p>
       ) : null}
 
-      <h3 style={{ fontFamily: "var(--serif)", fontWeight: 500, fontSize: 28 }}>{copy.console.receipts}</h3>
+      <h2 className="display-lg">{copy.console.receipts}</h2>
       <div className="card" style={{ marginTop: 12 }} aria-live="polite">
         {receipts.length === 0 ? <p className="meta">{copy.console.receiptsEmpty}</p> : null}
         {receipts.map((r, i) => (

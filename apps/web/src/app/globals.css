@@ -150,7 +150,9 @@ h1 em { font-style: italic; color: var(--authority); }
   border-radius: var(--radius-md);
   padding: 20px;
 }
-.card h3 { font-family: var(--serif); font-size: 28px; margin: 8px 0 10px; font-weight: 500; }
+.card h3, .display-lg {
+  font-family: var(--serif); font-size: 28px; margin: 8px 0 10px; font-weight: 500;
+}
 .meta {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
@@ -457,7 +459,7 @@ select {
   .lede, .foot, .meta, .pubkey { max-width: none; overflow-wrap: anywhere; }
   .grid { grid-template-columns: 1fr; }
   .card, .kill, .kill-breaker { min-width: 0; }
-  .card h3 { font-size: 24px; overflow-wrap: anywhere; }
+  .card h3, .display-lg { font-size: 24px; overflow-wrap: anywhere; }
   .row { flex-wrap: wrap; }
   .receipt {
     display: flex;

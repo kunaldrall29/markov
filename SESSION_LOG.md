@@ -2,6 +2,13 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-27 — wallet adapter, mobile, mainnet gate
+
+- Goal: production-ready Float — mobile layout, Phantom/Solflare, signed mutations, live on public devnet, Lighthouse, program deploy, security review. No optimistic UI. Commits authored as kunaldrall29 only.
+- Done: per-request owner proof (`Float METHOD path bodyHash pubkey at ts on cluster`); replay cache; mainnet unsigned fail-closed; `MARKOV_PUBLIC` / public `WEB_ORIGIN` fail-closed on loopback; engine demos loopback-only; `POST /mandates` ignores spoofed `body.owner`; Float custom Connect (no adapter purple CSS); kill rows / OG poster / safe-area; heading order h1→h2. Advanced security review: demo tick/fan-out and proxied-loopback trust tightened. Lighthouse a11y 100 marketplace + console. `anchor build` mandate.so 403424 bytes. Live curl: spoof 400, signed create, replay 401.
+- Not done: public-devnet mandate upgrade blocked — 2.809 SOL + fee required, deployer 2.247 SOL, faucet 429. Venues still undeployed. markovhq.com is a different live property (link only; not in this repo). Browser wallets are not installed in this VM, so Connect shows Install Phantom / Solflare.
+- Next: Kunal — ~0.57+ SOL on `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` then `solana program deploy target/deploy/mandate.so`; more SOL for venues; `TELEGRAM_ALLOWED_CHAT_IDS`; `MARKOV_MAINNET=1` only after audit.
+
 ## 2026-08-27 — Float authority-light UI
 
 - Goal: design Float (not markovhq.com) around the refusal receipt, then implement it in `apps/web`. Tokens are the contract. No wallet adapter. No program deploy.
