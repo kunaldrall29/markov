@@ -62,6 +62,36 @@ describe("mandate lifecycle", () => {
     expect(w.type).toBe("OwnerWithdrew");
   });
 
+  test("strategy_id copies onto action and refusal receipts", () => {
+    const { e } = engine();
+    const m = e.createMandate({
+      owner: "owner",
+      operator: "op_dca",
+      policy: conservativePolicy(),
+      ttlSecs: 86_400,
+      strategyId: "ab".repeat(32),
+    });
+    e.fund(m.id, "owner", TOKENS.usdcd, 500_000_000);
+    const ok = e.execute(m.id, "op_dca", {
+      kind: "swap",
+      tokenIn: TOKENS.usdcd,
+      tokenOut: TOKENS.demo,
+      amountIn: 1_000_000,
+      minOut: 1,
+    });
+    expect(ok.type).toBe("ActionExecuted");
+    if (ok.type === "ActionExecuted") expect(ok.strategyId).toBe("ab".repeat(32));
+    const over = e.execute(m.id, "op_dca", {
+      kind: "swap",
+      tokenIn: TOKENS.usdcd,
+      tokenOut: TOKENS.demo,
+      amountIn: 400_000_000,
+      minOut: 1,
+    });
+    expect(over.type).toBe("ActionRefused");
+    if (over.type === "ActionRefused") expect(over.strategyId).toBe("ab".repeat(32));
+  });
+
   test("emergency key may pause and revoke, but not fund or trade", () => {
     const { e, id } = funded();
     expect(() => e.fund(id, "bot", TOKENS.usdcd, 1)).toThrow();

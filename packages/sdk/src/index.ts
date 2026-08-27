@@ -1,5 +1,7 @@
 import type { Intent, Mandate, OperatorProfile, Policy, Receipt } from "@markov/engine";
 
+export * from "./template";
+
 export interface CreateMandateBody {
   owner: string;
   operator: string;
@@ -98,11 +100,27 @@ export class MarkovClient {
     });
   }
 
-  tickAgent(agent: "dca" | "dip" | "yield", mandateId: string, overCap = false) {
+  tickAgent(
+    agent: "dca" | "dip" | "yield" | "steady" | "momentum" | "redteam",
+    mandateId: string,
+    overCap = false,
+  ) {
     return this.req<{ receipts: Receipt[] }>(`/agents/${agent}/tick`, {
       method: "POST",
       body: JSON.stringify({ mandateId, overCap }),
     });
+  }
+
+  strategies() {
+    return this.req<unknown[]>(`/strategies`);
+  }
+
+  strategyVault() {
+    return this.req<{
+      strategyId: string;
+      mandates: { id: string; owner: string; perTxCap: number }[];
+      fanOut: { mandateId: string; receipt: Receipt }[];
+    }>(`/demo/strategy-vault`, { method: "POST" });
   }
 
   fourBeat() {

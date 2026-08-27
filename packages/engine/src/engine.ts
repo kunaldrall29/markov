@@ -68,6 +68,7 @@ export class MandateEngine {
       for (const m of opts.snapshot.mandates) {
         this.mandates.set(m.id, {
           ...m,
+          strategyId: m.strategyId ?? null,
           policy: clonePolicy(m.policy),
           vault: { ...m.vault },
         });
@@ -126,6 +127,7 @@ export class MandateEngine {
     emergencyKey?: string | null;
     policy: Policy;
     ttlSecs: number;
+    strategyId?: string | null;
   }): Mandate {
     if (input.policy.programAllowlist.length === 0 || input.policy.programAllowlist.length > 4) {
       throw new Error("program allowlist must have 1–4 entries");
@@ -151,6 +153,7 @@ export class MandateEngine {
       nonce: 0,
       vault: {},
       yieldShares: 0,
+      strategyId: input.strategyId ?? null,
     };
     this.mandates.set(id, mandate);
     this.emit({
@@ -244,6 +247,7 @@ export class MandateEngine {
         requestedAmount: requested,
         reason: blocked,
         nonce: m.nonce,
+        strategyId: m.strategyId,
       });
     }
     const result = this.apply(m, intent);
@@ -259,6 +263,7 @@ export class MandateEngine {
       amountIn: result.amountIn,
       amountOut: result.amountOut,
       nonce: m.nonce,
+      strategyId: m.strategyId,
     });
   }
 

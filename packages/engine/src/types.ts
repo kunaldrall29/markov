@@ -53,6 +53,8 @@ export interface Mandate {
   nonce: number;
   vault: Record<string, number>;
   yieldShares: number;
+  /** sha256 hex of published PolicyTemplate v0, or null. */
+  strategyId: string | null;
 }
 
 export interface OperatorProfile {
@@ -126,6 +128,7 @@ export type Receipt =
       amountIn: number;
       amountOut: number;
       nonce: number;
+      strategyId?: string | null;
       sig?: string;
       explorerUrl?: string;
     }
@@ -138,6 +141,7 @@ export type Receipt =
       requestedAmount: number;
       reason: BlockReason;
       nonce: number;
+      strategyId?: string | null;
       sig?: string;
       explorerUrl?: string;
     }

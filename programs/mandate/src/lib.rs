@@ -50,6 +50,7 @@ pub mod mandate {
         emergency: Pubkey,
         expires_ts: i64,
         policy: Policy,
+        strategy_id: Option<[u8; 32]>,
     ) -> Result<()> {
         check_policy(&policy)?;
         let now = Clock::get()?.unix_timestamp;
@@ -70,6 +71,7 @@ pub mod mandate {
         m.seed = seed;
         m.bump = ctx.bumps.mandate;
         m.policy = policy;
+        m.strategy_id = strategy_id;
         emit!(MandateCreated {
             mandate: m.key(),
             owner: m.owner,
@@ -215,6 +217,7 @@ pub mod mandate {
                 amount_in,
                 reason,
                 nonce,
+                ctx.accounts.mandate.strategy_id,
             );
         }
 
@@ -259,6 +262,7 @@ pub mod mandate {
             amount_in,
             amount_out: expected,
             nonce,
+            strategy_id: ctx.accounts.mandate.strategy_id,
         });
         Ok(())
     }
@@ -290,6 +294,7 @@ pub mod mandate {
                 amount,
                 reason,
                 nonce,
+                ctx.accounts.mandate.strategy_id,
             );
         }
 
@@ -340,6 +345,7 @@ pub mod mandate {
             amount_in: amount,
             amount_out: shares,
             nonce,
+            strategy_id: ctx.accounts.mandate.strategy_id,
         });
         Ok(())
     }
@@ -375,6 +381,7 @@ pub mod mandate {
                 shares,
                 reason,
                 nonce,
+                ctx.accounts.mandate.strategy_id,
             );
         }
         require!(
@@ -425,6 +432,7 @@ pub mod mandate {
             amount_in: shares,
             amount_out: amount,
             nonce,
+            strategy_id: ctx.accounts.mandate.strategy_id,
         });
         Ok(())
     }
@@ -454,6 +462,7 @@ pub mod mandate {
                 amount,
                 reason,
                 nonce,
+                ctx.accounts.mandate.strategy_id,
             );
         }
         require_keys_eq!(mint, ctx.accounts.mandate.quote_mint, MandateError::WrongMint);
@@ -493,6 +502,7 @@ pub mod mandate {
             amount_in: amount,
             amount_out: amount,
             nonce,
+            strategy_id: ctx.accounts.mandate.strategy_id,
         });
         Ok(())
     }
@@ -505,6 +515,7 @@ fn refuse(
     requested_amount: u64,
     reason: BlockReason,
     nonce: u64,
+    strategy_id: Option<[u8; 32]>,
 ) -> Result<()> {
     msg!("ActionRefused {:?}", reason);
     emit!(ActionRefused {
@@ -514,6 +525,7 @@ fn refuse(
         requested_amount,
         reason,
         nonce,
+        strategy_id,
     });
     Ok(())
 }
@@ -782,10 +794,11 @@ pub struct Mandate {
     pub seed: u64,
     pub bump: u8,
     pub policy: Policy,
+    pub strategy_id: Option<[u8; 32]>,
 }
 
 impl Mandate {
-    pub const SPACE: usize = 8 + 640;
+    pub const SPACE: usize = 8 + 673;
 }
 
 #[event]
@@ -844,6 +857,7 @@ pub struct ActionExecuted {
     pub amount_in: u64,
     pub amount_out: u64,
     pub nonce: u64,
+    pub strategy_id: Option<[u8; 32]>,
 }
 
 #[event]
@@ -854,6 +868,7 @@ pub struct ActionRefused {
     pub requested_amount: u64,
     pub reason: BlockReason,
     pub nonce: u64,
+    pub strategy_id: Option<[u8; 32]>,
 }
 
 #[derive(Accounts)]
