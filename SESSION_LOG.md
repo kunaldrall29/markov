@@ -15,6 +15,14 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 - Next
 ```
 
+## 2026-08-27 — Telegram round-trip on phone
+
+- Goal: confirm `t.me/markov_float_bot` answers on a real device.
+- Done: `/start` and `/help` returned the emergency-bot copy; `/link` and `/status` without an id returned mandate-id required. Matches `apps/bot/src/commands.ts`. Health still `tokenSet:true`.
+- Not done: `/status <id>` not shown in the photo. Venues still undeployed.
+
+---
+
 ## 2026-08-27 — Telegram bot token accepted
 
 - Goal: attach `t.me/markov_float_bot` with a token Telegram accepts.
