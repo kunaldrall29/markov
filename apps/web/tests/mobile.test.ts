@@ -26,4 +26,9 @@ describe("Float mobile layout", () => {
     expect(css).toContain(":focus-visible");
     expect(css).toContain(".skip");
   });
+
+  test("operator select is styled, not native-only", () => {
+    expect(css).toContain("color-scheme: dark");
+    expect(css).toContain("appearance: none");
+  });
 });

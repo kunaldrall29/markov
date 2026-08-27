@@ -113,6 +113,14 @@ input, select {
   border: 1px solid var(--edge);
   border-radius: 4px;
   padding: 10px 12px;
+  color-scheme: dark;
+}
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%239d9d97' d='M1 1l5 5 5-5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
 }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .foot { margin-top: 64px; color: var(--slate); font-family: var(--mono); font-size: 11px; line-height: 1.7; max-width: 72ch; }
@@ -155,6 +163,7 @@ input, select {
     align-items: center;
   }
   .wrap { padding: 24px 16px 72px; }
+  h1 { font-size: clamp(30px, 10vw, 44px); line-height: 1.05; }
   .lede, .foot, .meta { max-width: none; overflow-wrap: anywhere; }
   .grid { grid-template-columns: 1fr; }
   .card, .kill { min-width: 0; }
