@@ -1,4 +1,6 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8787";
+import { publicApiUrl } from "./hosted";
+
+export const API_URL = publicApiUrl();
 
 export function errorMessage(text: string): string {
   try {

@@ -13,7 +13,10 @@ export function isAllowedOrigin(origin: string | undefined | null): boolean {
   if (extras.includes(origin.replace(/\/$/, ""))) return true;
   const site = process.env.SITE_ORIGIN?.trim().replace(/\/$/, "");
   if (site && origin.replace(/\/$/, "") === site) return true;
-  if (url.protocol === "https:" && (url.hostname === "markov.fyi" || url.hostname === "www.markov.fyi")) {
+  if (
+    url.protocol === "https:" &&
+    (url.hostname === "markov.fyi" || url.hostname.endsWith(".markov.fyi") || url.hostname.endsWith(".vercel.app"))
+  ) {
     return true;
   }
   if (

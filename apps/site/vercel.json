@@ -1,5 +1,7 @@
 {
-  "buildCommand": "bun run build",
+  "framework": "docusaurus-2",
+  "installCommand": "cd ../.. && bun install",
+  "buildCommand": "cd ../.. && bun --filter @markov/site build",
   "outputDirectory": "build",
   "cleanUrls": true
 }

@@ -3,10 +3,26 @@ import type * as Preset from "@docusaurus/preset-classic";
 import { themes as prismThemes } from "prism-react-renderer";
 import { tokenCss, tokens } from "./src/lib/tokens";
 
+const HOSTED_RECEIPTS = "https://data-api-production-5ac5.up.railway.app";
+const HOSTED_FLOAT = "https://float-web-kunals-projects-35d3a237.vercel.app";
+
+const receiptsApiUrl =
+  process.env.RECEIPTS_API_URL?.trim() ||
+  (process.env.VERCEL ? HOSTED_RECEIPTS : "http://127.0.0.1:8788");
+const floatUrl =
+  process.env.FLOAT_URL?.trim() || (process.env.VERCEL ? HOSTED_FLOAT : "http://127.0.0.1:3000");
+const siteUrl =
+  process.env.SITE_URL?.trim() ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://127.0.0.1:3001");
+
 const config: Config = {
   title: "Markov",
   tagline: "Give an agent your capital. Keep the keys.",
-  url: "http://127.0.0.1:3001",
+  url: siteUrl,
   baseUrl: "/",
   organizationName: "kunaldrall29",
   projectName: "markov",
@@ -22,7 +38,8 @@ const config: Config = {
     locales: ["en"],
   },
   customFields: {
-    receiptsApiUrl: process.env.RECEIPTS_API_URL ?? "http://127.0.0.1:8788",
+    receiptsApiUrl,
+    floatUrl,
   },
   stylesheets: [
     {
@@ -74,7 +91,7 @@ const config: Config = {
       items: [
         { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
         { to: "/receipts", label: "Live receipts", position: "left" },
-        { href: "http://127.0.0.1:3000", label: "Float", position: "right" },
+        { href: floatUrl, label: "Float", position: "right" },
         { href: "https://markovhq.com", label: "markovhq.com", position: "right" },
         {
           type: "html",

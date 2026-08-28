@@ -1,8 +1,15 @@
 import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import type { ReactNode } from "react";
 
 export default function Home(): ReactNode {
+  const { siteConfig } = useDocusaurusContext();
+  const floatUrl =
+    typeof siteConfig.customFields?.floatUrl === "string"
+      ? siteConfig.customFields.floatUrl
+      : "http://127.0.0.1:3000";
+
   return (
     <Layout
       title="Markov"
@@ -25,7 +32,7 @@ export default function Home(): ReactNode {
           <Link className="btn ghost" to="/receipts">
             Live receipts
           </Link>
-          <a className="btn ghost" href="http://127.0.0.1:3000">
+          <a className="btn ghost" href={floatUrl}>
             Float
           </a>
         </div>
@@ -33,7 +40,7 @@ export default function Home(): ReactNode {
           This host is protocol documentation in this repository, built with Docusaurus. Marketing
           is <a href="https://markovhq.com">markovhq.com</a> (a different property). Float, the
           consumer console, runs in this same repo at{" "}
-          <a href="http://127.0.0.1:3000">http://127.0.0.1:3000</a> when you <code>bun run dev</code>
+          <a href={floatUrl}>{floatUrl}</a> when you <code>bun run dev</code>
           .
         </p>
       </main>

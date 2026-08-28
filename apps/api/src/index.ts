@@ -53,15 +53,31 @@ persist(engine);
 const WEB_ORIGINS = [
   "http://127.0.0.1:3000",
   "http://localhost:3000",
-  ...(process.env.WEB_ORIGIN ? [process.env.WEB_ORIGIN] : []),
+  ...[process.env.WEB_ORIGIN, process.env.CORS_ORIGINS]
+    .flatMap((raw) => (raw ?? "").split(","))
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean),
 ];
+
+function corsOrigin(origin: string): string | undefined {
+  if (WEB_ORIGINS.includes(origin)) return origin;
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== "https:") return undefined;
+    if (url.hostname === "markov.fyi" || url.hostname.endsWith(".markov.fyi")) return origin;
+    if (url.hostname.endsWith(".vercel.app")) return origin;
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
 
 type Vars = { actor: string };
 const app = new Hono<{ Variables: Vars }>();
 app.use(
   "*",
   cors({
-    origin: WEB_ORIGINS,
+    origin: (origin) => corsOrigin(origin),
     allowHeaders: ["content-type", "x-actor", "x-api-key", "x-owner-ts", "x-owner-sig"],
   }),
 );

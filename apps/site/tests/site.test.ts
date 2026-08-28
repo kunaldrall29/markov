@@ -131,6 +131,8 @@ describe("markov-site docs", () => {
     expect(config).toContain('label: "Live receipts"');
     expect(config).toContain("receiptsApiUrl");
     expect(config).toContain("RECEIPTS_API_URL");
+    expect(config).toContain("floatUrl");
+    expect(config).toContain("https://data-api-production-5ac5.up.railway.app");
     expect(page).toContain("No receipts yet — devnet warming up.");
     expect(page).toContain("actions gated");
     expect(page).toContain("refusals emitted");

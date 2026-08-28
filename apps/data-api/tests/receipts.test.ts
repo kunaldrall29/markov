@@ -139,8 +139,14 @@ describe("GET /v1/receipts", () => {
     const app = createDataApi({ store: memoryStore([]) });
     const ok = await app.request("http://x/v1/receipts", { headers: { origin: "http://localhost:3001" } });
     expect(ok.headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:3001");
-    const fyi = await app.request("http://x/v1/receipts", { headers: { origin: "https://markov.fyi" } });
-    expect(fyi.headers.get("Access-Control-Allow-Origin")).toBe("https://markov.fyi");
+    const docs = await app.request("http://x/v1/receipts", { headers: { origin: "https://docs.markov.fyi" } });
+    expect(docs.headers.get("Access-Control-Allow-Origin")).toBe("https://docs.markov.fyi");
+    const vercel = await app.request("http://x/v1/receipts", {
+      headers: { origin: "https://float-web-kunals-projects-35d3a237.vercel.app" },
+    });
+    expect(vercel.headers.get("Access-Control-Allow-Origin")).toBe(
+      "https://float-web-kunals-projects-35d3a237.vercel.app",
+    );
     const no = await app.request("http://x/v1/receipts", { headers: { origin: "https://evil.example" } });
     expect(no.headers.get("Access-Control-Allow-Origin")).toBeNull();
   });

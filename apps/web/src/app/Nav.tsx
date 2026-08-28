@@ -5,8 +5,9 @@ import { useState } from "react";
 import { markovCluster } from "@markov/rpc";
 import { WalletButton } from "@/components/WalletButton";
 import { copy } from "@/lib/copy";
+import { publicDocsUrl } from "@/lib/hosted";
 
-const DOCS = process.env.NEXT_PUBLIC_DOCS_URL ?? "http://127.0.0.1:3001";
+const DOCS = publicDocsUrl();
 
 export function Nav() {
   const [open, setOpen] = useState(false);
