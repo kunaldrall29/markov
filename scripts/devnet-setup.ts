@@ -87,12 +87,16 @@ const emergency = loadKeypair("keys/emergency.json");
 const opDca = loadKeypair("keys/op_dca.json");
 
 console.log("deployer", deployer.publicKey.toBase58());
-const funded = await fundAccounts(
-  connection,
-  deployer,
-  [owner.publicKey, emergency.publicKey, opDca.publicKey],
-  8,
-);
+const skipFund = process.env.MARKOV_SKIP_FUND === "1";
+const skipDeploy = process.env.MARKOV_SKIP_DEPLOY === "1";
+const funded = skipFund
+  ? await connection.getBalance(deployer.publicKey)
+  : await fundAccounts(
+      connection,
+      deployer,
+      [owner.publicKey, emergency.publicKey, opDca.publicKey],
+      8,
+    );
 if (funded < 2 * LAMPORTS_PER_SOL) {
   throw new Error("devnet airdrop could not fund deployer — retry bun run devnet:setup");
 }
@@ -102,10 +106,14 @@ if (!existsSync("target/deploy/mandate.so")) {
   throw new Error("run anchor build first");
 }
 
-console.log("deploying programs…");
-deploy("demo_swap");
-deploy("demo_yield");
-deploy("mandate");
+if (!skipDeploy) {
+  console.log("deploying programs…");
+  deploy("demo_swap");
+  deploy("demo_yield");
+  deploy("mandate");
+} else {
+  console.log("skipping program deploy (MARKOV_SKIP_DEPLOY=1)");
+}
 
 const usdcd = await createMint(connection, deployer, 6);
 const demo = await createMint(connection, deployer, 6);

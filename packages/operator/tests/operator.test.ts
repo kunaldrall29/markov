@@ -51,4 +51,12 @@ describe("mandate IDL", () => {
     );
     expect(ix?.args.some((a) => a.name === "strategy_id")).toBe(true);
   });
+
+  test("ActionExecuted and ActionRefused events carry strategy_id", () => {
+    const types = mandateIdl.types as { name: string; type: { fields?: { name: string }[] } }[];
+    for (const name of ["ActionExecuted", "ActionRefused"]) {
+      const t = types.find((x) => x.name === name);
+      expect(t?.type.fields?.some((f) => f.name === "strategy_id")).toBe(true);
+    }
+  });
 });

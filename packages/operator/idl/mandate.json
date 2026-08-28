@@ -341,7 +341,10 @@
           "name": "strategy_id",
           "type": {
             "option": {
-              "array": ["u8", 32]
+              "array": [
+                "u8",
+                32
+              ]
             }
           }
         }
@@ -1273,6 +1276,17 @@
           {
             "name": "nonce",
             "type": "u64"
+          },
+          {
+            "name": "strategy_id",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
           }
         ]
       }
@@ -1309,6 +1323,17 @@
           {
             "name": "nonce",
             "type": "u64"
+          },
+          {
+            "name": "strategy_id",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
           }
         ]
       }
@@ -1427,7 +1452,10 @@
             "name": "strategy_id",
             "type": {
               "option": {
-                "array": ["u8", 32]
+                "array": [
+                  "u8",
+                  32
+                ]
               }
             }
           }

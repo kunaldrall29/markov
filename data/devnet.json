@@ -1,0 +1,23 @@
+{
+  "cluster": "devnet",
+  "rpc": "https://api.devnet.solana.com",
+  "explorerTx": "https://solscan.io/tx/{sig}?cluster=devnet",
+  "programs": {
+    "mandate": "5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm",
+    "demoSwap": "3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK",
+    "demoYield": "GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC"
+  },
+  "mints": {
+    "usdcd": "6eDVRpGLcBeYfazqsUN9tyeW7NEKjgE3TSgs7yz1YmvC",
+    "demo": "54XpmsacxMvrWPFXrtSjYkconsWm4Xpd7sFPUH1Z4zhd"
+  },
+  "pools": {
+    "swap": "7uN8ZGqgy3pfmzz89CPvzBheEmyCFH6BBUGDSxqYQhdV",
+    "yield": "97nuXo5qWJcudP6yNd3sQAxGCp2TRmvLbHduegjomaze"
+  },
+  "vaults": {
+    "swapA": "HHspx9nRaGppaJfyJVTXtY6zQhaSkbWe8RJXoRRapFRG",
+    "swapB": "EiD3BhM8fVsQSbyNHSFPpxjsho6tskrjVA2a4RCzF6EM",
+    "yield": "3yKoMgJsy2d6r8piNPoLFapFzKSmCTqMS8Pe6hmLBBk9"
+  }
+}

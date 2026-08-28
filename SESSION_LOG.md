@@ -2,6 +2,14 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-28 — 10 SOL: public-devnet upgrade + venues
+
+- Goal: use the 10 SOL Kunal sent to upgrade mandate to vault-pin / `strategy_id` bytecode and deploy demo venues on `api.devnet.solana.com`.
+- Done: helpers funded 0.5 SOL each (owner, emergency, op_dca, treasury). `solana program extend` mandate +10240 (loader refuses smaller extends). Mandate upgrade tx `2baq433jFmgRW2wEHnsQHRCBtFYMCLzj1debKMWrNX4nouutR2QK8JqfpGdp3VAHVuSAnNL28dbXRtk6eC2UhBHh`. demo_swap tx `53e46CWYimVS57tvwf6kDzyBmu7XQvV1EUX8FpS98oFSxY1nRp9mCo6vqrDC1TDaD5CbnVKvLaDrMR1gB7fzj3Fy`. demo_yield tx `37gMPSBVcTGDpiBTUrXvjfqJNdCncPCmgx9CunarcqsD3XzWio6b4g9Wbx28E9B5Y4guWghiEFw6tav8My5VSdu8`. Dumps `cmp` equal to `target/deploy/*.so` (mandate pad 1696 zero bytes). Mints + pools initialized; `data/devnet.json` public RPC. Copied generated mandate IDL (event `strategy_id`). `MARKOV_SKIP_DEPLOY` / `MARKOV_SKIP_FUND` on `scripts/devnet-setup.ts`.
+- Not done at this commit: four-beat vs public RPC still to run. markovhq.com unchanged. Telegram allowlist still needs `/whoami`. No mainnet. Do not paste failed-buffer seed phrases.
+- Commands: `solana program extend 5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm 10240 -u https://api.devnet.solana.com -k keys/deployer.json`; `solana program deploy target/deploy/{mandate,demo_swap,demo_yield}.so --program-id keys/<name>.json`; `MARKOV_RPC=https://api.devnet.solana.com MARKOV_SKIP_DEPLOY=1 MARKOV_SKIP_FUND=1 bun scripts/devnet-setup.ts`.
+- Next: `bun run demo:devnet`; `TELEGRAM_ALLOWED_CHAT_IDS`; hosting + `MARKOV_API_SECRET` if public HTTP; `MARKOV_MAINNET=1` only after audit.
+
 ## 2026-08-27 — wallet adapter, mobile, mainnet gate
 
 - Goal: production-ready Float — mobile layout, Phantom/Solflare, signed mutations, live on public devnet, Lighthouse, program deploy, security review. No optimistic UI. Commits authored as kunaldrall29 only.

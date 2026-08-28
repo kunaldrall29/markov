@@ -2,7 +2,7 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-27 (wallet auth + mobile Float; public-devnet program upgrade still SOL-blocked).
+Last refreshed: 2026-08-28 (public-devnet mandate upgrade + venue deploy after 10 SOL).
 
 ## Verified in this workspace
 
@@ -19,9 +19,12 @@ Last refreshed: 2026-08-27 (wallet auth + mobile Float; public-devnet program up
 | First-party agents use the public execute path | True of `apps/api` + `apps/agents` | 2026-08-24 |
 | No token in this prototype | True | repo contains no mint/token program for Markov |
 | Mandate program source | Yes | `programs/mandate/src/lib.rs` 2026-08-24 |
-| Mandate program on public Solana devnet | Yes — executable, upgrade authority `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` | `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` on `api.devnet.solana.com` 2026-08-27; last slot 488892144; data length 394880. Source `.so` after this session's `anchor build` is 403424 bytes and `cmp` differs from the live dump |
-| CPI vault pinning / `strategy_id` in program **source** | Yes in `programs/{mandate,demo_swap,demo_yield}` and OwnerClient IDL | 2026-08-27. Live public-devnet mandate bytecode is still the **pre-pin / pre-strategy_id** dump. Upgrade attempted 2026-08-27: needs 2.809 SOL + fee; deployer holds 2.247 SOL. Airdrop faucet 429 / dry. Do not treat the live binary as this source until upgrade |
-| demo_swap / demo_yield on public Solana devnet | No account (`Unable to find the account`) | 2026-08-27. Same deployer still 2.247 SOL. Need ~3 more SOL, then venue deploy **after** mandate upgrade |
+| Mandate program on public Solana devnet | Yes — executable, upgrade authority `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` | `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` on `api.devnet.solana.com` 2026-08-28. Last slot 489249058. Data length 405120. `solana program dump` first 403424 bytes `cmp` equal to `target/deploy/mandate.so`; remaining 1696 bytes are zero pad from a 10240-byte extend (BPF loader requires ≥10240 additional bytes). Upgrade tx `2baq433jFmgRW2wEHnsQHRCBtFYMCLzj1debKMWrNX4nouutR2QK8JqfpGdp3VAHVuSAnNL28dbXRtk6eC2UhBHh` |
+| CPI vault pinning / `strategy_id` in **live** mandate bytecode | Yes | 2026-08-28. Source and dump match after extend + upgrade. Generated IDL events `ActionExecuted` / `ActionRefused` include `strategy_id` (`packages/operator/idl/mandate.json` copied from `target/idl`) |
+| demo_swap on public Solana devnet | Yes — executable, authority same deployer | `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK` dump `cmp` equal to `target/deploy/demo_swap.so` (236832). Deploy tx `53e46CWYimVS57tvwf6kDzyBmu7XQvV1EUX8FpS98oFSxY1nRp9mCo6vqrDC1TDaD5CbnVKvLaDrMR1gB7fzj3Fy` |
+| demo_yield on public Solana devnet | Yes — executable, authority same deployer | `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` dump `cmp` equal to `target/deploy/demo_yield.so` (237408). Deploy tx `37gMPSBVcTGDpiBTUrXvjfqJNdCncPCmgx9CunarcqsD3XzWio6b4g9Wbx28E9B5Y4guWghiEFw6tav8My5VSdu8` |
+| Public-devnet USDC-d / DEMO mints + venue pools | Yes — `data/devnet.json` rpc is `https://api.devnet.solana.com` | 2026-08-28. usdcd `6eDVRpGLcBeYfazqsUN9tyeW7NEKjgE3TSgs7yz1YmvC`, demo `54XpmsacxMvrWPFXrtSjYkconsWm4Xpd7sFPUH1Z4zhd`. Swap pool vaults 1_000_000 USDC-d / 10_000_000 DEMO. Yield vault 1_000_000 USDC-d. `MARKOV_SKIP_DEPLOY=1 MARKOV_SKIP_FUND=1 bun scripts/devnet-setup.ts` |
+| 10 SOL received on deployer | Yes | 2026-08-28. Deployer `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` 2.247 → 12.247 SOL, then helper funding + deploys. Post-init deployer ~6.85 SOL |
 | Float wallet auth | Per-request ed25519 (`x-actor` + `x-owner-ts` + `x-owner-sig`). Loopback unsigned `owner_demo` remains. Mainnet gated by `MARKOV_MAINNET=1` | API tests + live curl 2026-08-27: spoofed `body.owner` HTTP 400; signed create owned by pubkey; replay 401; proxy unsigned 401 |
 | Lighthouse accessibility | Marketplace 100, mandate console 100 (mobile preset) | `npx lighthouse@12.8.2` vs `http://127.0.0.1:3000` and `/m/mdt_0035` 2026-08-27 |
 | Telegram Float bot | Live on Telegram. `getMe` username `markov_float_bot`. Phone round-trip 2026-08-27: `/start` and `/help` return the emergency-bot copy; `/link` and `/status` without an id return mandate-id required. Token in gitignored `.env` only | Photo of `t.me/markov_float_bot` 2026-08-27. Do not write the token in this file. |
