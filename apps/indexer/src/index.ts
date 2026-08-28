@@ -12,6 +12,7 @@ import {
   upsertMandate,
   upsertStrategy,
 } from "./db";
+import { postgresUrl, replacePostgresReceipts } from "./pg";
 
 const API = process.env.API_URL ?? "http://127.0.0.1:8787";
 const sqlitePath = process.env.INDEXER_SQLITE ?? join(import.meta.dir, "../../../data/indexer.sqlite");
@@ -34,7 +35,7 @@ export function createIndexer(database = db) {
     c.json({
       service: "indexer",
       ok: true,
-      db: "sqlite",
+      db: postgresUrl() ? "sqlite+postgres" : "sqlite",
     }),
   );
 
@@ -107,6 +108,7 @@ export async function syncFromApi(database = db): Promise<number> {
   for (const r of receipts) {
     insertReceipt(database, fromEngineReceipt(r));
   }
+  await replacePostgresReceipts(database);
   return receipts.length;
 }
 

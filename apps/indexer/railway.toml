@@ -1,0 +1,8 @@
+# Railway service: indexer. Mirrors receipts into DATABASE_URL Postgres.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "apps/indexer/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"

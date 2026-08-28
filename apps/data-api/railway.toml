@@ -1,0 +1,8 @@
+# Railway service: data-api (public receipts). Same project as api, indexer, bot, agents.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "apps/data-api/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"

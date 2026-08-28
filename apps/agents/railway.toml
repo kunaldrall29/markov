@@ -1,0 +1,8 @@
+# Railway service: agents. Same project as api, indexer, data-api, bot.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "apps/agents/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"

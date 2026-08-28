@@ -137,4 +137,18 @@ describe("indexer sqlite", () => {
     const sql = readFileSync(join(import.meta.dir, "../migrations/0003_public_receipts.sql"), "utf8");
     expect(sql).not.toMatch(/\bjoin\b/i);
   });
+
+  test("postgres mirror is a no-op without DATABASE_URL", async () => {
+    const prev = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
+    const { replacePostgresReceipts, postgresUrl } = await import("../src/pg");
+    expect(postgresUrl()).toBeNull();
+    const db = openDb(":memory:");
+    expect(await replacePostgresReceipts(db)).toBe(0);
+    const boot = readFileSync(join(import.meta.dir, "../migrations/postgres_boot.sql"), "utf8");
+    expect(boot).toContain("create view public.public_receipts");
+    expect(boot).toContain("exception when undefined_object");
+    if (prev !== undefined) process.env.DATABASE_URL = prev;
+    else delete process.env.DATABASE_URL;
+  });
 });

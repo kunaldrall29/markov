@@ -7,5 +7,6 @@ COPY scripts ./scripts
 COPY data ./data
 RUN bun install --frozen-lockfile || bun install
 ENV PORT=8787
+ENV HOST=0.0.0.0
 EXPOSE 8787
 CMD ["bun", "apps/api/src/index.ts"]

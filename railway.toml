@@ -1,5 +1,6 @@
-# One Railway project, five services from this monorepo (api + indexer + data-api + agents + bot).
-# Vercel: apps/web (Float) and apps/site. Wire tokens at deploy. Do not block local S0 on Railway.
+# Monorepo Railway project: five backend services + Postgres (DATABASE_URL).
+# Per-service config: apps/{api,data-api,indexer,bot,agents}/railway.toml
+# Vercel: apps/web (Float) and apps/site. Do not block local S0 on Railway.
 
 [build]
 builder = "DOCKERFILE"

@@ -5,5 +5,6 @@ COPY packages ./packages
 COPY apps ./apps
 RUN bun install --frozen-lockfile || bun install
 ENV PORT=8788
+ENV HOST=0.0.0.0
 EXPOSE 8788
 CMD ["bun", "apps/data-api/src/index.ts"]

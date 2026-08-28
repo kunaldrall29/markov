@@ -5,5 +5,6 @@ COPY packages ./packages
 COPY apps ./apps
 RUN bun install --frozen-lockfile || bun install
 ENV PORT=8790
+ENV HOST=0.0.0.0
 EXPOSE 8790
 CMD ["bun", "apps/indexer/src/index.ts"]

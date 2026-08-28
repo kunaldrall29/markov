@@ -1,0 +1,8 @@
+# Railway service: bot. Same project as api, indexer, data-api, agents.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "apps/bot/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"
