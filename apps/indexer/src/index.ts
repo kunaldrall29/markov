@@ -123,11 +123,22 @@ export default {
 };
 
 if (import.meta.main) {
+  let apiHost = "invalid-api-url";
+  try {
+    apiHost = new URL(API).host;
+  } catch {
+    /* keep sentinel */
+  }
+  console.log(`indexer on ${hostname}:${port} api=${apiHost}`);
+  if (postgresUrl()) {
+    applyPostgresSchema()
+      .then(() => console.log("postgres schema ready"))
+      .catch((err) => console.warn("postgres schema", err));
+  }
   const cadence = Number(process.env.INDEXER_SYNC_MS ?? 5000);
   if (cadence > 0) {
     setInterval(() => {
       syncFromApi().catch((err) => console.warn("indexer sync", err));
     }, cadence);
   }
-  console.log(`indexer on ${hostname}:${port}`);
 }

@@ -1,6 +1,7 @@
 # Monorepo Railway project: five backend services + Postgres (DATABASE_URL).
-# Per-service config: apps/{api,data-api,indexer,bot,agents}/railway.toml
-# Vercel: apps/web (Float) and apps/site. Do not block local S0 on Railway.
+# Per-service Dockerfiles: apps/{api,data-api,indexer,bot,agents}/Dockerfile.
+# Railway CLI 5.x ignores railway.toml (config-as-code deprecated). dockerfilePath
+# and /health are set on each service instance. Vercel: apps/web and apps/site.
 
 [build]
 builder = "DOCKERFILE"
