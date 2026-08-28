@@ -12,7 +12,7 @@ import {
   upsertMandate,
   upsertStrategy,
 } from "./db";
-import { postgresUrl, replacePostgresReceipts } from "./pg";
+import { applyPostgresSchema, postgresUrl, replacePostgresReceipts } from "./pg";
 
 const API = process.env.API_URL ?? "http://127.0.0.1:8787";
 const sqlitePath = process.env.INDEXER_SQLITE ?? join(import.meta.dir, "../../../data/indexer.sqlite");
