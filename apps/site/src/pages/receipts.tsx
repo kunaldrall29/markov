@@ -2,6 +2,7 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { badgeFamily } from "../lib/tokens";
 
 type PublicResult = "allowed" | "blocked";
 
@@ -40,6 +41,10 @@ function explorerUrl(sig: string): string {
 
 function formatTs(ts: number): string {
   return new Date(ts * 1000).toISOString().replace(".000Z", "Z");
+}
+
+function clock(ts: number): string {
+  return new Date(ts * 1000).toISOString().slice(11, 19);
 }
 
 function formatAmount(amount: number | null): string {
@@ -102,21 +107,22 @@ export default function LiveReceipts(): ReactNode {
 
   return (
     <Layout title="Live receipts" description="Public ActionExecuted and ActionRefused receipts on Solana devnet.">
-      <main className="receipts-page">
+      <main className="wrap receipts-page" id="main">
+        <p className="eyebrow">Public feed · Solana devnet</p>
         <h1>Live receipts</h1>
-        <p className="receipts-lead">
-          Every allow and every block is a receipt. BlockReason codes are the SPEC registry — append-only once
-          emitted on devnet.
+        <p className="lede">
+          Every allow and every block is a receipt. BlockReason codes are the SPEC registry — append-only
+          once emitted on devnet.
         </p>
-        <p className="receipts-counters" aria-live="polite">
+        <p className="record-strip" aria-live="polite">
           {stats.total} actions gated · {stats.blocked} refusals emitted
         </p>
-        <div className="receipts-filters" role="group" aria-label="Filter receipts">
+        <div className="chips" role="group" aria-label="Filter receipts">
           {(["all", "allowed", "refused"] as const).map((key) => (
             <button
               key={key}
               type="button"
-              className={filter === key ? "is-on" : undefined}
+              className={filter === key ? "chip is-on" : "chip"}
               aria-pressed={filter === key}
               onClick={() => setFilter(key)}
             >
@@ -127,53 +133,13 @@ export default function LiveReceipts(): ReactNode {
         {receipts.length === 0 ? (
           <p className="receipts-empty">{EMPTY}</p>
         ) : (
-          <>
-            <ul className="receipts-cards">
-              {receipts.map((row) => (
-                <li
-                  key={row.receipt_id}
-                  className={row.result === "blocked" ? "receipts-card is-blocked" : "receipts-card"}
-                >
-                  <ReceiptBody row={row} />
-                </li>
-              ))}
-            </ul>
-            <div className="receipts-table-wrap">
-              <table className="receipts-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Result</th>
-                    <th>Action</th>
-                    <th>Mandate</th>
-                    <th>Amount</th>
-                    <th>Tx</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {receipts.map((row) => (
-                    <tr key={row.receipt_id} className={row.result === "blocked" ? "is-blocked" : undefined}>
-                      <td>{formatTs(row.ts)}</td>
-                      <td>
-                        <ResultBadge row={row} />
-                      </td>
-                      <td>{row.action_type ?? "—"}</td>
-                      <td className="receipts-mono">{row.mandate}</td>
-                      <td>
-                        {formatAmount(row.amount)}
-                        {row.token ? ` ${row.token}` : ""}
-                      </td>
-                      <td>
-                        <TxLink sig={row.tx_sig} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
+          <div className="live-stream">
+            {receipts.map((row) =>
+              row.result === "blocked" ? <RefusalRow key={row.receipt_id} row={row} /> : <AllowedRow key={row.receipt_id} row={row} />,
+            )}
+          </div>
         )}
-        <p className="receipts-foot">
+        <p className="foot">
           Feed: <code>/v1/receipts</code>. Spec: <Link to="/docs/receipts">receipts</Link> ·{" "}
           <Link to="/docs/block-reason">BlockReason</Link>.
         </p>
@@ -182,36 +148,57 @@ export default function LiveReceipts(): ReactNode {
   );
 }
 
-function ResultBadge({ row }: { row: PublicReceipt }) {
-  if (row.result === "blocked") {
-    return <span className="receipts-badge">{row.block_reason ?? "blocked"}</span>;
-  }
-  return <span className="receipts-ok">allowed</span>;
-}
-
 function TxLink({ sig }: { sig: string | null }) {
-  if (!sig) return <span>—</span>;
+  if (!sig) return null;
   return (
     <a href={explorerUrl(sig)} target="_blank" rel="noreferrer">
-      {sig.slice(0, 8)}…
+      explorer
     </a>
   );
 }
 
-function ReceiptBody({ row }: { row: PublicReceipt }) {
+function AmountBits({ row }: { row: PublicReceipt }) {
+  const amount = formatAmount(row.amount);
+  const token = row.token ? ` ${row.token}` : "";
   return (
     <>
-      <div className="receipts-card-top">
-        <ResultBadge row={row} />
-        <time dateTime={formatTs(row.ts)}>{formatTs(row.ts)}</time>
-      </div>
-      <p>
-        {row.action_type ?? "action"} · {row.mandate}
-      </p>
-      <p>
-        {formatAmount(row.amount)}
-        {row.token ? ` ${row.token}` : ""} · <TxLink sig={row.tx_sig} />
-      </p>
+      {amount}
+      {token} <TxLink sig={row.tx_sig} />
     </>
+  );
+}
+
+function AllowedRow({ row }: { row: PublicReceipt }) {
+  return (
+    <div className="receipt">
+      <span className="receipt-action">{row.action_type ?? "allowed"}</span>
+      <span>
+        {row.mandate} <AmountBits row={row} />
+      </span>
+      <time className="meta" dateTime={formatTs(row.ts)}>
+        {clock(row.ts)}
+      </time>
+    </div>
+  );
+}
+
+function RefusalRow({ row }: { row: PublicReceipt }) {
+  const reason = row.block_reason ?? "blocked";
+  const family = badgeFamily(row.block_reason);
+  return (
+    <div className="receipt receipt-refusal">
+      <span>
+        <span className="receipt-glyph" aria-hidden="true">
+          ⊘
+        </span>
+        {row.action_type ?? "refused"}
+      </span>
+      <span>
+        {row.mandate} <span className={`badge badge-${family}`}>{reason}</span> <AmountBits row={row} />
+      </span>
+      <time className="meta" dateTime={formatTs(row.ts)}>
+        {clock(row.ts)}
+      </time>
+    </div>
   );
 }

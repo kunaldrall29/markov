@@ -1,12 +1,25 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import webTokens from "../../web/design-tokens.json";
+import { badgeFamily, tokenCss, tokens } from "../src/lib/tokens";
 
 const ROOT = join(import.meta.dir, "..");
 const DOCS = join(ROOT, "docs");
+const SRC = join(ROOT, "src");
+const HEX = /#[0-9a-fA-F]{3,8}\b/;
 
 function read(rel: string) {
   return readFileSync(join(ROOT, rel), "utf8");
+}
+
+function walk(dir: string, acc: string[] = []) {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) walk(p, acc);
+    else if (/\.(ts|tsx|css)$/.test(name)) acc.push(p);
+  }
+  return acc;
 }
 
 describe("markov-site docs", () => {
@@ -19,6 +32,33 @@ describe("markov-site docs", () => {
     expect(css).toContain("Not the markovhq.com marketing site");
     expect(config).toContain("Not a restyle of that site");
     expect(`${home}\n${css}`).not.toMatch(/seamless|robust/i);
+  });
+
+  test("docs chrome matches Float tokens and stays Docusaurus", () => {
+    const css = read("src/css/custom.css");
+    const config = read("docusaurus.config.ts");
+    const home = read("src/pages/index.tsx");
+    expect(config).toContain('defaultMode: "dark"');
+    expect(config).toContain("Fraunces");
+    expect(config).toContain("IBM+Plex+Sans");
+    expect(config).toContain("IBM+Plex+Mono");
+    expect(config).toContain("tokenCss");
+    expect(home).toContain('className="wrap home-page"');
+    expect(css).toContain("var(--base)");
+    expect(css).toContain("var(--authority)");
+    expect(css).toContain("var(--serif)");
+    expect(css).toContain(".receipt-refusal");
+    expect(tokens).toEqual(webTokens);
+    expect(tokenCss()).toContain(`--base: ${webTokens.color.base};`);
+  });
+
+  test("no hex literals outside Float design-tokens.json", () => {
+    const hits: string[] = [];
+    for (const file of walk(SRC)) {
+      const text = readFileSync(file, "utf8");
+      if (HEX.test(text)) hits.push(file.replace(SRC + "/", ""));
+    }
+    expect(hits).toEqual([]);
   });
 
   test("docs index lists all six products as paths in this repo", () => {
@@ -98,6 +138,11 @@ describe("markov-site docs", () => {
     expect(page).toContain("All");
     expect(page).toContain("Allowed");
     expect(page).toContain("Refused");
+    expect(page).toContain("receipt-refusal");
+    expect(page).toContain("live-stream");
+    expect(page).toContain("badgeFamily");
     expect(page).not.toMatch(/SERVICE_ROLE|SUPABASE_|sk-|api[_-]?key/i);
+    expect(badgeFamily("OverTxCap")).toBe("cap");
+    expect(badgeFamily("Paused")).toBe("state");
   });
 });

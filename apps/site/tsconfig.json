@@ -2,7 +2,8 @@
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": []
+    "types": [],
+    "resolveJsonModule": true
   },
   "include": ["docusaurus.config.ts", "sidebars.ts", "src", "docs"],
   "exclude": ["tests", "build", ".docusaurus", "node_modules"]
