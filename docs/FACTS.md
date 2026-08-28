@@ -2,7 +2,19 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-28 (Phase 0 MVP status audit). Full write-up: `STATUS.md` / `~/markov/STATUS.md`.
+Last refreshed: 2026-08-28 (public receipts feed).
+
+## 2026-08-28 — public receipts
+
+| Claim | Status | Source / date |
+|---|---|---|
+| `PUBLIC_VIEW` | `public_receipts` | `apps/indexer/migrations/0003_public_receipts.sql` + `.postgres.sql` 2026-08-28 |
+| `RECEIPTS_API_URL` | `http://127.0.0.1:8788` (local). Hosted URL **none** | data-api `/v1/receipts` 200. `app.markov.fyi` / Railway still 404 / unavailable |
+| `GET /v1/receipts` + `/v1/receipts/stats` | Yes, local | 2026-08-28. No auth. 60 req/min/IP → 429 `Retry-After`. Invalid `reason` → 400. CORS localhost + `https://markov.fyi` |
+| Live receipts page | Yes, local docs | `http://127.0.0.1:3001/receipts`. Env `RECEIPTS_API_URL` (build-time, public) |
+| Float-agents allow + OverTxCap | Yes | `mdt_0043` 2026-08-28. `PORT=0 bun apps/agents/src/index.ts momentum mdt_0043` then `--over-cap` |
+| Devnet overlay allow + OverTxCap sigs | Yes | `mdt_0044`. Allow swap `3WFxpqWu8iAUmBcaXE71LaESwezkNpkDeKNot2tGFkLQv3Pvs9GYRSDmDb88nZjnU3CA5Zj6udDZx3bw3arLzxi6`. OverTxCap `yNgf4hfoLSU3wT2GHvHTsUKkBnPwK2SVRRy2Dq1SfQ29DRys5oHHGm9xC7H4X8hupMwYiN7hcST2Fq8AMt9HohZ` |
+| Supabase `markov-devnet` view applied | **No** | `DATABASE_URL` UNSET. Fail closed. Apply with `bun apps/indexer/scripts/apply-public-receipts.ts` when set |
 
 ## 2026-08-28 — MVP status audit (EXECUTED)
 

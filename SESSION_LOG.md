@@ -2,6 +2,15 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-28 — public receipts feed
+
+- Goal: make ActionExecuted / ActionRefused publicly readable (SPEC Public Receipt Read Model) via data-api + Live receipts page. No websockets, charts, auth, or per-operator pages.
+- Done: `public_receipts` view (SQLite in indexer; Postgres SQL for Supabase). `GET /v1/receipts` + `GET /v1/receipts/stats` (no auth, 60/min/IP, CORS markov.fyi + localhost). Docs nav **Live receipts** polls 5s / 15s. `bun test packages apps` 107 pass. Site build 0. Local data-api `:8788` 200. Float-agents `momentum` on `mdt_0043`: allow spend+swap, refuse `OverTxCap`. Four-beat overlay `mdt_0044` with explorer sigs (allow `3WFxpqWu…`, OverTxCap `yNgf4hfo…`). reason=OverTxCap only that code; invalid reason 400; 61st req 429 Retry-After 60. Page at 390px cards + desktop table.
+- Not done / blocked: `DATABASE_URL` UNSET — cannot apply `0003_public_receipts.postgres.sql` to hosted Supabase `markov-devnet`. Railway MCP unavailable. No public `RECEIPTS_API_URL` yet (local `http://127.0.0.1:8788`).
+- Commands: `PORT=0 bun apps/agents/src/index.ts momentum mdt_0043`; `PORT=0 bun apps/agents/src/index.ts momentum mdt_0043 --over-cap`; `curl -X POST http://127.0.0.1:8790/sync`; `curl http://127.0.0.1:8788/v1/receipts`; `curl -X POST http://127.0.0.1:8787/demo/four-beat`.
+- Docs: `SPEC.md` Public Receipt Read Model; `BACKLOG.md`; `apps/site/docs/data-api.md`.
+- Next: set `DATABASE_URL` (Supabase markov-devnet), apply postgres migration, host data-api, point `RECEIPTS_API_URL` at that URL, deploy docs.
+
 ## 2026-08-28 — wallet-signed Float path on public devnet
 
 - Goal: subscribe / pause / revoke / withdraw from Float confirm on the live mandate program without the API holding the owner's secret.
