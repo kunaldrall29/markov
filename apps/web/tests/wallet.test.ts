@@ -19,6 +19,7 @@ describe("Float wallet client", () => {
   test("wallet copy exists", () => {
     expect(copy.wallet.connect).toBe("Connect");
     expect(copy.wallet.required).toContain("wallet");
+    expect(copy.subscribe.confirmed).toContain("Solana");
     expect(copy.demo.engineNotWallet).toContain("Engine demo");
   });
 });

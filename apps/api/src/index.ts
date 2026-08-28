@@ -25,6 +25,15 @@ import { ACTORS, DEMO_POLICY, publishedStrategies, seed, strategyById } from "./
 import { operatorStats, pnlQuote, capProximity, strategyStats } from "./stats";
 import { runStrategyVaultDemo } from "./strategy-vault";
 import { loadEngine, persist } from "./store";
+import {
+  buildMandateTx,
+  buildSubscribe,
+  chainReady,
+  confirmChain,
+  emergencyChain,
+  faucetDemoUsdcd,
+  isWalletPubkey,
+} from "./chain";
 
 const ROOT = join(import.meta.dir, "../../..");
 const DEVNET_FACTS = join(ROOT, "data/devnet.json");
@@ -159,6 +168,7 @@ app.get("/health", (c) => {
     mainnetGate: process.env.MARKOV_MAINNET === "1",
     engineDemo: engineDemoAllowed(),
     walletAuth: true,
+    chainReady: chainReady(),
     operators: engine.operators.size,
     mandates: engine.mandates.size,
     receipts: engine.receipts.length,
@@ -254,6 +264,18 @@ app.post("/mandates", async (c) => {
     }
   }
   if (!operator) return c.json({ error: "operator required" }, 400);
+  if (isWalletPubkey(who) && chainReady()) {
+    const fundAmount = cappedAmount(body.fundAmount) ?? 0;
+    return c.json(
+      await buildSubscribe(who, {
+        operator,
+        strategyId,
+        ttlSecs,
+        fundAmount,
+        policy,
+      }),
+    );
+  }
   const mandate = engine.createMandate({
     owner,
     operator,
@@ -286,20 +308,48 @@ app.post("/mandates/:id/execute", async (c) => {
   return c.json(receipt);
 });
 
-app.post("/mandates/:id/pause", (c) => {
-  const receipt = engine.pause(c.req.param("id"), actor(c));
+app.post("/mandates/:id/pause", async (c) => {
+  const id = c.req.param("id");
+  const who = actor(c);
+  const m = engine.mandate(id);
+  if (m.chain && isWalletPubkey(who) && chainReady()) {
+    return c.json(await buildMandateTx(engine, who, id, "pause"));
+  }
+  if (m.chain && who === ACTORS.emergency && chainReady()) {
+    const chained = await emergencyChain(engine, id, "pause");
+    persist(engine);
+    return c.json(chained);
+  }
+  const receipt = engine.pause(id, who);
   persist(engine);
   return c.json(receipt);
 });
 
-app.post("/mandates/:id/unpause", (c) => {
-  const receipt = engine.unpause(c.req.param("id"), actor(c));
+app.post("/mandates/:id/unpause", async (c) => {
+  const id = c.req.param("id");
+  const who = actor(c);
+  const m = engine.mandate(id);
+  if (m.chain && isWalletPubkey(who) && chainReady()) {
+    return c.json(await buildMandateTx(engine, who, id, "unpause"));
+  }
+  const receipt = engine.unpause(id, who);
   persist(engine);
   return c.json(receipt);
 });
 
-app.post("/mandates/:id/revoke", (c) => {
-  const receipt = engine.revoke(c.req.param("id"), actor(c));
+app.post("/mandates/:id/revoke", async (c) => {
+  const id = c.req.param("id");
+  const who = actor(c);
+  const m = engine.mandate(id);
+  if (m.chain && isWalletPubkey(who) && chainReady()) {
+    return c.json(await buildMandateTx(engine, who, id, "revoke"));
+  }
+  if (m.chain && who === ACTORS.emergency && chainReady()) {
+    const chained = await emergencyChain(engine, id, "revoke");
+    persist(engine);
+    return c.json(chained);
+  }
+  const receipt = engine.revoke(id, who);
   persist(engine);
   return c.json(receipt);
 });
@@ -308,9 +358,35 @@ app.post("/mandates/:id/withdraw", async (c) => {
   const body = await c.req.json();
   const amount = cappedAmount(body.amount);
   if (amount == null) return c.json({ error: "invalid amount" }, 400);
-  const receipt = engine.ownerWithdraw(c.req.param("id"), actor(c), body.token ?? TOKENS.usdcd, amount);
+  const id = c.req.param("id");
+  const who = actor(c);
+  const m = engine.mandate(id);
+  if (m.chain && isWalletPubkey(who) && chainReady()) {
+    return c.json(await buildMandateTx(engine, who, id, "withdraw", amount));
+  }
+  const receipt = engine.ownerWithdraw(id, who, body.token ?? TOKENS.usdcd, amount);
   persist(engine);
   return c.json(receipt);
+});
+
+app.post("/chain/confirm", async (c) => {
+  const body = await c.req.json();
+  if (typeof body.sig !== "string" || !body.sig || !body.intent) {
+    return c.json({ error: "sig and intent required" }, 400);
+  }
+  const out = await confirmChain(engine, actor(c), body.sig, body.intent);
+  persist(engine);
+  return c.json({
+    ...out.mandate,
+    sig: body.sig,
+    explorerUrl: explorerTxUrl(body.sig),
+    receipts: out.receipts,
+  });
+});
+
+app.post("/chain/faucet", async (c) => {
+  const out = await faucetDemoUsdcd(actor(c));
+  return c.json(out);
 });
 
 app.post("/data/price", async (c) => {

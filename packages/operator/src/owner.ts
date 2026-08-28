@@ -1,7 +1,8 @@
 import { AnchorProvider, BN, Program, Wallet, type Idl } from "@coral-xyz/anchor";
-import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey, SystemProgram, Transaction, type TransactionInstruction } from "@solana/web3.js";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountIdempotentInstruction,
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
@@ -19,11 +20,34 @@ export type ChainPolicy = {
   maxSlippageBps: number;
 };
 
-function encodeStrategyId(id?: Uint8Array | number[] | null): number[] | null {
+export function encodeStrategyId(id?: Uint8Array | number[] | null): number[] | null {
   if (!id) return null;
   const arr = Array.from(id);
   if (arr.length !== 32) throw new Error("strategy_id must be 32 bytes");
   return arr;
+}
+
+export function strategyIdBytes(hex?: string | null): number[] | null {
+  if (!hex) return null;
+  const h = hex.replace(/^0x/i, "");
+  if (h.length !== 64 || /[^0-9a-f]/i.test(h)) throw new Error("strategy_id hex must be 32 bytes");
+  const out: number[] = [];
+  for (let i = 0; i < 64; i += 2) out.push(Number.parseInt(h.slice(i, i + 2), 16));
+  return out;
+}
+
+export function isWalletPubkey(value: string): boolean {
+  if (value === "owner_demo" || value === "bot_emergency") return false;
+  try {
+    const pk = new PublicKey(value);
+    return PublicKey.isOnCurve(pk.toBytes());
+  } catch {
+    return false;
+  }
+}
+
+export function serializeUnsigned(tx: Transaction): string {
+  return tx.serialize({ requireAllSignatures: false, verifySignatures: false }).toString("base64");
 }
 
 function pad4(keys: PublicKey[]): PublicKey[] {
@@ -187,5 +211,137 @@ export class OwnerClient {
       })
       .signers([args.owner])
       .rpc();
+  }
+
+  async buildCreateAndFund(args: {
+    owner: PublicKey;
+    operator: PublicKey;
+    emergency: PublicKey;
+    seed: bigint;
+    expiresTs: bigint;
+    policy: ChainPolicy;
+    quoteMint: PublicKey;
+    otherMint: PublicKey;
+    strategyId?: Uint8Array | number[] | null;
+    fundAmount?: bigint;
+    source?: PublicKey;
+  }): Promise<Transaction> {
+    const mandate = mandatePda(this.program.programId, args.owner, args.seed);
+    const ixs = [
+      await methods(this.program)
+        .createMandate(
+          new BN(args.seed.toString()),
+          args.emergency,
+          new BN(args.expiresTs.toString()),
+          encodePolicy(args.policy),
+          encodeStrategyId(args.strategyId),
+        )
+        .accounts({
+          owner: args.owner,
+          operator: args.operator,
+          quoteMint: args.quoteMint,
+          otherMint: args.otherMint,
+          mandate,
+          vaultQuote: getAssociatedTokenAddressSync(args.quoteMint, mandate, true),
+          vaultOther: getAssociatedTokenAddressSync(args.otherMint, mandate, true),
+          tokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+        })
+        .instruction(),
+    ];
+    if (args.fundAmount && args.fundAmount > 0n) {
+      const source = args.source ?? getAssociatedTokenAddressSync(args.quoteMint, args.owner, false);
+      ixs.push(
+        createAssociatedTokenAccountIdempotentInstruction(args.owner, source, args.owner, args.quoteMint),
+        await methods(this.program)
+          .fund(new BN(args.fundAmount.toString()))
+          .accounts({
+            owner: args.owner,
+            mandate,
+            mint: args.quoteMint,
+            source,
+            vault: getAssociatedTokenAddressSync(args.quoteMint, mandate, true),
+            tokenProgram: TOKEN_PROGRAM_ID,
+          })
+          .instruction(),
+      );
+    }
+    const tx = new Transaction().add(...ixs);
+    const latest = await this.connection.getLatestBlockhash("confirmed");
+    tx.feePayer = args.owner;
+    tx.recentBlockhash = latest.blockhash;
+    return tx;
+  }
+
+  async buildPause(caller: PublicKey, owner: PublicKey, seed: bigint): Promise<Transaction> {
+    return this.buildSimple(
+      caller,
+      await methods(this.program)
+        .pause()
+        .accounts({
+          caller,
+          mandate: mandatePda(this.program.programId, owner, seed),
+        })
+        .instruction(),
+    );
+  }
+
+  async buildUnpause(owner: PublicKey, seed: bigint): Promise<Transaction> {
+    return this.buildSimple(
+      owner,
+      await methods(this.program)
+        .unpause()
+        .accounts({
+          owner,
+          mandate: mandatePda(this.program.programId, owner, seed),
+        })
+        .instruction(),
+    );
+  }
+
+  async buildRevoke(caller: PublicKey, owner: PublicKey, seed: bigint): Promise<Transaction> {
+    return this.buildSimple(
+      caller,
+      await methods(this.program)
+        .revoke()
+        .accounts({
+          caller,
+          mandate: mandatePda(this.program.programId, owner, seed),
+        })
+        .instruction(),
+    );
+  }
+
+  async buildWithdraw(args: {
+    owner: PublicKey;
+    seed: bigint;
+    mint: PublicKey;
+    amount: bigint;
+    destination: PublicKey;
+  }): Promise<Transaction> {
+    const mandate = mandatePda(this.program.programId, args.owner, args.seed);
+    return this.buildSimple(
+      args.owner,
+      await methods(this.program)
+        .ownerWithdraw(new BN(args.amount.toString()))
+        .accounts({
+          owner: args.owner,
+          mandate,
+          mint: args.mint,
+          vault: getAssociatedTokenAddressSync(args.mint, mandate, true),
+          destination: args.destination,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .instruction(),
+    );
+  }
+
+  private async buildSimple(feePayer: PublicKey, ix: TransactionInstruction): Promise<Transaction> {
+    const tx = new Transaction().add(ix);
+    const latest = await this.connection.getLatestBlockhash("confirmed");
+    tx.feePayer = feePayer;
+    tx.recentBlockhash = latest.blockhash;
+    return tx;
   }
 }

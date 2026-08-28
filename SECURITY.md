@@ -4,7 +4,7 @@
 
 Devnet software, pre-audit. No mainnet deployment exists. Do not use with real value. A scoped external review and audit precede any guarded mainnet launch (Phase 1); until then, every deployment is disposable.
 
-This repository's live enforcement today is the TypeScript mandate engine (`packages/engine`). Anchor programs exist under `programs/`. The mandate program is on public Solana devnet (see `docs/FACTS.md`); `demo_swap` / `demo_yield` are not. **Do not deploy or upgrade programs until the source in this tree is the bytecode that ships** — CPI vault pinning landed after the live mandate binary.
+This repository's live owner HUD is the TypeScript mandate engine (`packages/engine`). Wallet-connected Float mutations confirm on the Anchor programs under `programs/` before that HUD updates. The mandate, `demo_swap`, and `demo_yield` programs are on public Solana devnet (see `docs/FACTS.md`). Do not set `MARKOV_MAINNET=1` until an external audit lands.
 
 ## Authority model
 
@@ -47,7 +47,7 @@ Treat a public HTTP API without wallet signatures or `MARKOV_API_SECRET` as fail
 
 ## Mainnet
 
-No mainnet deployment exists. Do not set `MARKOV_MAINNET=1` until an external audit lands. Owner withdraw remains ungated by mandate state on-chain and in the engine. CPI into `demo_swap` / `demo_yield` must pin pool vaults. Live public-devnet bytecode may lag this source until upgrade.
+No mainnet deployment exists. Do not set `MARKOV_MAINNET=1` until an external audit lands. Owner withdraw remains ungated by mandate state on-chain and in the engine. CPI into `demo_swap` / `demo_yield` must pin pool vaults. Live public-devnet bytecode may lag this source until upgrade. Wallet-connected Float does not update engine state until the Solana transaction confirms (`POST /chain/confirm`). Unsigned `owner_demo` remains loopback-only.
 
 ## Reporting a vulnerability
 

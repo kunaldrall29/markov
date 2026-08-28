@@ -18,8 +18,11 @@ export const copy = {
     install: "Install",
     close: "Close",
     required: "Connect a wallet to act as owner.",
-    hint: "Connect Phantom or Solflare. Local loopback still accepts the demo owner.",
+    hint: "Connect Phantom or Solflare. Wallet actions confirm on Solana before Float updates. Local loopback still accepts the demo owner.",
     notOwner: "This mandate belongs to another owner.",
+    faucet: "Mint 1,000 demo USDC-d",
+    faucetDone: "Demo USDC-d minted",
+    onChain: "On-chain mandate",
   },
   marketplace: {
     eyebrow: "Marketplace",
@@ -65,6 +68,7 @@ export const copy = {
     fund: "Fund mandate",
     pending: "Pending…",
     created: "Mandate created",
+    confirmed: "Confirmed on Solana",
     tightenOnly: "Overrides may only tighten the published template.",
     loading: "Loading template…",
   },
@@ -91,6 +95,7 @@ export const copy = {
     tick: "Tick operator",
     overCap: "Force over-cap",
     botLinked: "Linked to @markov_float_bot",
+    onChain: "On-chain",
   },
   kill: {
     eyebrow: "Kill switch",

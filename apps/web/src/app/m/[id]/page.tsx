@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatAmount } from "@/lib/api";
 import { copy } from "@/lib/copy";
-import { useApi } from "@/lib/useApi";
+import { useChainApi } from "@/lib/useChain";
 import { engineDemoAllowed } from "@markov/rpc";
 import { CapProximity } from "@/components/CapProximity";
 import { KillSwitch, WithdrawButton } from "@/components/KillSwitch";
@@ -24,6 +24,7 @@ interface Mandate {
   vault: Record<string, number>;
   policy: { perTxCap: number; dailyCap: number; spendDailyCap: number };
   strategyId: string | null;
+  chain?: { seed: string; pubkey: string } | null;
 }
 
 interface Hud {
@@ -46,7 +47,7 @@ function headline(state: string) {
 export default function MandatePage() {
   const { id } = useParams<{ id: string }>();
   const toast = useToast();
-  const { api, publicKey, connected } = useApi();
+  const { api, mutate, publicKey, connected } = useChainApi();
   const [mandate, setMandate] = useState<Mandate | null>(null);
   const [receipts, setReceipts] = useState<ReceiptLike[]>([]);
   const [hud, setHud] = useState<Hud | null>(null);
@@ -96,7 +97,7 @@ export default function MandatePage() {
     setErr("");
     setPending(path);
     try {
-      const out = await api<{ sig?: string; explorerUrl?: string }>(path, {
+      const out = await mutate<{ sig?: string; explorerUrl?: string }>(path, {
         method: "POST",
         body: body ? JSON.stringify(body) : undefined,
       });
@@ -171,6 +172,18 @@ export default function MandatePage() {
             <p className="meta" style={{ marginTop: 8 }}>
               strategy{" "}
               <Link href={`/s/${mandate.strategyId}`}>{mandate.strategyId.slice(0, 12)}…</Link>
+            </p>
+          ) : null}
+          {mandate.chain?.pubkey ? (
+            <p className="meta" style={{ marginTop: 8 }}>
+              {copy.console.onChain}{" "}
+              <a
+                href={`https://solscan.io/account/${mandate.chain.pubkey}?cluster=devnet`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {mandate.chain.pubkey.slice(0, 4)}…{mandate.chain.pubkey.slice(-4)}
+              </a>
             </p>
           ) : null}
         </section>

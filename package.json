@@ -15,7 +15,8 @@
     "build": "bun --filter '*' build",
     "demo": "bun scripts/four-beat.ts",
     "devnet:setup": "bun scripts/devnet-setup.ts",
-    "demo:devnet": "bun scripts/four-beat-devnet.ts"
+    "demo:devnet": "bun scripts/four-beat-devnet.ts",
+    "demo:chain": "bun scripts/float-chain-subscribe.ts"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "0.31.1",

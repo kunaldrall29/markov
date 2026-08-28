@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { formatAmount } from "@/lib/api";
 import { copy } from "@/lib/copy";
-import { useApi } from "@/lib/useApi";
+import { useChainApi } from "@/lib/useChain";
 import { KillSwitch } from "@/components/KillSwitch";
 import { useToast } from "@/components/Toast";
 
@@ -19,7 +19,7 @@ interface Mandate {
 
 export default function KillPage() {
   const toast = useToast();
-  const { api, publicKey, connected } = useApi();
+  const { api, mutate, publicKey, connected } = useChainApi();
   const [rows, setRows] = useState<Mandate[]>([]);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -47,7 +47,7 @@ export default function KillPage() {
     try {
       for (const m of rows) {
         if (m.state !== "Active") continue;
-        await api(`/mandates/${m.id}/pause`, { method: "POST" });
+        await mutate(`/mandates/${m.id}/pause`, { method: "POST" });
       }
       toast(copy.kill.pausedAll);
       await refresh();
@@ -96,7 +96,7 @@ export default function KillPage() {
                   className="btn authority"
                   type="button"
                   onClick={() =>
-                    api(`/mandates/${m.id}/pause`, { method: "POST" })
+                    mutate(`/mandates/${m.id}/pause`, { method: "POST" })
                       .then(refresh)
                       .catch((e) => setErr(e instanceof Error ? e.message : copy.toast.failed))
                   }
@@ -110,7 +110,7 @@ export default function KillPage() {
                   onArm={() => setArmed(m.id)}
                   onRevoke={() => {
                     setArmed(null);
-                    void api(`/mandates/${m.id}/revoke`, { method: "POST" })
+                    void mutate(`/mandates/${m.id}/revoke`, { method: "POST" })
                       .then(() => {
                         toast(copy.console.revokedToast);
                         return refresh();

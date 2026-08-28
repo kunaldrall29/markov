@@ -2,6 +2,13 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-28 — wallet-signed Float path on public devnet
+
+- Goal: subscribe / pause / revoke / withdraw from Float confirm on the live mandate program without the API holding the owner's secret.
+- Done: `OwnerClient` unsigned builders; `POST /mandates` returns `mode: chain` + tx for wallet actors; `POST /chain/confirm` after sig; `POST /chain/faucet` demo USDC-d; emergency bot still signs pause/revoke on-chain when `mandate.chain` is set. Loopback `owner_demo` unchanged. `bun test packages apps` 94 pass. `bun run typecheck` 0.
+- Not done until script: live `bun scripts/float-chain-subscribe.ts` vs running API (restart API to load new routes). Hosting still needs Kunal. Phantom not in this VM.
+- Next: run `demo:chain`; hosting + domain/x402; `MARKOV_MAINNET=1` only after audit.
+
 ## 2026-08-28 — Telegram /whoami allowlist
 
 - Goal: take the phone `/whoami` chat id and allow that chat to `/pause` and `/revoke`.

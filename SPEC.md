@@ -2,9 +2,9 @@
 
 Authoritative account / instruction / event spec for the mandate primitive.
 
-**Live implementation:** `packages/engine` (`MandateEngine`). Float, agents, and the bot speak this surface today.
+**Live implementation:** `packages/engine` (`MandateEngine`). Float, agents, and the bot speak this HUD today. Wallet-connected subscribe / pause / revoke / withdraw confirm on the live mandate program first (`POST /chain/confirm`).
 
-**On-chain port:** `programs/mandate` (Anchor, `src/lib.rs`). Instruction names below are the IDL. The engine is still the **live** runtime Float talks to. Names must stay 1:1.
+**On-chain port:** `programs/mandate` (Anchor, `src/lib.rs`). Instruction names below are the IDL. Names must stay 1:1.
 
 Litepaper v0.4 wins if this file and the litepaper drift; then this file gets fixed.
 
@@ -12,10 +12,10 @@ Litepaper v0.4 wins if this file and the litepaper drift; then this file gets fi
 
 | Surface | State |
 |---|---|
-| Engine (`MandateEngine`) | Implemented, tested |
-| `demo_swap` / `demo_yield` Rust | Source present (vault accounts pinned). **Not** on public Solana devnet |
-| Mandate program | Source in `programs/mandate`; public-devnet executable recorded in `docs/FACTS.md`. Source now pins CPI vaults — **redeploy before treating the live binary as this tree** |
-| Cluster | Local engine (`markov-localnet`) is the Float runtime. Public program IDs: `docs/FACTS.md` |
+| Engine (`MandateEngine`) | Implemented, tested. Float HUD + Telegram still keyed by `mdt_*` |
+| `demo_swap` / `demo_yield` | Live on public Solana devnet — see `docs/FACTS.md` |
+| Mandate program | Live on public Solana devnet; dump matches this tree (vault pin + `strategy_id`). Wallet path: unsigned tx → wallet sign → confirm |
+| Cluster | Engine HUD on loopback. Chain RPC from `data/devnet.json` (`https://api.devnet.solana.com`). |
 
 ## Accounts
 

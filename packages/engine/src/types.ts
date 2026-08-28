@@ -58,6 +58,8 @@ export interface Mandate {
   yieldShares: number;
   /** sha256 hex of published PolicyTemplate v0, or null. */
   strategyId: string | null;
+  /** Live Solana mandate, when this HUD row was confirmed on-chain. */
+  chain?: { seed: string; pubkey: string } | null;
 }
 
 export interface OperatorProfile {
@@ -106,6 +108,8 @@ export type Receipt =
       mandateId: string;
       owner: string;
       operator: string;
+      sig?: string;
+      explorerUrl?: string;
     }
   | {
       type: "MandateFunded";
@@ -113,6 +117,8 @@ export type Receipt =
       mandateId: string;
       token: string;
       amount: number;
+      sig?: string;
+      explorerUrl?: string;
     }
   | {
       type: "PolicyAmended";
@@ -153,12 +159,16 @@ export type Receipt =
       ts: number;
       mandateId: string;
       by: string;
+      sig?: string;
+      explorerUrl?: string;
     }
   | {
       type: "Unpaused";
       ts: number;
       mandateId: string;
       by: string;
+      sig?: string;
+      explorerUrl?: string;
     }
   | {
       type: "Revoked";

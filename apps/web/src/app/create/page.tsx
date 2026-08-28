@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { applyOverrides, type PolicyTemplate } from "@markov/sdk/overrides";
 import { type StrategyCard } from "@/lib/api";
 import { copy } from "@/lib/copy";
-import { useApi } from "@/lib/useApi";
+import { useChainApi } from "@/lib/useChain";
 import { CapStepper } from "@/components/CapStepper";
 import { PolicyChip } from "@/components/PolicyChip";
 import { TemplateDiff } from "@/components/TemplateDiff";
@@ -29,7 +29,7 @@ function CreateForm() {
   const params = useSearchParams();
   const router = useRouter();
   const toast = useToast();
-  const { api, connected } = useApi();
+  const { mutate, connected, api } = useChainApi();
   const requested = params.get("strategy") ?? params.get("operator") ?? "momentum";
   const [strategies, setStrategies] = useState<StrategyCard[]>([]);
   const [slug, setSlug] = useState(requested);
@@ -91,7 +91,10 @@ function CreateForm() {
     setBusy(true);
     setErr("");
     try {
-      const mandate = await api<{ id: string }>("/mandates", {
+      if (connected) {
+        await mutate<{ sig?: string }>("/chain/faucet", { method: "POST", body: "{}" }).catch(() => undefined);
+      }
+      const mandate = await mutate<{ id: string; sig?: string; mode?: string }>("/mandates", {
         method: "POST",
         body: JSON.stringify({
           strategyId: selected.strategyId,
@@ -105,7 +108,7 @@ function CreateForm() {
           },
         }),
       });
-      toast(copy.subscribe.created);
+      toast(mandate.sig ? copy.subscribe.confirmed : copy.subscribe.created);
       router.push(`/m/${mandate.id}`);
     } catch (error) {
       setErr(error instanceof Error ? error.message : copy.toast.failed);

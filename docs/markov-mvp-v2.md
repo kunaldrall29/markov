@@ -37,4 +37,4 @@ Pooling/NAV, real venues, batching, Score SDK, bonds/credit, mainnet, restyling 
 
 Plus: redteam has emitted all 11 BlockReasons at least once (engine/API sweep); `owner_withdraw` in Revoked.
 
-Live public-devnet program deploy/upgrade is **not** this file's job until vault-pinning + `strategy_id` bytecode is built and funded.
+Live public-devnet program deploy/upgrade is **not** this file's job until vault-pinning + `strategy_id` bytecode is built and funded. That deploy landed 2026-08-28. Wallet-connected Float now builds unsigned mandate txs and confirms them before the engine HUD updates.

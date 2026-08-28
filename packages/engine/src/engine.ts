@@ -128,6 +128,7 @@ export class MandateEngine {
     policy: Policy;
     ttlSecs: number;
     strategyId?: string | null;
+    chain?: { seed: string; pubkey: string } | null;
   }): Mandate {
     if (input.policy.programAllowlist.length === 0 || input.policy.programAllowlist.length > 4) {
       throw new Error("program allowlist must have 1–4 entries");
@@ -154,6 +155,7 @@ export class MandateEngine {
       vault: {},
       yieldShares: 0,
       strategyId: input.strategyId ?? null,
+      chain: input.chain ?? null,
     };
     this.mandates.set(id, mandate);
     this.emit({

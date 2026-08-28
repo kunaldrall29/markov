@@ -9,7 +9,7 @@
 - RPC: `SOLANA_RPC_URL` / `SOLANA_WS_URL` (Helius). Fallback constant only: `https://api.devnet.solana.com`.
 - Indexer uses local sqlite (`data/indexer.sqlite`). `DATABASE_URL` is reserved for later Postgres. `SUPABASE_SERVICE_ROLE_KEY` is server-side only, never in `apps/web`.
 - Ledger persists to `data/ledger.json` (gitignored). Delete it to reset.
-- Float uses Phantom / Solflare via a custom connect control. Mutations send a per-request owner signature (`x-actor`, `x-owner-ts`, `x-owner-sig`). Loopback still accepts unsigned `owner_demo` for local tests. Optimistic UI is off.
+- Float uses Phantom / Solflare via a custom connect control. Mutations send a per-request owner signature (`x-actor`, `x-owner-ts`, `x-owner-sig`). A connected wallet then signs the Solana transaction Float returns (`mode: "chain"`); the engine HUD updates only after `/chain/confirm`. Loopback still accepts unsigned `owner_demo` for local tests. Optimistic UI is off.
 - Bot is pause/revoke only (`bot_emergency` with `x-api-key` when `MARKOV_API_SECRET` is set). Telegram is optional via `TELEGRAM_BOT_TOKEN`. A compromised bot can only protect the owner.
 - Phase 0 freeze: no copilot, launch radar, pooled mandates, score/credit, token, or landing-page work. Stub venues (`demo_swap`, `demo_yield`) are intentional. House operators: `markov-steady`, `markov-momentum`, `markov-redteam`. Strategy cards, not operator cards.
 - Refusals are **successful transactions**. Look for `ActionRefused` / `GuardedResult.status === "blocked"`, not `err`.

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { variantName, type GuardedResult } from "../src/types";
+import { isWalletPubkey, strategyIdBytes } from "../src/owner";
 import mandateIdl from "../idl/mandate.json";
 
 describe("GuardedResult is data", () => {
@@ -58,5 +59,20 @@ describe("mandate IDL", () => {
       const t = types.find((x) => x.name === name);
       expect(t?.type.fields?.some((f) => f.name === "strategy_id")).toBe(true);
     }
+  });
+});
+
+describe("wallet pubkey and strategy hex", () => {
+  test("strategyIdBytes decodes 32-byte hex", () => {
+    const bytes = strategyIdBytes("ab".repeat(32));
+    expect(bytes).toHaveLength(32);
+    expect(bytes?.[0]).toBe(0xab);
+    expect(strategyIdBytes(null)).toBeNull();
+  });
+
+  test("isWalletPubkey rejects demo actors", () => {
+    expect(isWalletPubkey("owner_demo")).toBe(false);
+    expect(isWalletPubkey("bot_emergency")).toBe(false);
+    expect(isWalletPubkey("2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg")).toBe(true);
   });
 });

@@ -63,6 +63,20 @@ describe("mandate lifecycle", () => {
     expect(w.type).toBe("OwnerWithdrew");
   });
 
+  test("chain binding survives a snapshot round-trip", () => {
+    const { e } = engine();
+    const m = e.createMandate({
+      owner: "owner",
+      operator: "op_dca",
+      policy: conservativePolicy(),
+      ttlSecs: 86_400,
+      chain: { seed: "99", pubkey: "8wEAR5oSYzKrRtLki8H7E87TcHaDYbzuFT7L2cjnPnJo" },
+    });
+    expect(m.chain?.seed).toBe("99");
+    const again = new MandateEngine({ snapshot: e.snapshot() });
+    expect(again.mandate(m.id).chain?.pubkey).toBe("8wEAR5oSYzKrRtLki8H7E87TcHaDYbzuFT7L2cjnPnJo");
+  });
+
   test("strategy_id copies onto action and refusal receipts", () => {
     const { e } = engine();
     const m = e.createMandate({
