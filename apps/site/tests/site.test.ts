@@ -48,6 +48,9 @@ describe("markov-site docs", () => {
     expect(css).toContain("var(--authority)");
     expect(css).toContain("var(--serif)");
     expect(css).toContain(".receipt-refusal");
+    expect(css).toContain("--ifm-navbar-height: 3.75rem");
+    expect(css).not.toContain("--ifm-navbar-height: auto");
+    expect(css).toContain(".navbar::before");
     expect(tokens).toEqual(webTokens);
     expect(tokenCss()).toContain(`--base: ${webTokens.color.base};`);
   });

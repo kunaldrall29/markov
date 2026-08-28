@@ -52,7 +52,7 @@ body,
   --ifm-font-family-base: var(--sans);
   --ifm-heading-font-family: var(--serif);
   --ifm-font-family-monospace: var(--mono);
-  --ifm-navbar-height: auto;
+  --ifm-navbar-height: 3.75rem;
   --ifm-hover-overlay: color-mix(in srgb, var(--text) 6%, transparent);
   --ifm-color-emphasis-200: var(--edge);
   --ifm-color-emphasis-300: var(--edge);
@@ -96,11 +96,23 @@ select:focus-visible {
 .navbar {
   box-shadow: none;
   border-bottom: 1px solid var(--edge);
-  backdrop-filter: blur(12px);
-  padding: max(18px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right)) 18px
-    max(28px, env(safe-area-inset-left));
-  height: auto;
+  padding: 0 max(28px, env(safe-area-inset-right)) 0 max(28px, env(safe-area-inset-left));
+  height: var(--ifm-navbar-height);
   align-items: center;
+}
+
+.navbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+}
+
+.navbar-sidebar {
+  background: var(--base);
+  height: 100dvh;
 }
 
 .navbar__brand {
@@ -142,6 +154,11 @@ select:focus-visible {
   color: var(--text);
 }
 
+.navbar__items--right svg,
+.navbar-sidebar .menu__link svg {
+  display: none;
+}
+
 .navbar__toggle {
   color: var(--muted);
 }
@@ -161,6 +178,7 @@ select:focus-visible {
 
 .navbar-sidebar {
   background: var(--base);
+  height: 100dvh;
 }
 
 .navbar-sidebar__brand {
@@ -515,8 +533,7 @@ select:focus-visible {
     text-overflow: ellipsis;
   }
   .navbar {
-    padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 12px
-      max(16px, env(safe-area-inset-left));
+    padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
   }
   .navbar__title {
     letter-spacing: 0.2em;
