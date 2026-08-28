@@ -3,23 +3,39 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Database } from "bun:sqlite";
 
+const clients = new Map<string, SQL>();
+const schemaApplied = new Set<string>();
+
 export function postgresUrl(): string | null {
   const url = process.env.DATABASE_URL?.trim();
   return url || null;
 }
 
+export function postgresClient(url = postgresUrl()): SQL | null {
+  if (!url) return null;
+  let sql = clients.get(url);
+  if (!sql) {
+    sql = new SQL(url);
+    clients.set(url, sql);
+  }
+  return sql;
+}
+
 export async function applyPostgresSchema(url = postgresUrl()): Promise<boolean> {
-  if (!url) return false;
-  const sql = new SQL(url);
+  const sql = postgresClient(url);
+  if (!sql || !url) return false;
+  if (schemaApplied.has(url)) return true;
   const file = join(import.meta.dir, "../migrations/postgres_boot.sql");
   await sql.unsafe(readFileSync(file, "utf8"));
+  schemaApplied.add(url);
   return true;
 }
 
 export async function replacePostgresReceipts(db: Database, url = postgresUrl()): Promise<number> {
   if (!url) return 0;
   await applyPostgresSchema(url);
-  const sql = new SQL(url);
+  const sql = postgresClient(url);
+  if (!sql) return 0;
   const rows = db.query(`select * from receipts`).all() as Array<{
     mandate_id: string;
     kind: string;
