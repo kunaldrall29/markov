@@ -12,6 +12,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@markov/engine": "workspace:*",
     "@markov/rpc": "workspace:*",
     "hono": "^4.9.0"
   }

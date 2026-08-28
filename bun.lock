@@ -43,6 +43,7 @@
       "name": "@markov/data-api",
       "version": "0.1.0",
       "dependencies": {
+        "@markov/engine": "workspace:*",
         "@markov/rpc": "workspace:*",
         "hono": "^4.9.0",
       },

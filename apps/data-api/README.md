@@ -7,4 +7,6 @@ bun run --filter @markov/data-api dev
 ```
 
 http://127.0.0.1:8788/health  
-http://127.0.0.1:8788/price/DEMO → 402
+http://127.0.0.1:8788/price/DEMO → 402  
+http://127.0.0.1:8788/v1/receipts — Public Receipt Read Model (`public_receipts` view only)  
+http://127.0.0.1:8788/v1/receipts/stats
