@@ -2,7 +2,31 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-28 (wallet-signed Float path on public-devnet mandate).
+Last refreshed: 2026-08-28 (Phase 0 MVP status audit). Full write-up: `STATUS.md` / `~/markov/STATUS.md`.
+
+## 2026-08-28 — MVP status audit (EXECUTED)
+
+| Claim | Status | Source / date |
+|---|---|---|
+| Verdict: “MVP complete and hosted on devnet” | **NO-GO** | Audit 2026-08-28 ~15:20 UTC. Blocking: no public Float URL; on-chain BlockReasons 2/11; no x402 facilitator pin; MarkovFyi ≠ six Apache repos; grant markdown files absent |
+| Mandate program public devnet | Yes | `solana program show` `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` slot **489249058**, dump `cmp -n 403424` = `target/deploy/mandate.so` |
+| Chain distinct BlockReasons | **2** (`OverTxCap`, `Revoked`) | EventParser, all 26 mandate-program signatures. Missing 9 of 11 |
+| `<FIRST_RECEIPT_DATE>` (chain events) | 2026-08-28T06:53:12Z | First `MandateCreated` `5No1AUkXpFquHBumw8XwRVp8xnP2ZxrSpYcmnh7BK1aCMHVP1nTnnQVKuhsKYf4WiJX3yps2JamSuaymyrAT4Vmd` |
+| `<FLOAT_URL>` public | **None** | `app.markov.fyi` / `float.markov.fyi` / `api.markov.fyi` HTTP 404. Local `:3000` 200 only |
+| Litepaper on markovhq.com | **v0.6** (page title + body). Previous v0.4 mentioned | `GET https://markovhq.com/litepaper` 200. In-repo FACTS had said v0.4 |
+| FAQ “Is Float live? Yes, on Solana devnet” | **UNVERIFIED** as hosted product | markovhq.com JSON-LD FAQ. Product hosts 404 |
+| “all eleven refusal types in public” (litepaper v0.6) | **UNVERIFIED** | Chain 2/11. Engine ledger has 11 (not public chain) |
+| “live Solana facilitator” (litepaper v0.6) | **UNVERIFIED** | `F-X402-SETTLE-MINT` still open; env unset |
+| On-chain `strategy_id` on a mandate account | Yes | PDA `4YQ5Xm7qxxC6UjDHPSh8F2Md5dorb8hsKbcWpfrM21X4` = momentum hash `b7148375f60f…`. No ActionExecuted event parsed with Some(strategy_id) |
+| House operator on-chain pubkey | `AFmFYWsn7hijB54y45Tvs8XQxuy1uG9MRQXDqThKXXBs` | All execute/refuse events. Engine names are not pubkeys |
+| markovhq.com GitHub | `https://github.com/MarkovFyi` | zero `kunaldrall29` in HTML. Contact `hello@markovhq.net` |
+| MarkovFyi public product repos | 3 + `.github`, **MIT** | `gh repo list MarkovFyi`. Not six Apache-2.0 |
+| `kunaldrall29/markov` | Public Apache-2.0 | `gh repo view` |
+| Supabase | **Not configured** | `DATABASE_URL` UNSET, `SUPABASE_SERVICE_ROLE_KEY` UNSET |
+| Local indexer sqlite | Tables+views exist; process down | `data/indexer.sqlite`; `:8790` down. Duplicate sig `3mGrXq5v…` ×2 |
+| `gitleaks` / `trufflehog` | **BLOCKED** | not installed. `.env` not in `git ls-files` |
+| `prompt-mvp-build-v2.md` / `markov-superteam-application-v2.md` / `markov-litepaper-v0.6.md` | **Absent** from `/workspace` and `~/markov` | Cannot verify application KPI `[50/100]` |
+| Open FACTS (unchanged) | `F-X402-SETTLE-MINT`, `F-CANONICAL-DOMAIN`, `security@markov.fyi` inbox unverified | |
 
 ## Verified in this workspace
 
