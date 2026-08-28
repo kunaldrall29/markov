@@ -133,6 +133,28 @@ Engine receipt: `{ type: "ActionRefused", reason }`.
 
 Every variant has a negative test in `packages/engine/tests/engine.test.ts`. No new variant without a test.
 
+This registry is **append-only**. Codes already emitted on public devnet stay stable; do not rename or reuse a string.
+
+## Public Receipt Read Model
+
+Public surface for indexed execute/spend receipts. View name: `public_receipts`. The data-api reads **only** this view — no joins, no instruction payloads, no vault balances, no owner keys.
+
+| Field | Type | Notes |
+|---|---|---|
+| `receipt_id` | text | Index primary key as text |
+| `ts` | unix seconds | Event time |
+| `mandate` | text | Mandate id (`mdt_*`) or chain pubkey |
+| `operator` | text | Operator pubkey or house name |
+| `action_type` | `swap` \| `deposit` \| `withdraw_venue` \| `spend` | Execute kind |
+| `venue` | text \| null | e.g. `demo_swap` |
+| `token` | text \| null | Involved mint / symbol |
+| `amount` | integer \| null | Base units (asked or filled) |
+| `result` | `allowed` \| `blocked` | Allowed = `ActionExecuted`; blocked = `ActionRefused` |
+| `block_reason` | BlockReason \| null | Canonical code; **null iff allowed** |
+| `tx_sig` | text \| null | Solana signature when the receipt confirmed on chain |
+
+Lifecycle events (`MandateCreated`, `Paused`, …) are not in this view. Exactly the ActionExecuted / ActionRefused rows.
+
 ## Events / receipts
 
 Engine `Receipt.type` is the live schema. Intended program events in parentheses where they differ.

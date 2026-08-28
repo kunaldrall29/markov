@@ -15,6 +15,7 @@ export type ReceiptRow = {
   venue: string | null;
   token: string | null;
   amount: number | null;
+  action_type: string | null;
 };
 
 export type MandateRow = {
@@ -44,6 +45,7 @@ function addColumn(db: Database, table: string, name: string, ddl: string) {
 function recreateViews(db: Database) {
   db.exec(`drop view if exists strategy_stats`);
   db.exec(`drop view if exists operator_stats`);
+  db.exec(`drop view if exists public_receipts`);
   db.exec(`
     create view strategy_stats as
     select
@@ -76,6 +78,7 @@ function recreateViews(db: Database) {
     where operator is not null and operator != ''
     group by operator
   `);
+  migrate(db, "0003_public_receipts.sql");
 }
 
 export function openDb(path = ":memory:"): Database {
@@ -88,7 +91,9 @@ export function openDb(path = ":memory:"): Database {
   addColumn(db, "receipts", "venue", "venue text");
   addColumn(db, "receipts", "token", "token text");
   addColumn(db, "receipts", "amount", "amount integer");
+  addColumn(db, "receipts", "action_type", "action_type text");
   db.exec(`create index if not exists receipts_strategy_idx on receipts (strategy_id)`);
+  db.exec(`create index if not exists receipts_public_ts_idx on receipts (ts desc, id desc)`);
   db.exec(`create index if not exists mandates_strategy_idx on mandates (strategy_id)`);
   recreateViews(db);
   return db;
@@ -130,8 +135,8 @@ export function upsertStrategy(
 
 export function insertReceipt(db: Database, row: ReceiptRow) {
   db.query(
-    `insert into receipts (mandate_id, kind, refused, reason, nonce, sig, ts, strategy_id, operator, venue, token, amount)
-     values (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)`,
+    `insert into receipts (mandate_id, kind, refused, reason, nonce, sig, ts, strategy_id, operator, venue, token, amount, action_type)
+     values (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)`,
   ).run(
     row.mandate_id,
     row.kind,
@@ -145,6 +150,7 @@ export function insertReceipt(db: Database, row: ReceiptRow) {
     row.venue,
     row.token,
     row.amount,
+    row.action_type,
   );
 }
 
@@ -163,6 +169,8 @@ export function listOperatorStats(db: Database) {
   return db.query(`select * from operator_stats`).all();
 }
 
+const ACTION_TYPES = new Set(["swap", "deposit", "withdraw_venue", "spend"]);
+
 export function fromEngineReceipt(r: Record<string, unknown>): ReceiptRow {
   const kind = String(r.type ?? "unknown");
   const refused = kind === "ActionRefused" ? 1 : 0;
@@ -176,6 +184,7 @@ export function fromEngineReceipt(r: Record<string, unknown>): ReceiptRow {
           : null;
   const token =
     typeof r.tokenIn === "string" ? r.tokenIn : typeof r.token === "string" ? r.token : null;
+  const actionType = typeof r.kind === "string" && ACTION_TYPES.has(r.kind) ? r.kind : null;
   return {
     mandate_id: String(r.mandateId ?? ""),
     kind,
@@ -189,5 +198,6 @@ export function fromEngineReceipt(r: Record<string, unknown>): ReceiptRow {
     venue: typeof r.venue === "string" ? r.venue : null,
     token,
     amount,
+    action_type: actionType,
   };
 }
