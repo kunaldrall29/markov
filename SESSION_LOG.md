@@ -5,9 +5,9 @@ Handoff file. Newest entry at the top. Facts, not narrative.
 ## 2026-08-28 — Telegram /whoami allowlist
 
 - Goal: take the phone `/whoami` chat id and allow that chat to `/pause` and `/revoke`.
-- Done: `TELEGRAM_ALLOWED_CHAT_IDS=8619705568` in gitignored `.env`; `data/telegram-allow.json` (gitignored). Bot restarted on `:8789`. `handleCommand` as 8619705568 paused `mdt_0037`; chat 42 still denied. Telegram notify sent. `allow.ts` resolves `TELEGRAM_ALLOW_FILE` at call time so tests do not leak the live file. Owner unpaused `mdt_0037`. `bun test apps/bot` 8 pass.
+- Done: `TELEGRAM_ALLOWED_CHAT_IDS=8619705568` in gitignored `.env`; `data/telegram-allow.json` (gitignored). Bot restarted on `:8789`. Phone round-trip on `mdt_0037`: `/status` Active, `/pause` Paused, `/revoke` without id refused, `/revoke mdt_0037` Revoked. Ledger `Paused`/`Revoked` by `bot_emergency` (1787906462 / 1787906481). `allow.ts` resolves `TELEGRAM_ALLOW_FILE` at call time.
 - Not done: hosted public Float still needs `MARKOV_API_SECRET` / `WEB_ORIGIN`. Engine UI is not yet the on-chain subscribe path.
-- Next: phone `/status mdt_0037` then `/pause mdt_0037`. Hosting + domain/x402 decisions. `MARKOV_MAINNET=1` only after audit.
+- Next: hosting + domain/x402 decisions. `MARKOV_MAINNET=1` only after audit.
 
 ## 2026-08-28 — 10 SOL: public-devnet upgrade + venues
 

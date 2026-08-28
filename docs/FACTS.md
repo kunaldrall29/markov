@@ -2,7 +2,7 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-28 (Telegram `/whoami` allowlist + public-devnet programs).
+Last refreshed: 2026-08-28 (phone Telegram pause + revoke on `mdt_0037`).
 
 ## Verified in this workspace
 
@@ -27,7 +27,7 @@ Last refreshed: 2026-08-28 (Telegram `/whoami` allowlist + public-devnet program
 | 10 SOL received on deployer | Yes | 2026-08-28. Deployer `2fpQvTynG9cnCXUqsrJ8CvpJZsNykehMdSv4nkJVStGg` 2.247 → 12.247 SOL, then helper funding + deploys. Post-init deployer ~6.85 SOL |
 | Float wallet auth | Per-request ed25519 (`x-actor` + `x-owner-ts` + `x-owner-sig`). Loopback unsigned `owner_demo` remains. Mainnet gated by `MARKOV_MAINNET=1` | API tests + live curl 2026-08-27: spoofed `body.owner` HTTP 400; signed create owned by pubkey; replay 401; proxy unsigned 401 |
 | Lighthouse accessibility | Marketplace 100, mandate console 100 (mobile preset) | `npx lighthouse@12.8.2` vs `http://127.0.0.1:3000` and `/m/mdt_0035` 2026-08-27 |
-| Telegram Float bot | Live on Telegram. `getMe` username `markov_float_bot`. Phone `/whoami` → chat id `8619705568`, now in gitignored `TELEGRAM_ALLOWED_CHAT_IDS` / `data/telegram-allow.json`. Pause from that chat: `mdt_0037` Active → Paused (then owner unpause so phone `/pause` can retry). Other chats still denied. `/link` and `/status` without an id return mandate-id required. Token in gitignored `.env` only | Photo of `t.me/markov_float_bot` `/whoami` 2026-08-28. Do not write the token in this file. |
+| Telegram Float bot | Live on Telegram. `getMe` username `markov_float_bot`. Phone chat `8619705568` allowlisted. Phone round-trip 2026-08-28: `/status mdt_0037` → Active; `/pause mdt_0037` → Paused; `/revoke` without id → mandate-id required; `/revoke mdt_0037` → Revoked. Ledger receipts `Paused` then `Revoked` by `bot_emergency` (ts 1787906462 / 1787906481). Token in gitignored `.env` only | Photo of `t.me/markov_float_bot` kill-switch 2026-08-28. Do not write the token in this file. |
 | Mandate + venues exercised on public Solana devnet | Yes — four-beat: fund, under-policy spend+swap, `OverTxCap` refusal tx, `Revoked` refusal tx, owner withdraw | 2026-08-28 `bun scripts/four-beat-devnet.ts` vs `https://api.devnet.solana.com`. Mandate `8wEAR5oSYzKrRtLki8H7E87TcHaDYbzuFT7L2cjnPnJo`. Fund `2iqbzg6sfoxRQB3Jot9KfmLyEdevYaEn4a6cMntqNnXenn2ev2rPtFQ4GpZ2ApZX4kRA91gsh5KWdmyeDB5LHA1T`. OverTxCap `3ajx6eZ67oJGGsL5TUzHvhLGrW3wBaXXng7kYxxzu7DGQmL7B3jJ1tBrDZxjGMudS6pex1yF3rD9b2rj4gtkq6cR`. Revoked swap `3vZt8w1yzn799rFrBW8yMNqARnV29K6TzhX7P1FN7puAQJhF7MM2wSBg9vfmSzLTpDTZTiXaAQyqHYTd7br7mwcU`. Owner withdraw `342HP72T7G5Lb9hUeorot91PEigQoncuw9o7x1ThXtv3nYuMryCfDxY53cCwPKMbXbG6s64RWxvGUtUeU8AoZK8q` |
 | Mandate + venues exercised on local validator | Yes — four-beat: under-policy execute, `OverTxCap` refusal tx, `Revoked` refusal tx, owner withdraw | `bun scripts/four-beat-devnet.ts` vs `solana-test-validator` 2026-08-24. Public explorer will not show local sigs. |
 | `Anchor.toml` program pubkeys | Local keypair addresses | mandate `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm`, demo_swap `3HwcGXdsbfaAov2rYhDtnyeeEbuFVXUaT5GASTCjUUSK`, demo_yield `GsE3vpoBb26vZWbPBbtMACwVem2qgw7whouTLwAAhyzC` |
