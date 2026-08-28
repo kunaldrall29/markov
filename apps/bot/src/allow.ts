@@ -1,7 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const FILE = process.env.TELEGRAM_ALLOW_FILE ?? join(import.meta.dir, "../../../data/telegram-allow.json");
+function allowFile(): string {
+  return process.env.TELEGRAM_ALLOW_FILE ?? join(import.meta.dir, "../../../data/telegram-allow.json");
+}
 
 function fromEnv(): number[] {
   const raw = process.env.TELEGRAM_ALLOWED_CHAT_IDS?.trim();
@@ -13,9 +15,10 @@ function fromEnv(): number[] {
 }
 
 function fromFile(): number[] {
-  if (!existsSync(FILE)) return [];
+  const file = allowFile();
+  if (!existsSync(file)) return [];
   try {
-    const parsed = JSON.parse(readFileSync(FILE, "utf8")) as { chatIds?: unknown };
+    const parsed = JSON.parse(readFileSync(file, "utf8")) as { chatIds?: unknown };
     if (!Array.isArray(parsed.chatIds)) return [];
     return parsed.chatIds.map((n) => Number(n)).filter((n) => Number.isFinite(n) && n !== 0);
   } catch {
@@ -32,8 +35,9 @@ export function allowedChatIds(): number[] {
 export function rememberChat(chatId: number): void {
   if (fromEnv().length > 0) return;
   if (fromFile().length > 0) return;
-  mkdirSync(dirname(FILE), { recursive: true });
-  writeFileSync(FILE, `${JSON.stringify({ chatIds: [chatId] }, null, 2)}\n`);
+  const file = allowFile();
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, `${JSON.stringify({ chatIds: [chatId] }, null, 2)}\n`);
 }
 
 /**

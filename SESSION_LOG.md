@@ -2,13 +2,20 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-28 — Telegram /whoami allowlist
+
+- Goal: take the phone `/whoami` chat id and allow that chat to `/pause` and `/revoke`.
+- Done: `TELEGRAM_ALLOWED_CHAT_IDS=8619705568` in gitignored `.env`; `data/telegram-allow.json` (gitignored). Bot restarted on `:8789`. `handleCommand` as 8619705568 paused `mdt_0037`; chat 42 still denied. Telegram notify sent. `allow.ts` resolves `TELEGRAM_ALLOW_FILE` at call time so tests do not leak the live file. Owner unpaused `mdt_0037`. `bun test apps/bot` 8 pass.
+- Not done: hosted public Float still needs `MARKOV_API_SECRET` / `WEB_ORIGIN`. Engine UI is not yet the on-chain subscribe path.
+- Next: phone `/status mdt_0037` then `/pause mdt_0037`. Hosting + domain/x402 decisions. `MARKOV_MAINNET=1` only after audit.
+
 ## 2026-08-28 — 10 SOL: public-devnet upgrade + venues
 
 - Goal: use the 10 SOL Kunal sent to upgrade mandate to vault-pin / `strategy_id` bytecode and deploy demo venues on `api.devnet.solana.com`.
 - Done: helpers funded 0.5 SOL each (owner, emergency, op_dca, treasury). `solana program extend` mandate +10240 (loader refuses smaller extends). Mandate upgrade tx `2baq433jFmgRW2wEHnsQHRCBtFYMCLzj1debKMWrNX4nouutR2QK8JqfpGdp3VAHVuSAnNL28dbXRtk6eC2UhBHh`. demo_swap tx `53e46CWYimVS57tvwf6kDzyBmu7XQvV1EUX8FpS98oFSxY1nRp9mCo6vqrDC1TDaD5CbnVKvLaDrMR1gB7fzj3Fy`. demo_yield tx `37gMPSBVcTGDpiBTUrXvjfqJNdCncPCmgx9CunarcqsD3XzWio6b4g9Wbx28E9B5Y4guWghiEFw6tav8My5VSdu8`. Dumps `cmp` equal to `target/deploy/*.so` (mandate pad 1696 zero bytes). Mints + pools initialized; `data/devnet.json` public RPC. Copied generated mandate IDL (event `strategy_id`). `MARKOV_SKIP_DEPLOY` / `MARKOV_SKIP_FUND` on `scripts/devnet-setup.ts`. Four-beat on public explorer: mandate `8wEAR5oSYzKrRtLki8H7E87TcHaDYbzuFT7L2cjnPnJo`; OverTxCap `3ajx6eZ67oJGGsL5TUzHvhLGrW3wBaXXng7kYxxzu7DGQmL7B3jJ1tBrDZxjGMudS6pex1yF3rD9b2rj4gtkq6cR`; Revoked `3vZt8w1yzn799rFrBW8yMNqARnV29K6TzhX7P1FN7puAQJhF7MM2wSBg9vfmSzLTpDTZTiXaAQyqHYTd7br7mwcU`; owner withdraw `342HP72T7G5Lb9hUeorot91PEigQoncuw9o7x1ThXtv3nYuMryCfDxY53cCwPKMbXbG6s64RWxvGUtUeU8AoZK8q`.
-- Not done: markovhq.com unchanged. Telegram allowlist still needs `/whoami`. No mainnet. Do not paste failed-buffer seed phrases.
+- Not done: markovhq.com unchanged. No mainnet. Do not paste failed-buffer seed phrases.
 - Commands: `solana program extend 5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm 10240 -u https://api.devnet.solana.com -k keys/deployer.json`; `solana program deploy target/deploy/{mandate,demo_swap,demo_yield}.so --program-id keys/<name>.json`; `MARKOV_RPC=https://api.devnet.solana.com MARKOV_SKIP_DEPLOY=1 MARKOV_SKIP_FUND=1 bun scripts/devnet-setup.ts`.
-- Next: `TELEGRAM_ALLOWED_CHAT_IDS` from `/whoami`; hosting + `MARKOV_API_SECRET` if public HTTP; `MARKOV_MAINNET=1` only after audit.
+- Next: hosting + `MARKOV_API_SECRET` if public HTTP; `F-CANONICAL-DOMAIN` / `F-X402-SETTLE-MINT`; `MARKOV_MAINNET=1` only after audit.
 
 ## 2026-08-27 — wallet adapter, mobile, mainnet gate
 

@@ -69,6 +69,23 @@ describe("telegram allowlist", () => {
     expect(canMutate()).toBe(true);
   });
 
+  test("allowlisted chat from /whoami may pause and revoke", () => {
+    const prev = process.env.TELEGRAM_ALLOWED_CHAT_IDS;
+    const first = process.env.TELEGRAM_ALLOW_FIRST_CHAT;
+    const file = process.env.TELEGRAM_ALLOW_FILE;
+    process.env.TELEGRAM_ALLOW_FILE = "/tmp/markov-telegram-allow-whoami-test.json";
+    process.env.TELEGRAM_ALLOWED_CHAT_IDS = "8619705568";
+    delete process.env.TELEGRAM_ALLOW_FIRST_CHAT;
+    expect(canMutate(8619705568)).toBe(true);
+    expect(canMutate(1)).toBe(false);
+    if (prev === undefined) delete process.env.TELEGRAM_ALLOWED_CHAT_IDS;
+    else process.env.TELEGRAM_ALLOWED_CHAT_IDS = prev;
+    if (first === undefined) delete process.env.TELEGRAM_ALLOW_FIRST_CHAT;
+    else process.env.TELEGRAM_ALLOW_FIRST_CHAT = first;
+    if (file === undefined) delete process.env.TELEGRAM_ALLOW_FILE;
+    else process.env.TELEGRAM_ALLOW_FILE = file;
+  });
+
   test("empty allowlist denies telegram until configured", () => {
     const prev = process.env.TELEGRAM_ALLOWED_CHAT_IDS;
     const first = process.env.TELEGRAM_ALLOW_FIRST_CHAT;
