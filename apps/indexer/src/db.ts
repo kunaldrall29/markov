@@ -83,6 +83,7 @@ function recreateViews(db: Database) {
 
 export function openDb(path = ":memory:"): Database {
   const db = new Database(path);
+  db.exec("pragma journal_mode=WAL");
   migrate(db, "0001_init.sql");
   migrate(db, "0002_strategy.sql");
   addColumn(db, "mandates", "strategy_id", "strategy_id text");

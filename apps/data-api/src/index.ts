@@ -61,10 +61,17 @@ function parseResult(raw: string | undefined): { ok: true; result?: PublicResult
 
 export function createDataApi(opts: DataApiOptions = {}) {
   const app = new Hono();
-  const store = opts.store === undefined ? openConfiguredStore() : opts.store;
   const now = opts.now ?? Date.now;
   const limiter = createRateLimiter({ max: opts.rateLimitMax ?? 60, windowMs: 60_000 });
   let statsCache: { at: number; body: unknown } | null = null;
+  let autoStore: PublicReceiptsStore | null | undefined;
+
+  function store(): PublicReceiptsStore | null {
+    if (opts.store !== undefined) return opts.store;
+    if (autoStore) return autoStore;
+    autoStore = openConfiguredStore();
+    return autoStore;
+  }
 
   app.use("*", async (c, next) => {
     const origin = c.req.header("origin");
@@ -89,7 +96,7 @@ export function createDataApi(opts: DataApiOptions = {}) {
       service: "data-api",
       ok: true,
       rpcHost: rpcHost(),
-      publicReceipts: Boolean(store),
+      publicReceipts: Boolean(store()),
     }),
   );
 
@@ -137,13 +144,14 @@ export function createDataApi(opts: DataApiOptions = {}) {
   app.use("/v1/*", gated);
 
   app.get("/v1/receipts/stats", async (c) => {
-    if (!store) return c.json({ error: "public_receipts unavailable" }, 503);
+    const db = store();
+    if (!db) return c.json({ error: "public_receipts unavailable" }, 503);
     const t = now();
     if (statsCache && t - statsCache.at < STATS_TTL_MS) {
       return c.json(statsCache.body);
     }
     try {
-      const body = await store.stats();
+      const body = await db.stats();
       statsCache = { at: t, body };
       return c.json(body);
     } catch {
@@ -152,7 +160,8 @@ export function createDataApi(opts: DataApiOptions = {}) {
   });
 
   app.get("/v1/receipts", async (c) => {
-    if (!store) return c.json({ error: "public_receipts unavailable" }, 503);
+    const db = store();
+    if (!db) return c.json({ error: "public_receipts unavailable" }, 503);
     const limitParsed = parseLimit(c.req.query("limit"));
     if (!limitParsed.ok) return c.json({ error: "invalid limit" }, 400);
     const resultParsed = parseResult(c.req.query("result"));
@@ -168,7 +177,7 @@ export function createDataApi(opts: DataApiOptions = {}) {
       return c.json({ error: "invalid cursor" }, 400);
     }
     try {
-      const rows = await store.list({
+      const rows = await db.list({
         limit: limitParsed.limit + 1,
         result: resultParsed.result,
         reason: reasonRaw && isBlockReason(reasonRaw) ? reasonRaw : undefined,
