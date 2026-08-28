@@ -60,7 +60,7 @@ Non-blocking but material: dirty uncommitted tick/indexer WIP; `bun run typechec
 | Local data-api | EXECUTED | `:8788/health` 200; `GET /price/DEMO` 402 payment-required stub |
 | Local bot | EXECUTED | `:8789/health` 200 `tokenSet:true` `username:markov_float_bot` |
 | Indexer process | EXECUTED | `:8790/health` **down**. sqlite file exists (`data/indexer.sqlite` 77824 bytes, mtime 12:31) |
-| Hosted Float / API / docs / data | EXECUTED | `app.markov.fyi`, `float.markov.fyi`, `docs.markov.fyi`, `api.markov.fyi`, `data.markov.fyi` → **404** |
+| Hosted Float / API / docs / data | EXECUTED | `*.markov.fyi` still 404. Railway 2026-08-28: api/data-api/indexer/bot/agents `/health` 200. Hosted receipts `https://data-api-production-5ac5.up.railway.app/v1/receipts` 200 empty |
 | markovhq.com | EXECUTED | HTTP 200 title `Markov — Give an agent your capital. Keep the keys.` Vercel. GitHub `https://github.com/MarkovFyi`. **zero** `kunaldrall29` in HTML |
 | Litepaper live | EXECUTED | `https://markovhq.com/litepaper` 200 title `Markov litepaper — The mandate layer for Solana.` **v0.6** (also mentions previous v0.4). `markov.fyi/litepaper` 301 → markovhq.com |
 | `markov.fyi/docs` | EXECUTED | 301 → `markovhq.com/docs` → **404** |

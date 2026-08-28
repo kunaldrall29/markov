@@ -2,6 +2,14 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-28 — Railway backends + Postgres
+
+- Goal: host api, indexer, data-api, bot, agents and Postgres on Railway project `markov`. Public receipts via data-api. No secrets in git.
+- Done: CLI login as kunal drall. Project `markov` + Postgres 18. dockerfilePath set on each service (CLI 5.x ignores `railway.toml`). All five `/health` 200. Hosted `GET https://data-api-production-5ac5.up.railway.app/v1/receipts` 200 empty. Indexer applies `postgres_boot.sql` on boot and reuses one SQL client. Telegram username `markov_float_bot` (`tokenSet: true`). `MARKOV_API_SECRET` SET on Railway, not committed.
+- Not done: hosted API ledger is empty (`mandates:0` `receipts:0`). `programs` loaded from `data/devnet.json`; `chainReady` still false. Docs `RECEIPTS_API_URL` still local unless Vercel is updated. Local `.env` `DATABASE_URL` UNSET.
+- Commands: `curl https://api-production-d2e8.up.railway.app/health`; `curl https://data-api-production-5ac5.up.railway.app/v1/receipts`; `curl https://data-api-production-5ac5.up.railway.app/v1/receipts/stats`.
+- Next: set docs build `RECEIPTS_API_URL` to the hosted data-api; copy engine receipts onto hosted API if a public feed is wanted.
+
 ## 2026-08-28 — public receipts feed
 
 - Goal: make ActionExecuted / ActionRefused publicly readable (SPEC Public Receipt Read Model) via data-api + Live receipts page. No websockets, charts, auth, or per-operator pages.

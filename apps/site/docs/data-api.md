@@ -16,3 +16,5 @@ Public receipts (SPEC Public Receipt Read Model, view `public_receipts` only):
 Live UI: [`/receipts`](/receipts). Base URL is `RECEIPTS_API_URL` (no client secrets).
 
 Local: `http://127.0.0.1:8788` (`bun run dev:services`).
+
+Hosted: `https://data-api-production-5ac5.up.railway.app` (Railway project `markov`). Docs `RECEIPTS_API_URL` is build-time.

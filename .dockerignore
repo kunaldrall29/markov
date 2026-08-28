@@ -7,5 +7,6 @@ keys
 data/*.json
 data/*.sqlite
 !data/devnet.example.json
+!data/devnet.json
 !data/.gitkeep
 apps/web/.next
