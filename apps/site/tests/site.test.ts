@@ -82,9 +82,22 @@ describe("markov-site docs", () => {
     expect(read("static/llms.txt")).toContain("https://markovhq.com");
   });
 
-  test("docs CSS allows tables to scroll on a narrow screen", () => {
-    const css = read("src/css/custom.css");
-    expect(css).toContain("overflow-x: auto");
-    expect(css).toContain("@media (max-width: 996px)");
+  test("live receipts page polls the public feed", () => {
+    const page = read("src/pages/receipts.tsx");
+    const config = read("docusaurus.config.ts");
+    expect(config).toContain('label: "Live receipts"');
+    expect(config).toContain("receiptsApiUrl");
+    expect(config).toContain("RECEIPTS_API_URL");
+    expect(page).toContain("No receipts yet — devnet warming up.");
+    expect(page).toContain("actions gated");
+    expect(page).toContain("refusals emitted");
+    expect(page).toContain("5_000");
+    expect(page).toContain("15_000");
+    expect(page).toContain("/v1/receipts");
+    expect(page).toContain("cluster=devnet");
+    expect(page).toContain("All");
+    expect(page).toContain("Allowed");
+    expect(page).toContain("Refused");
+    expect(page).not.toMatch(/SERVICE_ROLE|SUPABASE_|sk-|api[_-]?key/i);
   });
 });

@@ -19,6 +19,9 @@ const config: Config = {
     defaultLocale: "en",
     locales: ["en"],
   },
+  customFields: {
+    receiptsApiUrl: process.env.RECEIPTS_API_URL ?? "http://127.0.0.1:8788",
+  },
   presets: [
     [
       "classic",
@@ -44,6 +47,7 @@ const config: Config = {
       title: "Markov",
       items: [
         { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
+        { to: "/receipts", label: "Live receipts", position: "left" },
         { href: "http://127.0.0.1:3000", label: "Float", position: "right" },
         { href: "https://markovhq.com", label: "markovhq.com", position: "right" },
       ],
