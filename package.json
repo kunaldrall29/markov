@@ -17,6 +17,8 @@
     "devnet:setup": "bun scripts/devnet-setup.ts",
     "demo:devnet": "bun scripts/four-beat-devnet.ts",
     "demo:chain": "bun scripts/float-chain-subscribe.ts",
+    "demo:hosted": "bun scripts/hosted-four-beat.ts",
+    "demo:hosted-revoke": "bun scripts/hosted-bot-revoke.ts",
     "demo:redteam": "bun scripts/chain-sprint.ts redteam",
     "demo:fanout": "bun scripts/chain-sprint.ts fanout",
     "demo:ticks": "bun scripts/chain-sprint.ts ticks",
