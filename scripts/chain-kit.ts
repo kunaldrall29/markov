@@ -59,8 +59,12 @@ export function loadKeyMatching(pubkey: string): Keypair {
   const dir = join(ROOT, "keys");
   for (const file of readdirSync(dir)) {
     if (!file.endsWith(".json")) continue;
-    const kp = loadKeypair(join(dir, file));
-    if (kp.publicKey.toBase58() === pubkey) return kp;
+    try {
+      const kp = loadKeypair(join(dir, file));
+      if (kp.publicKey.toBase58() === pubkey) return kp;
+    } catch {
+      /* skip non-keypair json in keys/ */
+    }
   }
   throw new Error(`no gitignored key matches ${pubkey}`);
 }
