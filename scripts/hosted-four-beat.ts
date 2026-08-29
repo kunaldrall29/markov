@@ -124,6 +124,7 @@ async function main() {
     throw new Error(`expected chain subscribe, got ${JSON.stringify(built)}`);
   }
   const createSig = await sendTx(owner, built.tx);
+  await sleep(1500);
   const created = await call<{
     id: string;
     chain?: { pubkey: string; seed?: string };

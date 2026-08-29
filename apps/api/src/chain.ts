@@ -262,12 +262,23 @@ export async function buildMandateTx(
 async function confirmedTx(sig: string) {
   const facts = factsOrThrow();
   const connection = new Connection(rpcUrl(), "confirmed");
-  const tx = await connection.getTransaction(sig, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
-  if (!tx || tx.meta?.err) throw new Error("transaction not confirmed");
-  return { connection, facts };
+  let lastErr = "transaction not confirmed";
+  for (let i = 0; i < 12; i++) {
+    try {
+      const tx = await connection.getTransaction(sig, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      if (tx?.meta?.err) throw new Error("transaction failed on chain");
+      if (tx) return { connection, facts };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/failed on chain/i.test(msg)) throw err;
+      lastErr = msg;
+    }
+    await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+  }
+  throw new Error(lastErr);
 }
 
 export async function confirmChain(
@@ -282,7 +293,11 @@ export async function confirmChain(
     const ownerPk = new PublicKey(actor);
     const seed = BigInt(intent.seed);
     const pda = mandatePda(new PublicKey(facts.programs.mandate), ownerPk, seed);
-    const info = await connection.getAccountInfo(pda, "confirmed");
+    let info = await connection.getAccountInfo(pda, "confirmed");
+    for (let i = 0; i < 8 && (!info || info.owner.toBase58() !== facts.programs.mandate); i++) {
+      await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+      info = await connection.getAccountInfo(pda, "confirmed");
+    }
     if (!info || info.owner.toBase58() !== facts.programs.mandate) {
       throw new Error("on-chain mandate missing");
     }
