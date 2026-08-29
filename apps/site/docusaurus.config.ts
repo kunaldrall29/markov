@@ -4,7 +4,7 @@ import { themes as prismThemes } from "prism-react-renderer";
 import { tokenCss, tokens } from "./src/lib/tokens";
 
 const HOSTED_RECEIPTS = "https://data-api-production-5ac5.up.railway.app";
-const HOSTED_FLOAT = "https://float-web-kunals-projects-35d3a237.vercel.app";
+const HOSTED_FLOAT = "https://float-web-three.vercel.app";
 
 const receiptsApiUrl =
   process.env.RECEIPTS_API_URL?.trim() ||

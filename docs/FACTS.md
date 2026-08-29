@@ -2,16 +2,25 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-28 (Railway hosted receipts).
+Last refreshed: 2026-08-29 (Vercel Float + docs on kunaldrall29 / lemmalabs).
+
+## 2026-08-29 — Vercel (kunaldrall29)
+
+| Claim | Status | Source / date |
+|---|---|---|
+| Float production | Yes | `https://float-web-three.vercel.app` READY 2026-08-29. Source: this repo `cursor/public-receipts-aeb5` via Vercel CLI on team `lemmalabs` (`kunaldrall29`). `/` `/create` `/kill` `/bot` `/sheet` HTTP 200 |
+| Protocol docs production | Yes | `https://markov-docs-black.vercel.app` READY 2026-08-29. `/` `/docs` `/receipts` HTTP 200. JS bakes Railway `https://data-api-production-5ac5.up.railway.app` |
+| Git autodeploy from `kunaldrall29/markov` | **No** | Vercel GitHub App still cannot connect that repo (`git connect` failed). CLI upload from this checkout |
+| Vercel team for these URLs | `lemmalabs` (`lemmalabs1`) | `vercel whoami` = `kunaldrall29`. Not the `kunal-drall` hobby team `kunals-projects-35d3a237` |
 
 ## 2026-08-28 — public receipts
 
 | Claim | Status | Source / date |
 |---|---|---|
 | `PUBLIC_VIEW` | `public_receipts` | `apps/indexer/migrations/0003_public_receipts.sql` + `.postgres.sql` 2026-08-28 |
-| `RECEIPTS_API_URL` | Local `http://127.0.0.1:8788`. Hosted `https://data-api-production-5ac5.up.railway.app` | Hosted `GET /v1/receipts` 200 `{"receipts":[],"next_cursor":null}` 2026-08-28. Docs still default to local until Vercel `RECEIPTS_API_URL` is set |
+| `RECEIPTS_API_URL` | Local `http://127.0.0.1:8788`. Hosted `https://data-api-production-5ac5.up.railway.app` | Hosted `GET /v1/receipts` 200 `{"receipts":[],"next_cursor":null}` 2026-08-28. Docs Vercel build bakes this URL when `VERCEL` is set |
 | `GET /v1/receipts` + `/v1/receipts/stats` | Yes, local | 2026-08-28. No auth. 60 req/min/IP → 429 `Retry-After`. Invalid `reason` → 400. CORS localhost + `https://markov.fyi` |
-| Live receipts page | Yes, local docs | `http://127.0.0.1:3001/receipts`. Env `RECEIPTS_API_URL` (build-time, public) |
+| Live receipts page | Yes, local + hosted docs | Local `http://127.0.0.1:3001/receipts`. Hosted `https://markov-docs-black.vercel.app/receipts` 200 2026-08-29 |
 | Float-agents allow + OverTxCap | Yes | `mdt_0043` 2026-08-28. `PORT=0 bun apps/agents/src/index.ts momentum mdt_0043` then `--over-cap` |
 | Devnet overlay allow + OverTxCap sigs | Yes | `mdt_0044`. Allow swap `3WFxpqWu8iAUmBcaXE71LaESwezkNpkDeKNot2tGFkLQv3Pvs9GYRSDmDb88nZjnU3CA5Zj6udDZx3bw3arLzxi6`. OverTxCap `yNgf4hfoLSU3wT2GHvHTsUKkBnPwK2SVRRy2Dq1SfQ29DRys5oHHGm9xC7H4X8hupMwYiN7hcST2Fq8AMt9HohZ` |
 | Railway project `markov` | Yes | Workspace `kunal drall's Projects`. Postgres 18 + api / indexer / data-api / bot / agents. `HOST=0.0.0.0`. `MARKOV_API_SECRET` SET (generated, not in git). Telegram token SET from gitignored `.env` (`username` `markov_float_bot`) |

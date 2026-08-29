@@ -2,6 +2,14 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-29 — Vercel deploy as kunaldrall29
+
+- Goal: production-deploy Float + protocol docs from `kunaldrall29/markov` using a Vercel token for user `kunaldrall29` (team `lemmalabs`). Do not git-link `kunal-drall/markov`.
+- Done: CLI `whoami` = `kunaldrall29`. Created `float-web` + `markov-docs` on `lemmalabs1`. Root dirs `apps/web` / `apps/site`. Production READY: `https://float-web-three.vercel.app`, `https://markov-docs-black.vercel.app`. Hosted receipts still empty Railway feed. Token used via env only, not committed.
+- Not done: `vercel git connect https://github.com/kunaldrall29/markov` still fails (GitHub App). Auto-deploy on push not enabled.
+- Commands: `vercel deploy --prod --yes --scope lemmalabs1` from repo root after `vercel link --project float-web` / `markov-docs`.
+- Next: install Vercel GitHub App on this `kunaldrall29` / `lemmalabs` team for git autodeploy; production branch must not be empty `main`.
+
 ## 2026-08-28 — Railway backends + Postgres
 
 - Goal: host api, indexer, data-api, bot, agents and Postgres on Railway project `markov`. Public receipts via data-api. No secrets in git.

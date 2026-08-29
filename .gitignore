@@ -7,6 +7,7 @@ coverage
 *.log
 .env
 .env.local
+.env*.local
 data/*.json
 data/*.sqlite
 !data/.gitkeep
@@ -17,8 +18,10 @@ apps/site/.docusaurus
 apps/site/build
 **/*.tsbuildinfo
 .playwright-mcp
+.vercel
 target
 test-ledger
 .anchor
 keys
 *.so
+.env*
