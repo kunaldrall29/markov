@@ -43,6 +43,16 @@ describe("Float design contract", () => {
     expect(withdrawDisabled(0, "Revoked")).toBe(true);
   });
 
+  test("hosted Float hides engine-demo controls", () => {
+    const four = readFileSync(join(SRC, "app/FourBeatButton.tsx"), "utf8");
+    const consolePage = readFileSync(join(SRC, "app/m/[id]/page.tsx"), "utf8");
+    const strategy = readFileSync(join(SRC, "app/s/[id]/page.tsx"), "utf8");
+    expect(four).toContain("floatEngineDemo");
+    expect(consolePage).toContain("floatEngineDemo");
+    expect(strategy).toContain("floatEngineDemo");
+    expect(four).not.toContain("engineDemoAllowed()");
+  });
+
   test("no hex literals outside design-tokens.json", () => {
     const hits: string[] = [];
     for (const file of walk(SRC)) {

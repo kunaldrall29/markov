@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { formatAmount } from "@/lib/api";
 import { copy } from "@/lib/copy";
 import { useChainApi } from "@/lib/useChain";
-import { engineDemoAllowed } from "@markov/rpc";
+import { floatEngineDemo } from "@/lib/hosted";
 import { CapProximity } from "@/components/CapProximity";
 import { KillSwitch, WithdrawButton } from "@/components/KillSwitch";
 import { ReceiptRow, receiptKey, type ReceiptLike } from "@/components/ReceiptRow";
@@ -242,7 +242,7 @@ export default function MandatePage() {
         </section>
       </div>
 
-      {engineDemoAllowed() ? (
+      {floatEngineDemo() ? (
         <div className="actions" style={{ margin: "22px 0" }}>
           <p className="meta" style={{ flex: "1 1 100%" }}>
             {copy.demo.engineNotWallet}

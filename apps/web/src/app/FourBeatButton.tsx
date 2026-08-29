@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { engineDemoAllowed } from "@markov/rpc";
 import { copy } from "@/lib/copy";
+import { floatEngineDemo } from "@/lib/hosted";
 import { useApi } from "@/lib/useApi";
 import { useToast } from "@/components/Toast";
 
@@ -14,7 +14,7 @@ export function FourBeatButton() {
   const [busy, setBusy] = useState<"four" | "vault" | "">("");
   const [err, setErr] = useState("");
 
-  if (!engineDemoAllowed()) return null;
+  if (!floatEngineDemo()) return null;
 
   async function runFour() {
     setBusy("four");

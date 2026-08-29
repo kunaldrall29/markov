@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatAmount, type StrategyCard } from "@/lib/api";
 import { copy } from "@/lib/copy";
 import { useApi } from "@/lib/useApi";
-import { engineDemoAllowed } from "@markov/rpc";
+import { floatEngineDemo } from "@/lib/hosted";
 import { PolicyChip } from "@/components/PolicyChip";
 import { ReceiptRow, type ReceiptLike } from "@/components/ReceiptRow";
 import { RecordStrip } from "@/components/RecordStrip";
@@ -119,12 +119,12 @@ export default function StrategyPage() {
         <Link className="btn ghost" href={`/o/${row.template.operator}`}>
           {copy.strategy.operator}
         </Link>
-        {engineDemoAllowed() ? (
+        {floatEngineDemo() ? (
           <button className="btn ghost" type="button" disabled={busy} onClick={fanOut}>
             {copy.strategy.fanOut}
           </button>
         ) : null}
-        {engineDemoAllowed() && row.slug === "redteam" ? (
+        {floatEngineDemo() && row.slug === "redteam" ? (
           <button className="btn kill" type="button" disabled={busy} onClick={sweep}>
             {copy.strategy.sweep}
           </button>

@@ -125,7 +125,7 @@ function factsOrThrow() {
 }
 
 function client(): OwnerClient {
-  return new OwnerClient({ payer: Keypair.generate(), factsPath: FACTS_PATH });
+  return new OwnerClient({ payer: Keypair.generate(), rpc: rpcUrl(), factsPath: FACTS_PATH });
 }
 
 function chainPolicy(policy: Policy): ChainPolicy {
@@ -258,7 +258,7 @@ export async function buildMandateTx(
 
 async function confirmedTx(sig: string) {
   const facts = factsOrThrow();
-  const connection = new Connection(facts.rpc, "confirmed");
+  const connection = new Connection(rpcUrl(), "confirmed");
   const tx = await connection.getTransaction(sig, {
     commitment: "confirmed",
     maxSupportedTransactionVersion: 0,
@@ -333,7 +333,7 @@ export async function emergencyChain(
   const m = engine.mandate(mandateId);
   if (!m.chain || (!existsSync(EMERGENCY_KEY) && !process.env.EMERGENCY_KEY_JSON?.trim())) return null;
   const emergency = loadEmergencyKeypair();
-  const owners = new OwnerClient({ payer: emergency, factsPath: FACTS_PATH });
+  const owners = new OwnerClient({ payer: emergency, rpc: rpcUrl(), factsPath: FACTS_PATH });
   const ownerPk = new PublicKey(m.owner);
   const seed = BigInt(m.chain.seed);
   const sig =
