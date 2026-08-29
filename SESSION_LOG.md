@@ -2,6 +2,14 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-29 — on-chain 11 reasons + hosted feed
+
+- Goal: C2–C4 on public devnet; redeploy Railway indexer so `/v1/receipts` is not empty.
+- Done: `bun scripts/chain-sprint.ts ticks|fanout|redteam`. Three house ticks, fan-out A/B execute + C OverTxCap (same momentum `strategy_id`), all 11 BlockReasons as real sigs (FACTS table). Fast-forwarded `origin/main`. Railway indexer+api+data-api uploaded. Hosted stats `total:19` with 11 `by_reason` keys. API `/health` `chainReady:true`.
+- Not done: org transfer; Vercel GitHub App; docs/api/app TLS; litepaper v0.6.1; grant application; Telegram phone capture; STATUS remains NO-GO (`F-CANONICAL-DOMAIN` open).
+- Commands: `bun scripts/chain-sprint.ts ticks`; `bun scripts/chain-sprint.ts fanout`; `bun scripts/chain-sprint.ts redteam`; `curl https://data-api-production-5ac5.up.railway.app/v1/receipts/stats`.
+- Next: attach canonical TLS at the DNS owner; Helius WS; `EMERGENCY_KEY_JSON` on Railway bot; grant application markdown.
+
 ## 2026-08-29 — MVP v2.2 spec + wiring
 
 - Goal: apply v2.2 spec corrections; close hosted/devnet gaps that this agent can touch. Fail closed. Local ledger is not proof.

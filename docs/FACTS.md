@@ -2,14 +2,14 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-29 (MVP v2.2 spec + chain-native indexer + house operators).
+Last refreshed: 2026-08-29 (MVP v2.2 hosted indexer + 11 on-chain BlockReasons).
 
 ## 2026-08-29 — MVP v2.2
 
 | Claim | Status | Source / date |
 |---|---|---|
 | Data layer | Railway Postgres via `DATABASE_URL` | `apps/indexer/migrations/postgres_boot.sql` includes `public_receipts` + `waitlist`. Supabase unused. |
-| Indexer | Chain-native (program logs). API-ledger `POST /sync` removed | Local backfill 2026-08-29 vs `api.devnet.solana.com`: 35 signatures, 15 action receipts, `chainReady: true`, `lagSlots: 1`. Reasons still `OverTxCap`, `Revoked` only |
+| Indexer | Chain-native (program logs). API-ledger `POST /sync` removed | Hosted `https://indexer-production-00ef.up.railway.app/health` 2026-08-29. Public feed `GET https://data-api-production-5ac5.up.railway.app/v1/receipts/stats` `{total:19, allowed:7, blocked:12}` with **11** `by_reason` keys |
 | `DOMAIN_CANONICAL` | `markovhq.com` | Decision 0. Handle `@markovfyi` |
 | `FLOAT_URL` | `https://float.markovhq.com` | HTTP 200 title `Float — Markov` 2026-08-29. Vercel project `float-web` on `lemmalabs`. Interim alias `https://float-web-three.vercel.app` |
 | `DOCS_URL` | `https://docs.markovhq.com` intended | TLS handshake fails. Live alias `https://markov-docs-black.vercel.app`. `vercel domains add` on `lemmalabs1` → `domain_not_owned` |
@@ -19,18 +19,38 @@ Last refreshed: 2026-08-29 (MVP v2.2 spec + chain-native indexer + house operato
 | `markov.fyi` wildcard product hosts | **No** | `float.markov.fyi` / `docs.markov.fyi` / `api.markov.fyi` / `app.markov.fyi` → Vercel `DEPLOYMENT_NOT_FOUND` |
 | `F-CANONICAL-DOMAIN` | **Open** (partial) | Float canonical host is live. docs/api/app + fyi wildcard still missing. Stopped rather than half-attach |
 | `F-X402-SETTLE-MINT` | **deferred-M2** | Not MVP-blocking. In-program spend caps remain |
-| House operators on-chain (distinct) | Yes | `markov-steady` `AFmFYWsn7hijB54y45Tvs8XQxuy1uG9MRQXDqThKXXBs` register `3WAk2mcf8cshWgM3MX87KrssH3DaXohfjFyUnjRUXN7NHCjm3Zsyntd2atdk5DsMMNB47CPQVn3xyYLkAhaeXKwj`. `markov-momentum` `CoVy9jnkzdxzi2say1tpHgiwDbcJ4n7RTvVwp8Rt8bHZ` register `aX4KVFhowjX9RsHqXSHXR97C7w6t1AnZJadrPGgtzZWbuUunmU7cfn4BTJwtmNmDeTkHmntXCJEs95bb449T2Mf`. `markov-redteam` `3ASMCGmhgjuhgVQB672tygz1FYxZk44Fq7rjpCS9jDWB` register `669wtbfxM7VMJF7VKGsdPyThGrcND65CvrcK5JDqxAGKDUjE1QF5qmf9P1uSVFmyvwE2fBD9nhJdrV1EvCssXE9M`. Pubkeys in `data/house-operators.json` |
-| Contact inbox | `hello@markovhq.net` | Live marketing site. `SECURITY.md` and docs updated. `security@markov.fyi` retired in-repo; inbox still unverified |
-| `gitleaks` full git history | Clean | gitleaks 8.24.3, 68 commits, no leaks. Working-tree `.env` / `keys/` are gitignored (filesystem scan is not the repo) |
+| House operators on-chain (distinct) | Yes | Pubkeys in `data/house-operators.json`. Fresh ticks 2026-08-29: steady deposit `3hYm2kvEFWDogpt3Y7kNPkVNDvgZo6YbTqy9wPuHCBcx7zFsQTBjad7ubBE93feNjKCYBANAkLbZkuZcmQAXw3PK`; momentum swap `2bKn6HciKS44iPQ6nMt669wgxFvqkSkGXRYVEc57x3hsec9XtfAZ7uScDN7uxHSCkRna1rq9AHNFXZh5yKvM18mt`; redteam swap `336PTYVwCjNgMzLDeNRrYM6SWu8jhGKitX7tcj4UUY5Q8p8iyhhVjVBdkhZhhS7qF8m6m3zhxJkZ2tb9ZBZeD6jS` |
+| Fan-out N txs same `strategy_id` | Yes | Momentum hash `b7148375f60fe4a027ce664cd47c9982f9c6005868dc7ee148dc53c8ad976245`. A-ok `2HNeLwCRLgixjSobZjeow478rG9bBb5SJdD1JnwA3riXLkrJNhgxLdqWgrYGu2jv6d8SBUNxFLV6KcfTVgfV9HUk`; B-ok `3EyUooQerHbaWU6Qz8hCX5Voxqfc7AQQA86RSQ75qs26yZadZ2kgUAcQUTvNyNfi1VvQNo4o5F3LL9qrv7BFNkMA`; C-`OverTxCap` `2w7zzqXwXkgyfxB8d2wjMiw2qgZ4ZkN6Bx82RLNdeTPkCF6kYx8USqsb45iYzv8mVdEPu7d6U5HCMSWs3ECpfkqR` |
+| Contact inbox | `hello@markovhq.net` | Live marketing site. `SECURITY.md` and docs updated. Inbox still unverified |
+| `gitleaks` full git history | Clean | gitleaks 8.24.3, 68 commits, no leaks. Working-tree `.env` / `keys/` are gitignored |
 | Grant application v2.1 | **Absent** | `docs/grant/APPLICATION.md` stub. Fail closed |
 | Litepaper v0.6.1 on markovhq.com | **Not this repo** | Live page still v0.6. D1 cannot restyle/publish that property from here |
 | A1 org transfer `kunaldrall29/markov` → `MarkovFyi` | **Blocked** | `gh` 403 transfer. Stale MIT org repos still public |
-| A2 `main` | Empty initial commit until fast-forward | `origin/main` = `51513d4`. Merge-base is ancestor of this tree |
+| A2 `main` | Fast-forwarded 2026-08-29 | `origin/main` is the product tree (no longer the empty initial commit) |
 | A3 Vercel git autodeploy | **No** | GitHub App still cannot connect. CLI deploys only |
-| Hosted API `chainReady` | Was false (missing `keys/` in image) | Now derived from RPC probe + `data/devnet.json`. Redeploy API to pick up |
-| Rust `#[test]` | 15 pass | `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` 2026-08-29. 11 BlockReason + 3 invariants + program id |
+| Hosted API `chainReady` | RPC probe + `data/devnet.json` | `https://api-production-d2e8.up.railway.app/health` `chainReady:true` 2026-08-29 after redeploy |
+| Rust `#[test]` | 15 pass | `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` 2026-08-29 |
 | Telegram poller | Railway owns `getUpdates` | Loopback does not poll unless `TELEGRAM_POLL=1` |
-| HELIUS_API_KEY / SOLANA_WS_URL | **UNSET** in process env | Indexer falls back to public `wss://api.devnet.solana.com` (429s under backfill). Set Helius on Railway |
+| HELIUS_API_KEY / SOLANA_WS_URL | Public WS on Railway indexer | `wss://api.devnet.solana.com` (429s). Set Helius on Railway for lag |
+| C6 Telegram phone capture | **No** | Chain revoke+refusal pair exists (below). Hosted bot still lacks `EMERGENCY_KEY_JSON` |
+
+### On-chain BlockReasons (11/11) — 2026-08-29 `bun scripts/chain-sprint.ts redteam`
+
+| BlockReason | Signature |
+|---|---|
+| Paused | `4DUZvXKMM7TU4VLHFspxF7fwewAcXCkL5tLB7dZZ4qqrNj4Z87D6duEUyfSqYRngcmmHSgFhJ37LoSjsGFW4rDBW` |
+| Revoked | `j1rXt7NBWFCn959HEnpE8dfEeWBbmGi6ykam4iDBfFug13DxXHMJR7Xbd4Zym6uHxTUKhcLTTLACRmafcu2XTZf` |
+| Expired | `LCtb5nHDARCNuHDmGM5T4NFGsMnNrLaqBjqd733bvhGpAGh3NG46uwTyNQK3zHCEXXdpdYMeULtibiCSkBmuySc` |
+| Unauthorized | `4KRnfoC51QHhfG5e5CqsKNZjMRT45Xf1nLUFEAMuL8i1gFSjFG8BWUfugKrszV7JWbinz4TxYorTcvujbsnMECjG` |
+| ProgramNotAllowed | `5WYsaxf5jDFdkN1LMQ9peF8EVxofmEvcHKMC8xZfEFCQb1ehxtcoXVGu32Q3iEAnYAAxey4AnCstmPoqV9wrKtUa` |
+| TokenNotAllowed | `39t5zf1zCbUYvE5gkUE3YSSF8jhPzWHYPun6tHnv2RwThMXk7PDJSbiLAXXcT3uSxzCT3s98GbBzUX4GtEfpAa7u` |
+| OverTxCap | `eujc35KFxsXBUBZzfcaza2W41jERwqwy2oG6Rxx1bAY3uidZWdoXDYLSRvyDqCAtomNWQDBh8QdFGfUFsdpZC3Y` |
+| OverDailyCap | `2o4HvZShnyqEVvLrbxcd9kHechjcUaAvPBtEheW9BqU2SYdRJys8Lh9DK1rn87Y3D6NbCCK7HokRQ9pe4uXw1xtb` |
+| OverSpendCap | `3BWrnwFAwZJ4T21UedSqqsNzN9YMa4Lah4hcEXKUseWvkeK6u8zLrh1qBoP6QfRMVqzrBq6j8uWDrkNYEPyzXDEb` |
+| OverSpendDailyCap | `48rxsnSqyKLX5HSL6YhMSaeY8Vxb2w4do2RL5eSCQW7wDGy9zpdsHB8DJFRFAKQFWFyqnoSrvvayP61gqzr8buhB` |
+| SlippageExceeded | `8ctcEEoD95bS7xnTXtJepaiv3Lr3poryvwZj1CKNrnpPauD8gXKb1MnpV5F9UVDwsoiJYwjKzyvQYCxLrre334P` |
+
+Revoke setup (C6 chain pair, not phone): `5F3zKLXVdCQsafBnHryrLuEexMEmrvc6cFy9EKnaDH3UAWq48gmC6ScTMwXJ9bsoFND3pVNVW83GnSjp1B97h4Lv` then Revoked `j1rXt7NBWFCn959HEnpE8dfEeWBbmGi6ykam4iDBfFug13DxXHMJR7Xbd4Zym6uHxTUKhcLTTLACRmafcu2XTZf`. All 11 also carry redteam `strategy_id` `9b4913d105a73c36981826783959a08eeb8dfd18cb31b5638e2ba4ae25005d49`.
 
 ## 2026-08-29 — Vercel (kunaldrall29)
 
