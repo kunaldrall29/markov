@@ -1,7 +1,25 @@
 import { SQL } from "bun";
 import { rpcHost, rpcUrl } from "@markov/rpc";
 
-const INDEXER = (process.env.INDEXER_URL ?? "http://127.0.0.1:8790").replace(/\/$/, "");
+function asSlot(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "bigint") return Number(value);
+  if (typeof value === "string" && /^\d+$/.test(value)) return Number(value);
+  return null;
+}
+
+function indexerBase(): string {
+  const env = process.env.INDEXER_URL?.trim();
+  if (env) return env.replace(/\/$/, "");
+  const railway = process.env.RAILWAY_SERVICE_INDEXER_URL?.trim();
+  if (railway) {
+    const host = railway.replace(/^https?:\/\//, "");
+    return `https://${host}`;
+  }
+  return "http://127.0.0.1:8790";
+}
+
+const INDEXER = indexerBase();
 const MAX_LAG = Number(process.env.INDEXER_MAX_LAG_SLOTS ?? 128);
 
 export type DataHealth = {
@@ -23,7 +41,7 @@ async function rpcSlot(): Promise<number | null> {
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "getSlot", params: ["confirmed"] }),
     });
     const body = (await res.json()) as { result?: unknown };
-    return typeof body.result === "number" ? body.result : null;
+    return typeof body.result === "number" ? body.result : asSlot(body.result);
   } catch {
     return null;
   }
@@ -43,8 +61,8 @@ async function indexerHealth(): Promise<{
       chainReady?: unknown;
     };
     return {
-      lastIndexedSlot: typeof body.lastIndexedSlot === "number" ? body.lastIndexedSlot : null,
-      lagSlots: typeof body.lagSlots === "number" ? body.lagSlots : null,
+      lastIndexedSlot: asSlot(body.lastIndexedSlot),
+      lagSlots: asSlot(body.lagSlots),
       chainReady: body.chainReady === true,
     };
   } catch {
@@ -63,7 +81,7 @@ async function postgresState(): Promise<{ lastIndexedSlot: number | null; lastRp
     }>;
     const row = rows[0];
     if (!row) return null;
-    return { lastIndexedSlot: row.last_indexed_slot, lastRpcSlot: row.last_rpc_slot };
+    return { lastIndexedSlot: asSlot(row.last_indexed_slot), lastRpcSlot: asSlot(row.last_rpc_slot) };
   } catch {
     return null;
   }

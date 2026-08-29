@@ -163,10 +163,19 @@ export async function indexSignature(
   connection: Connection,
   signature: string,
 ): Promise<ApplyResult> {
-  const tx = await connection.getTransaction(signature, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
+  let tx = null;
+  for (let i = 0; i < 6; i++) {
+    try {
+      tx = await connection.getTransaction(signature, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      if (tx) break;
+    } catch {
+      /* 429 / transient */
+    }
+    await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+  }
   if (!tx) return { inserted: 0, skipped: 0 };
   const logs = tx.meta?.logMessages ?? [];
   const events = parseMandateLogs(logs, programId());
