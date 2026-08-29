@@ -1,5 +1,5 @@
 {
   "framework": "nextjs",
-  "installCommand": "cd ../.. && bun install",
-  "buildCommand": "cd ../.. && bun --filter @markov/web build"
+  "installCommand": "cd .. && bun install",
+  "buildCommand": "cd .. && bun --filter @markov/web build"
 }
