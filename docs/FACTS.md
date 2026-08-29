@@ -35,7 +35,7 @@ Last refreshed: 2026-08-29 (Vercel Float + docs on kunaldrall29 / lemmalabs).
 | Mandate program public devnet | Yes | `solana program show` `5o8EAwdHyQ31Nmt6tUDm1y6PNDt5STmVvA6CX3E6WJPm` slot **489249058**, dump `cmp -n 403424` = `target/deploy/mandate.so` |
 | Chain distinct BlockReasons | **2** (`OverTxCap`, `Revoked`) | EventParser, all 26 mandate-program signatures. Missing 9 of 11 |
 | `<FIRST_RECEIPT_DATE>` (chain events) | 2026-08-28T06:53:12Z | First `MandateCreated` `5No1AUkXpFquHBumw8XwRVp8xnP2ZxrSpYcmnh7BK1aCMHVP1nTnnQVKuhsKYf4WiJX3yps2JamSuaymyrAT4Vmd` |
-| `<FLOAT_URL>` public | **None** | `app.markov.fyi` / `float.markov.fyi` / `api.markov.fyi` HTTP 404. Local `:3000` 200 only |
+| `<FLOAT_URL>` public | Yes (Vercel hobby alias) | `https://float-web-three.vercel.app` 200 2026-08-29. `app.markov.fyi` / `float.markov.fyi` still 404 |
 | Litepaper on markovhq.com | **v0.6** (page title + body). Previous v0.4 mentioned | `GET https://markovhq.com/litepaper` 200. In-repo FACTS had said v0.4 |
 | FAQ “Is Float live? Yes, on Solana devnet” | **UNVERIFIED** as hosted product | markovhq.com JSON-LD FAQ. Product hosts 404 |
 | “all eleven refusal types in public” (litepaper v0.6) | **UNVERIFIED** | Chain 2/11. Engine ledger has 11 (not public chain) |
