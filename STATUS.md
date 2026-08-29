@@ -1,6 +1,6 @@
 # STATUS.md — Markov Phase 0 MVP audit
 
-**2026-08-29 refresh:** still **NO-GO**. Hosted indexer is chain-native; public `/v1/receipts/stats` shows **11** `by_reason` keys; three house operators ticked on-chain; fan-out produced three signatures with the same `strategy_id`. `origin/main` is the product tree. Remaining blockers: org transfer; Vercel GitHub App; docs/api/app TLS; litepaper v0.6.1; grant application file; Telegram phone capture (`EMERGENCY_KEY_JSON` unset on the bot); `F-CANONICAL-DOMAIN` still Open (partial). `F-X402-SETTLE-MINT` is deferred-M2. Run `bun scripts/mvp-status-audit.ts`.
+**2026-08-29 refresh:** still **NO-GO**. Audit now evaluates: Float 200, data-api `chainReady`, public ledger 41 receipts, 11 `by_reason` keys, 11 FACTS refusal sigs confirmed on chain, three house operators on-chain, `F-X402-SETTLE-MINT` deferred-M2. Remaining FAIL rows: grant application stub; `F-CANONICAL-DOMAIN` still Open (partial). Hosted four-beat (Railway create/fund + allow + OverTxCap) and hosted-bot revoke+Revoked pair are in `docs/demo/hosted-four-beat.json`. Phone Telegram capture still missing. `origin/main` is the product tree. Run `bun scripts/mvp-status-audit.ts`.
 
 **Date:** 2026-08-28 ~15:20 UTC (original audit below)  
 **Auditor posture:** read-only. No product fixes. Working tree in `/workspace` (`kunaldrall29/markov`, branch `cursor/mvp-prototype-aeb5`) had **uncommitted** house-operator tick / indexer-log WIP; those files were not treated as shipped.  

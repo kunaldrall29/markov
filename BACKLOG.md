@@ -11,4 +11,4 @@ Out of this session on purpose. Do not pick up unless asked.
 - Copilot mode, launch radar, pooled mandates, score/credit, token work
 - Restyling markovhq.com
 - Batching (Phase 1)
-- Hosted Telegram phone capture of revoke+refusal (needs `EMERGENCY_KEY_JSON` on Railway bot)
+- Hosted Telegram phone capture of revoke+refusal (hosted API revoke now has a chain sig; the phone round-trip is still missing)

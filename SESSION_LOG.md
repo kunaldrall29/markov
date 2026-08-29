@@ -2,6 +2,14 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-29 — hosted four-beat + bot revoke
+
+- Goal: prove Float/Railway → devnet → public receipts; hosted emergency revoke with a chain signature; keep STATUS fail-closed.
+- Done: `.dockerignore` ships `data/house-operators.json`. Hosted `POST /mandates` builds chain txs. `bun run demo:hosted` against `https://api-production-d2e8.up.railway.app`: create/fund `4KShUHkk…`, allow `y3sjiYKv…`, OverTxCap `JA4G4Bub…` (indexed). `railway run -s bot -- bun scripts/hosted-bot-revoke.ts mdt_0001` → revoke `5C1eSYTw…` then Revoked `42eduXDh…`. Three house ticks this hour. Audit confirms 11 FACTS refusal sigs on chain; prints **NO-GO** (grant stub + `F-CANONICAL-DOMAIN`). Float prod redeployed (`float.markovhq.com`); engine-demo buttons loopback-only. `EMERGENCY_KEY_JSON` SET on Railway api (stdin, not in git).
+- Not done: org transfer; Vercel GitHub App; docs/api/app TLS; litepaper v0.6.1; grant application; Telegram phone capture; `markovhq.com/receipts` 404.
+- Commands: `bun run demo:hosted`; `railway run -s bot -- bun scripts/hosted-bot-revoke.ts mdt_0001`; `bun scripts/chain-sprint.ts ticks`; `bun scripts/mvp-status-audit.ts`.
+- Next: DNS owner attaches docs/api/app; real grant markdown; phone `/revoke` screenshot.
+
 ## 2026-08-29 — on-chain 11 reasons + hosted feed
 
 - Goal: C2–C4 on public devnet; redeploy Railway indexer so `/v1/receipts` is not empty.

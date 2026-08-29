@@ -32,7 +32,10 @@ Last refreshed: 2026-08-29 (MVP v2.2 hosted indexer + 11 on-chain BlockReasons).
 | Rust `#[test]` | 15 pass | `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` 2026-08-29 |
 | Telegram poller | Railway owns `getUpdates` | Loopback does not poll unless `TELEGRAM_POLL=1` |
 | HELIUS_API_KEY / SOLANA_WS_URL | Public WS on Railway indexer | `wss://api.devnet.solana.com` (429s). Set Helius on Railway for lag |
-| C6 Telegram phone capture | **No** | Chain revoke+refusal pair exists (below). Hosted bot still lacks `EMERGENCY_KEY_JSON` |
+| C6 Telegram phone capture | **No** | Hosted-bot API revoke **yes** (not phone): revoke `5C1eSYTw5komu2mxkFZEMr87U31U5uWNNAFPYqJ59FQaZrvL2zNTKC9Dw9SttXbtowUzCRBbVEgJ1hXRcw4Uqepb` then Revoked `42eduXDhbq4uEcHHgg43At9X9ReUCLRfSWHnCVURNSHqECiJhVRMtB1KkbzetgHQ6PB8naSzH1D3fgqwY265oamZ`. `EMERGENCY_KEY_JSON` SET on Railway api (not in git). |
+| Hosted four-beat (Railway API) | Yes | 2026-08-29T20:31Z `bun run demo:hosted`. Mandate `mdt_0001` PDA `FriqAUtjSTvPSxaFyU6ZF2tt8GEto1oPrBLCyQvM6DjQ`. Create/fund `4KShUHkkFqHXKX58vk9jvYPwVe2MpAc7wex1WyRPeK3HQd111ux1RSsjPh17kvi9wZV2jX3C17vxWovLFrWAmUo4`; allow swap `y3sjiYKvNTj1iq4r2VmBSYop3ZHc1YMhbyvVk8WYwLeG5TCc8NM8RPaMhCmSxVtqy8ZYb14ptYyyB2t44Cg61S3`; OverTxCap `JA4G4BubB8NE4XcuQQatuS7F8mazha8UNcSG9oMUUAZew4LctazpvLjJ1CyriCSbcnZP1c87LGndXRjiuA3mqYW`. Indexed on data-api within 10s. JSON `docs/demo/hosted-four-beat.json`. `markovhq.com/receipts` still 404 (marketing site). Live UI: `https://markov-docs-black.vercel.app/receipts` |
+| House ticks (this hour) | Yes | 2026-08-29T20:32Z steady `4MCyFY1LDj4KdJRdzWMzbVN7GiiJFEztAD5gmM2PyjabovvYZsiTmoZH6jYc2sWTes8sfcyVeQRarcN2hwEqRz3q`; momentum `3iHVgqeesxtLL5f83quWtzVoFrV2p8Tq1dXrigbGg1932m9uMxPDqWEWk5ANFZkPi3LRqhJ3Q6nbYebE4f1uoaku`; redteam `5dSyqiNccWw24utPwmisqKJSrNPPb1k8fZgd21z65gMnMZejSHUpANnWionXK8QfvTjZdpwoCKgfQumvmLKtpkeL` |
+| MVP audit | **NO-GO** | `bun scripts/mvp-status-audit.ts` 2026-08-29 ~20:33Z. 7 OK / 2 FAIL: grant application stub; `F-CANONICAL-DOMAIN` Open. Chain 11 BlockReasons confirmed from FACTS sigs. |
 
 ### On-chain BlockReasons (11/11) — 2026-08-29 `bun scripts/chain-sprint.ts redteam`
 
