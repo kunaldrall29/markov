@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   Connection,
@@ -14,7 +14,7 @@ import {
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import { TOKENS, type Mandate, type MandateEngine, type Policy, type Receipt } from "@markov/engine";
-import { explorerTxUrl, markovCluster } from "@markov/rpc";
+import { explorerTxUrl, markovCluster, rpcUrl } from "@markov/rpc";
 import {
   OwnerClient,
   isWalletPubkey,
@@ -28,12 +28,66 @@ import {
 import { ACTORS } from "./seed";
 
 const ROOT = join(import.meta.dir, "../../..");
+const HOUSE_PATH = join(ROOT, "data/house-operators.json");
 const FACTS_PATH = join(ROOT, "data/devnet.json");
 const DEPLOYER_KEY = join(ROOT, "keys/deployer.json");
 const OPERATOR_KEY = join(ROOT, "keys/op_dca.json");
 const EMERGENCY_KEY = join(ROOT, "keys/emergency.json");
 const FAUCET_AMOUNT = 1_000 * 1_000_000;
 const faucetAt = new Map<string, number>();
+
+type RpcCache = { at: number; ok: boolean; slot: number | null };
+const rpcCache: RpcCache = { at: 0, ok: false, slot: null };
+
+async function probeRpc(): Promise<RpcCache> {
+  try {
+    const slot = await new Connection(rpcUrl(), "confirmed").getSlot("confirmed");
+    rpcCache.at = Date.now();
+    rpcCache.ok = true;
+    rpcCache.slot = slot;
+  } catch {
+    rpcCache.at = Date.now();
+    rpcCache.ok = false;
+    rpcCache.slot = null;
+  }
+  return rpcCache;
+}
+
+void probeRpc();
+setInterval(() => void probeRpc(), 10_000);
+
+export function houseOperatorPubkey(name: string): PublicKey {
+  if (existsSync(HOUSE_PATH)) {
+    const map = JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>;
+    const pk = map[name];
+    if (pk) return new PublicKey(pk);
+  }
+  if (existsSync(OPERATOR_KEY)) return loadKeypair(OPERATOR_KEY).publicKey;
+  throw new Error(`unknown house operator ${name}`);
+}
+
+export function emergencyPubkey(): PublicKey {
+  if (existsSync(HOUSE_PATH)) {
+    const map = JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>;
+    if (map.emergency) return new PublicKey(map.emergency);
+  }
+  return loadKeypair(EMERGENCY_KEY).publicKey;
+}
+
+export function chainReady(): boolean {
+  if (markovCluster() === "mainnet-beta") return false;
+  if (!existsSync(FACTS_PATH)) return false;
+  return rpcCache.ok;
+}
+
+export async function chainHealth(): Promise<{
+  chainReady: boolean;
+  rpcOk: boolean;
+  slot: number | null;
+}> {
+  if (Date.now() - rpcCache.at > 15_000) await probeRpc();
+  return { chainReady: chainReady(), rpcOk: rpcCache.ok, slot: rpcCache.slot };
+}
 
 export type ChainIntent =
   | {
@@ -56,12 +110,13 @@ export type ChainBuild = {
   seed?: string;
 };
 
-export function chainReady(): boolean {
-  if (markovCluster() === "mainnet-beta") return false;
-  return existsSync(FACTS_PATH) && existsSync(OPERATOR_KEY) && existsSync(EMERGENCY_KEY);
-}
-
 export { isWalletPubkey };
+
+function loadEmergencyKeypair(): Keypair {
+  const raw = process.env.EMERGENCY_KEY_JSON?.trim();
+  if (raw) return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(raw) as number[]));
+  return loadKeypair(EMERGENCY_KEY);
+}
 
 function factsOrThrow() {
   const facts = loadFacts(FACTS_PATH);
@@ -120,14 +175,14 @@ export async function buildSubscribe(
   if (!isWalletPubkey(owner)) throw new Error("wallet required for on-chain subscribe");
   const facts = factsOrThrow();
   const ownerPk = new PublicKey(owner);
-  const operator = loadKeypair(OPERATOR_KEY);
-  const emergency = loadKeypair(EMERGENCY_KEY);
+  const operator = houseOperatorPubkey(args.operator);
+  const emergency = emergencyPubkey();
   const seed = BigInt(Date.now());
   const owners = client();
   const tx = await owners.buildCreateAndFund({
     owner: ownerPk,
-    operator: operator.publicKey,
-    emergency: emergency.publicKey,
+    operator,
+    emergency,
     seed,
     expiresTs: BigInt(Math.floor(Date.now() / 1000) + args.ttlSecs),
     policy: chainPolicy(args.policy),
@@ -174,7 +229,7 @@ export async function buildMandateTx(
   const seed = BigInt(m.chain.seed);
   const facts = factsOrThrow();
   const owners = client();
-  const caller = actor === ACTORS.emergency ? loadKeypair(EMERGENCY_KEY).publicKey : new PublicKey(actor);
+  const caller = actor === ACTORS.emergency ? emergencyPubkey() : new PublicKey(actor);
   let tx: Transaction;
   if (action === "pause") tx = await owners.buildPause(caller, ownerPk, seed);
   else if (action === "unpause") tx = await owners.buildUnpause(ownerPk, seed);
@@ -276,8 +331,8 @@ export async function emergencyChain(
   action: "pause" | "revoke",
 ): Promise<Receipt | null> {
   const m = engine.mandate(mandateId);
-  if (!m.chain || !existsSync(EMERGENCY_KEY)) return null;
-  const emergency = loadKeypair(EMERGENCY_KEY);
+  if (!m.chain || (!existsSync(EMERGENCY_KEY) && !process.env.EMERGENCY_KEY_JSON?.trim())) return null;
+  const emergency = loadEmergencyKeypair();
   const owners = new OwnerClient({ payer: emergency, factsPath: FACTS_PATH });
   const ownerPk = new PublicKey(m.owner);
   const seed = BigInt(m.chain.seed);

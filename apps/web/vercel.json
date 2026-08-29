@@ -1,5 +1,14 @@
 {
+  "bunVersion": "1.4.0",
   "framework": "nextjs",
   "installCommand": "cd .. && bun install",
-  "buildCommand": "cd .. && bun --filter @markov/web build"
+  "buildCommand": "cd .. && bun --filter @markov/web build",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "app.markovhq.com" }],
+      "destination": "https://float.markovhq.com/:path*",
+      "permanent": true
+    }
+  ]
 }

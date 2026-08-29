@@ -5,6 +5,8 @@ import { OperatorClient } from "../packages/operator/src/operator";
 import { OwnerClient } from "../packages/operator/src/owner";
 import { explorerTxUrl, type GuardedResult } from "../packages/operator/src/types";
 import { loadFacts, loadKeypair } from "../packages/operator/src/keys";
+import { strategyIdBytes } from "../packages/operator/src/owner";
+import { MOMENTUM_TEMPLATE, strategyIdFromTemplate } from "../packages/sdk/src/template";
 
 const ROOT = join(import.meta.dir, "..");
 const FACTS_PATH = join(ROOT, "data/devnet.json");
@@ -80,6 +82,7 @@ export async function runFourBeatDevnet(): Promise<ChainFourBeat> {
       spendDailyCap: 400_000n,
       maxSlippageBps: 80,
     },
+    strategyId: strategyIdBytes(strategyIdFromTemplate(MOMENTUM_TEMPLATE)),
   });
   const source = getAssociatedTokenAddressSync(quoteMint, owner.publicKey);
   const dest = getAssociatedTokenAddressSync(quoteMint, owner.publicKey);

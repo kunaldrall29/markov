@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@markov/rpc": "workspace:*",
+    "@markovfyi/operator": "workspace:*",
     "hono": "^4.9.0"
   }
 }

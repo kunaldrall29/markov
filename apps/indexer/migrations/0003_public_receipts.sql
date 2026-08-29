@@ -1,5 +1,4 @@
--- Public Receipt Read Model (SPEC.md). SQLite (indexer) and Postgres share these column names.
--- Supabase project markov-devnet: also apply 0003_public_receipts.postgres.sql (GRANTs).
+-- Public Receipt Read Model (SPEC.md). SQLite (indexer) and Railway Postgres share these column names.
 drop view if exists public_receipts;
 create view public_receipts as
 select

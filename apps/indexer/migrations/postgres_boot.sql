@@ -1,5 +1,5 @@
--- Fresh Postgres (Railway or other). SQLite still uses 0001/0002/0003 *.sql.
--- Role GRANTs for Supabase (anon/authenticated/service_role) are best-effort.
+-- Fresh Postgres (Railway). SQLite still uses 0001/0002/0003 *.sql.
+-- The chain indexer is the only writer of receipts.
 
 create table if not exists operators (
   authority text primary key,
@@ -31,7 +31,8 @@ create table if not exists receipts (
   venue text,
   token text,
   amount bigint,
-  action_type text
+  action_type text,
+  event_index integer
 );
 
 create table if not exists strategies (
@@ -43,10 +44,30 @@ create table if not exists strategies (
   published_at bigint
 );
 
+create table if not exists indexer_state (
+  id integer primary key check (id = 1),
+  last_indexed_slot bigint,
+  last_rpc_slot bigint,
+  last_signature text,
+  updated_ts bigint
+);
+
+create table if not exists waitlist (
+  email text primary key,
+  created_ts bigint not null,
+  source text
+);
+
+insert into indexer_state (id) values (1) on conflict (id) do nothing;
+
 create index if not exists receipts_mandate_idx on receipts (mandate_id, id desc);
 create index if not exists receipts_public_ts_idx on receipts (ts desc, id desc);
 create index if not exists receipts_strategy_idx on receipts (strategy_id);
 create index if not exists mandates_strategy_idx on mandates (strategy_id);
+
+alter table receipts add column if not exists event_index integer;
+create unique index if not exists receipts_sig_event_uidx on receipts (sig, event_index)
+  where sig is not null and event_index is not null;
 
 drop view if exists public.public_receipts;
 create view public.public_receipts as
@@ -80,20 +101,3 @@ where kind in ('ActionExecuted', 'ActionRefused')
   and ts is not null;
 
 comment on view public.public_receipts is 'Public Receipt Read Model (SPEC.md). Exposed fields only.';
-
-do $$ begin
-  execute 'revoke all on public.public_receipts from public';
-exception when undefined_object then null;
-end $$;
-do $$ begin
-  execute 'revoke all on public.public_receipts from anon';
-exception when undefined_object then null;
-end $$;
-do $$ begin
-  execute 'revoke all on public.public_receipts from authenticated';
-exception when undefined_object then null;
-end $$;
-do $$ begin
-  execute 'grant select on public.public_receipts to service_role';
-exception when undefined_object then null;
-end $$;

@@ -20,4 +20,4 @@ cluster = "devnet"
 wallet = "keys/deployer.json"
 
 [scripts]
-test = "bun test"
+test = "cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint && bun test"

@@ -1,6 +1,10 @@
-/** Public Railway API. Used on Vercel when NEXT_PUBLIC_API_URL is unset. */
-export const HOSTED_API_URL = "https://api-production-d2e8.up.railway.app";
-export const HOSTED_DOCS_URL = "https://markov-docs-black.vercel.app";
+import { DOCS_URL, INTERIM_API, INTERIM_DOCS_ALIAS } from "@markov/rpc";
+
+/** Public Railway API until api.markovhq.com TLS is attached. */
+export const HOSTED_API_URL = INTERIM_API;
+/** Canonical docs host. TLS not attached yet — Vercel alias is the live fallback. */
+export const HOSTED_DOCS_URL = DOCS_URL;
+export const HOSTED_DOCS_FALLBACK = INTERIM_DOCS_ALIAS;
 
 function hostedBuild(): boolean {
   return Boolean(
@@ -18,6 +22,6 @@ export function publicApiUrl(): string {
 export function publicDocsUrl(): string {
   const fromEnv = process.env.NEXT_PUBLIC_DOCS_URL?.trim();
   if (fromEnv) return fromEnv.replace(/\/$/, "");
-  if (hostedBuild()) return HOSTED_DOCS_URL;
+  if (hostedBuild()) return HOSTED_DOCS_FALLBACK;
   return "http://127.0.0.1:3001";
 }

@@ -1,7 +1,7 @@
 import { SQL } from "bun";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Database } from "bun:sqlite";
+import type { ReceiptRow } from "./db";
 
 const clients = new Map<string, SQL>();
 const schemaApplied = new Set<string>();
@@ -31,37 +31,72 @@ export async function applyPostgresSchema(url = postgresUrl()): Promise<boolean>
   return true;
 }
 
-export async function replacePostgresReceipts(db: Database, url = postgresUrl()): Promise<number> {
-  if (!url) return 0;
+export async function upsertPostgresReceipt(row: ReceiptRow, url = postgresUrl()): Promise<boolean> {
+  if (!url) return false;
   await applyPostgresSchema(url);
   const sql = postgresClient(url);
-  if (!sql) return 0;
-  const rows = db.query(`select * from receipts`).all() as Array<{
-    mandate_id: string;
-    kind: string;
-    refused: number;
-    reason: string | null;
-    nonce: number | null;
-    sig: string | null;
-    ts: number | null;
-    strategy_id: string | null;
-    operator: string | null;
-    venue: string | null;
-    token: string | null;
-    amount: number | null;
-    action_type: string | null;
-  }>;
-  await sql`delete from receipts`;
-  for (const row of rows) {
+  if (!sql) return false;
+  if (row.sig && row.event_index != null) {
+    const existing = await sql`
+      select id from receipts where sig = ${row.sig} and event_index = ${row.event_index} limit 1
+    `;
+    if (Array.isArray(existing) && existing.length > 0) return false;
+  }
+  try {
     await sql`
       insert into receipts (
         mandate_id, kind, refused, reason, nonce, sig, ts,
-        strategy_id, operator, venue, token, amount, action_type
+        strategy_id, operator, venue, token, amount, action_type, event_index
       ) values (
         ${row.mandate_id}, ${row.kind}, ${row.refused}, ${row.reason}, ${row.nonce}, ${row.sig}, ${row.ts},
-        ${row.strategy_id}, ${row.operator}, ${row.venue}, ${row.token}, ${row.amount}, ${row.action_type}
+        ${row.strategy_id}, ${row.operator}, ${row.venue}, ${row.token}, ${row.amount}, ${row.action_type}, ${row.event_index}
       )
     `;
+  } catch {
+    return false;
   }
-  return rows.length;
+  return true;
+}
+
+export async function upsertPostgresState(
+  state: {
+    lastIndexedSlot: number | null;
+    lastRpcSlot: number | null;
+    lastSignature: string | null;
+    updatedTs: number | null;
+  },
+  url = postgresUrl(),
+): Promise<void> {
+  if (!url) return;
+  await applyPostgresSchema(url);
+  const sql = postgresClient(url);
+  if (!sql) return;
+  await sql`
+    insert into indexer_state (id, last_indexed_slot, last_rpc_slot, last_signature, updated_ts)
+    values (1, ${state.lastIndexedSlot}, ${state.lastRpcSlot}, ${state.lastSignature}, ${state.updatedTs})
+    on conflict (id) do update set
+      last_indexed_slot = excluded.last_indexed_slot,
+      last_rpc_slot = excluded.last_rpc_slot,
+      last_signature = excluded.last_signature,
+      updated_ts = excluded.updated_ts
+  `;
+}
+
+export async function readPostgresHealth(url = postgresUrl()): Promise<{
+  lastIndexedSlot: number | null;
+  lastRpcSlot: number | null;
+} | null> {
+  if (!url) return null;
+  const sql = postgresClient(url);
+  if (!sql) return null;
+  try {
+    const rows = (await sql`
+      select last_indexed_slot, last_rpc_slot from indexer_state where id = 1
+    `) as Array<{ last_indexed_slot: number | null; last_rpc_slot: number | null }>;
+    const row = rows[0];
+    if (!row) return { lastIndexedSlot: null, lastRpcSlot: null };
+    return { lastIndexedSlot: row.last_indexed_slot, lastRpcSlot: row.last_rpc_slot };
+  } catch {
+    return null;
+  }
 }

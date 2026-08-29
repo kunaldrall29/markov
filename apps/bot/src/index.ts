@@ -2,7 +2,7 @@
  * Float bot — emergency key only.
  * Can pause and revoke. Cannot fund, trade, spend, or withdraw.
  */
-import { listenHost } from "@markov/rpc";
+import { isLoopbackHost, listenHost } from "@markov/rpc";
 import { handleCommand } from "./commands";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -28,6 +28,11 @@ async function telegramLoop() {
     } else {
       console.log("usage: bun run src/index.ts '/revoke mdt_0001'");
     }
+    return;
+  }
+  const pollOff = process.env.TELEGRAM_POLL === "0" || (isLoopbackHost() && process.env.TELEGRAM_POLL !== "1");
+  if (pollOff) {
+    console.log("telegram poll disabled (Railway owns getUpdates; set TELEGRAM_POLL=1 for a local test bot)");
     return;
   }
   let offset = 0;

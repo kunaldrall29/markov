@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import { listenHost, rpcHost } from "@markov/rpc";
+import { listenHost } from "@markov/rpc";
 import { isAllowedOrigin } from "./cors";
+import { dataHealth } from "./health";
 import {
   decodeCursor,
   isBlockReason,
@@ -91,14 +92,7 @@ export function createDataApi(opts: DataApiOptions = {}) {
     }
   });
 
-  app.get("/health", (c) =>
-    c.json({
-      service: "data-api",
-      ok: true,
-      rpcHost: rpcHost(),
-      publicReceipts: Boolean(store()),
-    }),
-  );
+  app.get("/health", async (c) => c.json(await dataHealth(Boolean(store()))));
 
   app.get("/price/:symbol", (c) => {
     const symbol = c.req.param("symbol") || "DEMO";

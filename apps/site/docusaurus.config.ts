@@ -4,7 +4,7 @@ import { themes as prismThemes } from "prism-react-renderer";
 import { tokenCss, tokens } from "./src/lib/tokens";
 
 const HOSTED_RECEIPTS = "https://data-api-production-5ac5.up.railway.app";
-const HOSTED_FLOAT = "https://float-web-three.vercel.app";
+const HOSTED_FLOAT = "https://float.markovhq.com";
 
 const receiptsApiUrl =
   process.env.RECEIPTS_API_URL?.trim() ||
@@ -22,6 +22,7 @@ const siteUrl =
 const config: Config = {
   title: "Markov",
   tagline: "Give an agent your capital. Keep the keys.",
+  favicon: "favicon.ico",
   url: siteUrl,
   baseUrl: "/",
   organizationName: "kunaldrall29",
@@ -79,7 +80,7 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
-  themeConfig: {
+    themeConfig: {
     colorMode: {
       defaultMode: "dark",
       disableSwitch: true,

@@ -10,3 +10,12 @@ export {
 export { OperatorClient } from "./operator";
 export { OwnerClient, type ChainPolicy, encodeStrategyId, strategyIdBytes, isWalletPubkey, serializeUnsigned } from "./owner";
 export { loadFacts, loadKeypair, mandatePda, operatorPda, swapPoolPda, yieldPoolPda } from "./keys";
+export {
+  parseMandateLogs,
+  strategyIdHex,
+  pubkeyString,
+  actionKindName,
+  eventNameCanonical,
+  mandateProgramId,
+  type ParsedProgramEvent,
+} from "./events";

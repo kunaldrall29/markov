@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json bun.lock bunfig.toml tsconfig.base.json ./
 COPY packages ./packages
 COPY apps ./apps
+COPY data ./data
 RUN bun install --frozen-lockfile || bun install
 ENV PORT=8790
 ENV HOST=0.0.0.0

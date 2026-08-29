@@ -135,18 +135,16 @@ describe("GET /v1/receipts", () => {
     expect(body.error).toBe("rate limit");
   });
 
-  test("CORS allows localhost and markov.fyi, denies others", async () => {
+  test("CORS allows localhost and markovhq.com, denies others", async () => {
     const app = createDataApi({ store: memoryStore([]) });
     const ok = await app.request("http://x/v1/receipts", { headers: { origin: "http://localhost:3001" } });
     expect(ok.headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:3001");
-    const docs = await app.request("http://x/v1/receipts", { headers: { origin: "https://docs.markov.fyi" } });
-    expect(docs.headers.get("Access-Control-Allow-Origin")).toBe("https://docs.markov.fyi");
-    const vercel = await app.request("http://x/v1/receipts", {
-      headers: { origin: "https://float-web-kunals-projects-35d3a237.vercel.app" },
+    const docs = await app.request("http://x/v1/receipts", { headers: { origin: "https://docs.markovhq.com" } });
+    expect(docs.headers.get("Access-Control-Allow-Origin")).toBe("https://docs.markovhq.com");
+    const float = await app.request("http://x/v1/receipts", {
+      headers: { origin: "https://float.markovhq.com" },
     });
-    expect(vercel.headers.get("Access-Control-Allow-Origin")).toBe(
-      "https://float-web-kunals-projects-35d3a237.vercel.app",
-    );
+    expect(float.headers.get("Access-Control-Allow-Origin")).toBe("https://float.markovhq.com");
     const no = await app.request("http://x/v1/receipts", { headers: { origin: "https://evil.example" } });
     expect(no.headers.get("Access-Control-Allow-Origin")).toBeNull();
   });

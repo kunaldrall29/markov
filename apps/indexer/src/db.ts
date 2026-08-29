@@ -16,6 +16,7 @@ export type ReceiptRow = {
   token: string | null;
   amount: number | null;
   action_type: string | null;
+  event_index: number | null;
 };
 
 export type MandateRow = {
@@ -93,6 +94,16 @@ export function openDb(path = ":memory:"): Database {
   addColumn(db, "receipts", "token", "token text");
   addColumn(db, "receipts", "amount", "amount integer");
   addColumn(db, "receipts", "action_type", "action_type text");
+  addColumn(db, "receipts", "event_index", "event_index integer");
+  db.exec(`create table if not exists indexer_state (
+    id integer primary key check (id = 1),
+    last_indexed_slot integer,
+    last_rpc_slot integer,
+    last_signature text,
+    updated_ts integer
+  )`);
+  db.exec(`insert or ignore into indexer_state (id) values (1)`);
+  db.exec(`create unique index if not exists receipts_sig_event_uidx on receipts (sig, event_index) where sig is not null and event_index is not null`);
   db.exec(`create index if not exists receipts_strategy_idx on receipts (strategy_id)`);
   db.exec(`create index if not exists receipts_public_ts_idx on receipts (ts desc, id desc)`);
   db.exec(`create index if not exists mandates_strategy_idx on mandates (strategy_id)`);
@@ -136,8 +147,8 @@ export function upsertStrategy(
 
 export function insertReceipt(db: Database, row: ReceiptRow) {
   db.query(
-    `insert into receipts (mandate_id, kind, refused, reason, nonce, sig, ts, strategy_id, operator, venue, token, amount, action_type)
-     values (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)`,
+    `insert into receipts (mandate_id, kind, refused, reason, nonce, sig, ts, strategy_id, operator, venue, token, amount, action_type, event_index)
+     values (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)`,
   ).run(
     row.mandate_id,
     row.kind,
@@ -152,7 +163,46 @@ export function insertReceipt(db: Database, row: ReceiptRow) {
     row.token,
     row.amount,
     row.action_type,
+    row.event_index ?? null,
   );
+}
+
+/** Idempotent on (sig, event_index). Returns true when a new row was written. */
+export function upsertReceipt(db: Database, row: ReceiptRow): boolean {
+  if (row.sig && row.event_index != null) {
+    const existing = db
+      .query(`select id from receipts where sig = ?1 and event_index = ?2`)
+      .get(row.sig, row.event_index) as { id: number } | null;
+    if (existing) return false;
+  }
+  insertReceipt(db, row);
+  return true;
+}
+
+export function upsertIndexerState(
+  db: Database,
+  patch: {
+    lastIndexedSlot?: number | null;
+    lastRpcSlot?: number | null;
+    lastSignature?: string | null;
+  },
+) {
+  const now = Math.floor(Date.now() / 1000);
+  const cur = db.query(`select last_indexed_slot, last_rpc_slot, last_signature from indexer_state where id = 1`).get() as
+    | { last_indexed_slot: number | null; last_rpc_slot: number | null; last_signature: string | null }
+    | undefined;
+  const lastIndexed = patch.lastIndexedSlot !== undefined ? patch.lastIndexedSlot : (cur?.last_indexed_slot ?? null);
+  const lastRpc = patch.lastRpcSlot !== undefined ? patch.lastRpcSlot : (cur?.last_rpc_slot ?? null);
+  const lastSig = patch.lastSignature !== undefined ? patch.lastSignature : (cur?.last_signature ?? null);
+  db.query(
+    `insert into indexer_state (id, last_indexed_slot, last_rpc_slot, last_signature, updated_ts)
+     values (1, ?1, ?2, ?3, ?4)
+     on conflict(id) do update set
+       last_indexed_slot=excluded.last_indexed_slot,
+       last_rpc_slot=excluded.last_rpc_slot,
+       last_signature=excluded.last_signature,
+       updated_ts=excluded.updated_ts`,
+  ).run(lastIndexed, lastRpc, lastSig, now);
 }
 
 export function listReceipts(db: Database, mandateId?: string) {
@@ -200,5 +250,6 @@ export function fromEngineReceipt(r: Record<string, unknown>): ReceiptRow {
     token,
     amount,
     action_type: actionType,
+    event_index: typeof r.eventIndex === "number" ? r.eventIndex : null,
   };
 }

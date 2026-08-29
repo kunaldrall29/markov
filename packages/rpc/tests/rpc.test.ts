@@ -6,6 +6,7 @@ import {
   authorizeMutation,
   engineDemoAllowed,
   isLoopbackHost,
+  isProductOrigin,
   listenHost,
   markovCluster,
   publicRpcUrl,
@@ -85,4 +86,11 @@ test("publicRpcUrl never forwards an api-key", () => {
   delete process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
   expect(publicRpcUrl("devnet")).toBe("https://api.devnet.solana.com");
   expect(publicRpcUrl("devnet")).not.toContain("api-key");
+});
+
+test("isProductOrigin allows markovhq.com and localhost", () => {
+  expect(isProductOrigin("https://float.markovhq.com")).toBe(true);
+  expect(isProductOrigin("https://docs.markovhq.com")).toBe(true);
+  expect(isProductOrigin("http://localhost:3001")).toBe(true);
+  expect(isProductOrigin("https://evil.example")).toBe(false);
 });

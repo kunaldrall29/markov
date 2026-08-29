@@ -1,6 +1,5 @@
--- Apply on Postgres / Supabase (project markov-devnet).
--- Read-only public surface. Do not GRANT SELECT on receipts to anon.
--- data-api queries this view only (DATABASE_URL).
+-- Apply on Railway Postgres (DATABASE_URL). The chain indexer is the only writer.
+-- Read-only public surface. data-api queries this view only.
 
 alter table receipts add column if not exists strategy_id text;
 alter table receipts add column if not exists operator text;

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fromEngineReceipt, insertReceipt, listReceipts, listStrategyStats, openDb } from "../src/db";
+import { applyParsedEvents } from "../src/chain";
 
 const PUBLIC_FIELDS = [
   "receipt_id",
@@ -138,17 +139,75 @@ describe("indexer sqlite", () => {
     expect(sql).not.toMatch(/\bjoin\b/i);
   });
 
-  test("postgres mirror is a no-op without DATABASE_URL", async () => {
+  test("postgres helpers are a no-op without DATABASE_URL", async () => {
     const prev = process.env.DATABASE_URL;
     delete process.env.DATABASE_URL;
-    const { replacePostgresReceipts, postgresUrl } = await import("../src/pg");
+    const { upsertPostgresReceipt, postgresUrl } = await import("../src/pg");
     expect(postgresUrl()).toBeNull();
-    const db = openDb(":memory:");
-    expect(await replacePostgresReceipts(db)).toBe(0);
+    expect(
+      await upsertPostgresReceipt({
+        mandate_id: "mdt_0001",
+        kind: "ActionExecuted",
+        refused: 0,
+        reason: null,
+        nonce: 1,
+        sig: "sig",
+        ts: 1,
+        strategy_id: null,
+        operator: null,
+        venue: null,
+        token: null,
+        amount: null,
+        action_type: "swap",
+        event_index: 0,
+      }),
+    ).toBe(false);
     const boot = readFileSync(join(import.meta.dir, "../migrations/postgres_boot.sql"), "utf8");
     expect(boot).toContain("create view public.public_receipts");
-    expect(boot).toContain("exception when undefined_object");
+    expect(boot).toContain("create table if not exists waitlist");
+    expect(boot).not.toMatch(/supabase/i);
     if (prev !== undefined) process.env.DATABASE_URL = prev;
     else delete process.env.DATABASE_URL;
+  });
+
+  test("replaying a processed signature creates zero duplicates", () => {
+    const db = openDb(":memory:");
+    const events = [
+      {
+        name: "actionExecuted",
+        data: {
+          mandate: "mdtA",
+          operator: "opA",
+          kind: 0,
+          venue: "demo_swap",
+          tokenIn: "USDC-d",
+          amountIn: 8,
+          nonce: 1,
+          strategyId: Buffer.alloc(32, 7),
+        },
+      },
+      {
+        name: "actionRefused",
+        data: {
+          mandate: "mdtA",
+          operator: "opA",
+          kind: 0,
+          requestedAmount: 99,
+          reason: { overTxCap: {} },
+          nonce: 2,
+          strategyId: Buffer.alloc(32, 7),
+        },
+      },
+    ];
+    const first = applyParsedEvents(db, events, { signature: "sigReplay111", ts: 10, slot: 5 });
+    const second = applyParsedEvents(db, events, { signature: "sigReplay111", ts: 10, slot: 5 });
+    expect(first.inserted).toBe(2);
+    expect(second.inserted).toBe(0);
+    expect(second.skipped).toBe(2);
+    const rows = listReceipts(db, "mdtA") as { sig: string }[];
+    expect(rows).toHaveLength(2);
+    const stats = listStrategyStats(db) as { strategy_id: string; actions: number; refusals: number }[];
+    expect(stats[0]?.actions).toBe(1);
+    expect(stats[0]?.refusals).toBe(1);
   });
 });

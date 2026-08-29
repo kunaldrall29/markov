@@ -28,6 +28,7 @@ export function listenHost(): string {
 }
 
 export * from "./cluster";
+export * from "./domains";
 
 /** True when this process is bound to loopback (unsigned x-actor allowed). */
 export function isLoopbackHost(host = listenHost()): boolean {

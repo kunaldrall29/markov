@@ -556,7 +556,7 @@ fn utc_day(ts: i64) -> u64 {
     (ts.max(0) as u64) / 86_400
 }
 
-fn rollover(m: &mut Account<Mandate>, now: i64) {
+fn rollover(m: &mut Mandate, now: i64) {
     let stamp = utc_day(now);
     if stamp != m.day_stamp {
         m.day_stamp = stamp;
@@ -621,7 +621,7 @@ fn quote_swap(pool: &SwapPool, mint_in: Pubkey, amount_in: u64) -> Result<u64> {
     }
 }
 
-fn notional_swap(m: &Account<Mandate>, mint_in: Pubkey, amount_in: u64, expected: u64) -> u64 {
+fn notional_swap(m: &Mandate, mint_in: Pubkey, amount_in: u64, expected: u64) -> u64 {
     if mint_in == m.quote_mint {
         amount_in
     } else {
@@ -629,7 +629,7 @@ fn notional_swap(m: &Account<Mandate>, mint_in: Pubkey, amount_in: u64, expected
     }
 }
 
-fn gate_state(m: &Account<Mandate>, caller: Pubkey, now: i64) -> Option<BlockReason> {
+fn gate_state(m: &Mandate, caller: Pubkey, now: i64) -> Option<BlockReason> {
     if m.state == STATE_PAUSED {
         return Some(BlockReason::Paused);
     }
@@ -646,7 +646,7 @@ fn gate_state(m: &Account<Mandate>, caller: Pubkey, now: i64) -> Option<BlockRea
 }
 
 fn gate_swap(
-    m: &Account<Mandate>,
+    m: &Mandate,
     caller: Pubkey,
     now: i64,
     venue: Pubkey,
@@ -684,7 +684,7 @@ fn gate_swap(
 }
 
 fn gate_move(
-    m: &Account<Mandate>,
+    m: &Mandate,
     caller: Pubkey,
     now: i64,
     venue: Pubkey,
@@ -976,7 +976,7 @@ pub struct OwnerWithdraw<'info> {
     pub mint: Account<'info, Mint>,
     #[account(mut, token::mint = mint, token::authority = mandate)]
     pub vault: Account<'info, TokenAccount>,
-    #[account(mut, token::mint = mint)]
+    #[account(mut, token::mint = mint, token::authority = owner)]
     pub destination: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
 }
@@ -1060,3 +1060,195 @@ pub enum MandateError {
     TokenNotAllowlisted,
     InvalidVenue,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn keys() -> (Pubkey, Pubkey, Pubkey, Pubkey) {
+        (
+            Pubkey::new_unique(),
+            Pubkey::new_unique(),
+            Pubkey::new_unique(),
+            Pubkey::new_unique(),
+        )
+    }
+
+    fn sample() -> (Mandate, Pubkey, Pubkey, Pubkey, Pubkey) {
+        let (owner, operator, venue, mint) = keys();
+        let m = Mandate {
+            owner,
+            operator,
+            emergency: Pubkey::new_unique(),
+            quote_mint: mint,
+            state: STATE_ACTIVE,
+            created_ts: 0,
+            expires_ts: 2_000_000_000,
+            day_stamp: 0,
+            spent_today: 0,
+            spend_today: 0,
+            nonce: 0,
+            yield_shares: 0,
+            seed: 1,
+            bump: 255,
+            policy: Policy {
+                programs: [venue, Pubkey::default(), Pubkey::default(), Pubkey::default()],
+                program_len: 1,
+                tokens: [mint, Pubkey::default(), Pubkey::default(), Pubkey::default()],
+                token_len: 1,
+                per_tx_cap: 100,
+                daily_cap: 200,
+                spend_per_call_cap: 50,
+                spend_daily_cap: 80,
+                max_slippage_bps: 100,
+            },
+            strategy_id: Some([7u8; 32]),
+        };
+        (m, owner, operator, venue, mint)
+    }
+
+    fn now() -> i64 {
+        1_700_000_000
+    }
+
+    #[test]
+    fn refuses_paused() {
+        let (mut m, _, operator, venue, mint) = sample();
+        m.state = STATE_PAUSED;
+        assert_eq!(
+            gate_swap(&m, operator, now(), venue, mint, mint, 10, 10, 10),
+            Some(BlockReason::Paused)
+        );
+    }
+
+    #[test]
+    fn refuses_revoked() {
+        let (mut m, _, operator, venue, mint) = sample();
+        m.state = STATE_REVOKED;
+        assert_eq!(
+            gate_swap(&m, operator, now(), venue, mint, mint, 10, 10, 10),
+            Some(BlockReason::Revoked)
+        );
+    }
+
+    #[test]
+    fn refuses_expired() {
+        let (mut m, _, operator, venue, mint) = sample();
+        m.expires_ts = now() - 1;
+        assert_eq!(
+            gate_swap(&m, operator, now(), venue, mint, mint, 10, 10, 10),
+            Some(BlockReason::Expired)
+        );
+    }
+
+    #[test]
+    fn refuses_unauthorized() {
+        let (m, _, _, venue, mint) = sample();
+        assert_eq!(
+            gate_swap(&m, Pubkey::new_unique(), now(), venue, mint, mint, 10, 10, 10),
+            Some(BlockReason::Unauthorized)
+        );
+    }
+
+    #[test]
+    fn refuses_program_not_allowed() {
+        let (m, _, operator, _, mint) = sample();
+        assert_eq!(
+            gate_swap(&m, operator, now(), Pubkey::new_unique(), mint, mint, 10, 10, 10),
+            Some(BlockReason::ProgramNotAllowed)
+        );
+    }
+
+    #[test]
+    fn refuses_token_not_allowed() {
+        let (m, _, operator, venue, mint) = sample();
+        assert_eq!(
+            gate_swap(&m, operator, now(), venue, mint, Pubkey::new_unique(), 10, 10, 10),
+            Some(BlockReason::TokenNotAllowed)
+        );
+    }
+
+    #[test]
+    fn refuses_over_tx_cap() {
+        let (m, _, operator, venue, mint) = sample();
+        assert_eq!(
+            gate_swap(&m, operator, now(), venue, mint, mint, 101, 101, 101),
+            Some(BlockReason::OverTxCap)
+        );
+    }
+
+    #[test]
+    fn refuses_over_daily_cap() {
+        let (mut m, _, operator, venue, mint) = sample();
+        m.spent_today = 150;
+        assert_eq!(
+            gate_swap(&m, operator, now(), venue, mint, mint, 60, 60, 60),
+            Some(BlockReason::OverDailyCap)
+        );
+    }
+
+    #[test]
+    fn refuses_over_spend_cap() {
+        let (m, _, operator, venue, mint) = sample();
+        assert_eq!(
+            gate_move(&m, operator, now(), venue, mint, 51, true),
+            Some(BlockReason::OverSpendCap)
+        );
+    }
+
+    #[test]
+    fn refuses_over_spend_daily_cap() {
+        let (mut m, _, operator, venue, mint) = sample();
+        m.spend_today = 40;
+        assert_eq!(
+            gate_move(&m, operator, now(), venue, mint, 50, true),
+            Some(BlockReason::OverSpendDailyCap)
+        );
+    }
+
+    #[test]
+    fn refuses_slippage_exceeded() {
+        let (m, _, operator, venue, mint) = sample();
+        assert_eq!(
+            gate_swap(&m, operator, now(), venue, mint, mint, 10, 10, 11),
+            Some(BlockReason::SlippageExceeded)
+        );
+    }
+
+    #[test]
+    fn owner_withdraw_has_no_state_gate() {
+        let src = include_str!("lib.rs");
+        let start = src.find("pub fn owner_withdraw").expect("owner_withdraw");
+        let rest = &src[start..];
+        let end = rest.find("\n    pub fn ").unwrap_or(rest.len().min(900));
+        let body = &rest[..end];
+        assert!(!body.contains("STATE_PAUSED"));
+        assert!(!body.contains("STATE_REVOKED"));
+        assert!(!body.contains("NotActive"));
+        assert!(src.contains("pub fn owner_withdraw(ctx: Context<OwnerWithdraw>"));
+        assert!(src.contains("token::authority = owner"));
+    }
+
+    #[test]
+    fn emergency_cannot_unpause() {
+        let src = include_str!("lib.rs");
+        let code = src.split("#[cfg(test)]").next().unwrap();
+        assert!(code.contains("pub fn unpause(ctx: Context<OwnerOnly>)"));
+        assert!(!code.contains("pub fn unpause(ctx: Context<EmergencyOrOwner>)"));
+        assert!(code.contains("pub fn pause(ctx: Context<EmergencyOrOwner>)"));
+        assert!(code.contains("pub fn revoke(ctx: Context<EmergencyOrOwner>)"));
+    }
+
+    #[test]
+    fn funds_move_only_via_allowlisted_cpi_or_owner() {
+        let src = include_str!("lib.rs");
+        let code = src.split("#[cfg(test)]").next().unwrap();
+        assert!(code.contains("demo_swap::cpi::swap"));
+        assert!(code.contains("demo_yield::cpi::deposit"));
+        assert!(code.contains("demo_yield::cpi::withdraw"));
+        assert!(code.contains("token::transfer"));
+        assert!(code.contains("pub fn owner_withdraw"));
+        assert!(!code.contains("spl_token::instruction::transfer"));
+    }
+}
+

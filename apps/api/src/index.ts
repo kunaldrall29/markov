@@ -10,6 +10,7 @@ import {
   engineDemoAllowed,
   explorerTxUrl,
   isLoopbackHost,
+  isProductOrigin,
   listenHost,
   markovCluster,
   rpcHost,
@@ -28,6 +29,7 @@ import { loadEngine, persist } from "./store";
 import {
   buildMandateTx,
   buildSubscribe,
+  chainHealth,
   chainReady,
   confirmChain,
   emergencyChain,
@@ -50,26 +52,8 @@ const engine = loadEngine();
 seed(engine);
 persist(engine);
 
-const WEB_ORIGINS = [
-  "http://127.0.0.1:3000",
-  "http://localhost:3000",
-  ...[process.env.WEB_ORIGIN, process.env.CORS_ORIGINS]
-    .flatMap((raw) => (raw ?? "").split(","))
-    .map((s) => s.trim().replace(/\/$/, ""))
-    .filter(Boolean),
-];
-
 function corsOrigin(origin: string): string | undefined {
-  if (WEB_ORIGINS.includes(origin)) return origin;
-  try {
-    const url = new URL(origin);
-    if (url.protocol !== "https:") return undefined;
-    if (url.hostname === "markov.fyi" || url.hostname.endsWith(".markov.fyi")) return origin;
-    if (url.hostname.endsWith(".vercel.app")) return origin;
-  } catch {
-    return undefined;
-  }
-  return undefined;
+  return isProductOrigin(origin) ? origin : undefined;
 }
 
 type Vars = { actor: string };
@@ -170,13 +154,14 @@ app.onError((err, c) => {
   return c.json({ error: message }, status);
 });
 
-app.get("/health", (c) => {
+app.get("/health", async (c) => {
   const facts = existsSync(DEVNET_FACTS)
     ? (JSON.parse(readFileSync(DEVNET_FACTS, "utf8")) as {
         programs?: Record<string, string>;
         rpc?: string;
       })
     : null;
+  const health = await chainHealth();
   return c.json({
     ok: true,
     network: markovCluster() === "devnet" ? "solana-devnet" : markovCluster(),
@@ -184,7 +169,9 @@ app.get("/health", (c) => {
     mainnetGate: process.env.MARKOV_MAINNET === "1",
     engineDemo: engineDemoAllowed(),
     walletAuth: true,
-    chainReady: chainReady(),
+    chainReady: health.chainReady,
+    rpcOk: health.rpcOk,
+    slot: health.slot,
     operators: engine.operators.size,
     mandates: engine.mandates.size,
     receipts: engine.receipts.length,
