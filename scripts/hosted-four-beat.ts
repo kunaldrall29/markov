@@ -28,7 +28,15 @@ import {
   withRetry,
 } from "./chain-kit";
 
-const API = (process.env.API_URL?.trim() || INTERIM_API).replace(/\/$/, "");
+function hostedApi(): string {
+  const explicit = process.env.HOSTED_API_URL?.trim();
+  if (explicit) return explicit.replace(/\/$/, "");
+  const fromEnv = process.env.API_URL?.trim();
+  if (fromEnv && !/127\.0\.0\.1|localhost/i.test(fromEnv)) return fromEnv.replace(/\/$/, "");
+  return INTERIM_API.replace(/\/$/, "");
+}
+
+const API = hostedApi();
 const DATA = (process.env.RECEIPTS_API_URL?.trim() || INTERIM_DATA_API).replace(/\/$/, "");
 const DEMO = join(ROOT, "docs/demo");
 

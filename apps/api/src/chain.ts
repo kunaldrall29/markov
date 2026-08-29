@@ -26,6 +26,7 @@ import {
   type ChainPolicy,
 } from "@markovfyi/operator";
 import { ACTORS } from "./seed";
+import committedHouse from "../../../data/house-operators.json";
 
 const ROOT = join(import.meta.dir, "../../..");
 const HOUSE_PATH = join(ROOT, "data/house-operators.json");
@@ -56,21 +57,23 @@ async function probeRpc(): Promise<RpcCache> {
 void probeRpc();
 setInterval(() => void probeRpc(), 10_000);
 
+function houseMap(): Record<string, string> {
+  const fromFile = existsSync(HOUSE_PATH)
+    ? (JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>)
+    : {};
+  return { ...(committedHouse as Record<string, string>), ...fromFile };
+}
+
 export function houseOperatorPubkey(name: string): PublicKey {
-  if (existsSync(HOUSE_PATH)) {
-    const map = JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>;
-    const pk = map[name];
-    if (pk) return new PublicKey(pk);
-  }
+  const pk = houseMap()[name];
+  if (pk) return new PublicKey(pk);
   if (existsSync(OPERATOR_KEY)) return loadKeypair(OPERATOR_KEY).publicKey;
   throw new Error(`unknown house operator ${name}`);
 }
 
 export function emergencyPubkey(): PublicKey {
-  if (existsSync(HOUSE_PATH)) {
-    const map = JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>;
-    if (map.emergency) return new PublicKey(map.emergency);
-  }
+  const pk = houseMap().emergency;
+  if (pk) return new PublicKey(pk);
   return loadKeypair(EMERGENCY_KEY).publicKey;
 }
 
