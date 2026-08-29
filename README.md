@@ -6,11 +6,13 @@ Delegation stops being an act of trust and becomes an act of configuration.
 
 This repository **is** the Phase 0 product: protocol, SDK, Float, agents, bot, and docs. Six named surfaces are directories here. Marketing is live at [markovhq.com](https://markovhq.com) and is **not** this repo.
 
+[![ci](https://github.com/kunaldrall29/markov/actions/workflows/ci.yml/badge.svg)](https://github.com/kunaldrall29/markov/actions/workflows/ci.yml)
+
 Consumer line: **Give an agent your capital. Keep the keys.**
 
 | Canon | Path |
 |---|---|
-| Litepaper (protocol claims) | v0.4 |
+| Litepaper (protocol claims) | v0.6.1 target on markovhq.com; semantics in `SPEC.md` |
 | Internal pitch | [`docs/PITCH.md`](docs/PITCH.md) |
 | Claims ledger | [`docs/FACTS.md`](docs/FACTS.md) |
 | Spec | [`SPEC.md`](SPEC.md) |
@@ -44,7 +46,7 @@ Strategy-vault: one Momentum-Demo template, three owner mandates (A/B default ca
 | float-web | `apps/web`, `apps/api`, `apps/indexer` |
 | float-agents | `apps/agents`, `apps/data-api` |
 | float-bot | `apps/bot` |
-| markov-site | `apps/site` (Docusaurus, :3001 docs) |
+| markov-site / markov-docs | `apps/site` (Docusaurus, :3001 locally; `docs.markovhq.com`) |
 
 Demo mints: **USDC-d**, **DEMO**. Venues are stubs with the adapter shape mainnet venues will use.
 
@@ -60,7 +62,9 @@ bun run dev           # API :8787 + Float :3000 + docs :3001
 bun run dev:services  # data-api :8788 + indexer :8790 + bot :8789
 ```
 
-Open [http://127.0.0.1:3000](http://127.0.0.1:3000). **Run four-beat demo** or **Run strategy-vault demo**. Docs: [http://127.0.0.1:3001](http://127.0.0.1:3001). No wallet extension on this prototype.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). **Run four-beat demo** or **Run strategy-vault demo**. Docs: [http://127.0.0.1:3001](http://127.0.0.1:3001). Hosted Float: [https://float.markovhq.com](https://float.markovhq.com).
+
+**Telegram:** Railway owns `getUpdates` for `markov_float_bot`. Local `.env` with that token must not poll (`TELEGRAM_POLL` defaults off on loopback). Use a separate test bot token if you need local polling.
 
 ```bash
 bun run --filter @markov/agents start momentum <mandateId>
@@ -69,9 +73,9 @@ bun run --filter @markov/bot start '/revoke <mandateId>'
 
 Set `TELEGRAM_BOT_TOKEN` to attach the same revoke-only commands to Telegram.
 
-On-chain: `bun run devnet:setup` deploys to Solana devnet (needs SOL). `bun run demo:devnet` runs the live four-beat. Toolchain and program IDs: `docs/FACTS.md`.
+On-chain: `bun run devnet:setup` deploys to Solana devnet (needs SOL). `bun run demo:devnet` runs the live four-beat. `bun run demo:ticks` / `demo:fanout` / `demo:redteam` emit house ticks, N-tx fan-out, and all 11 BlockReasons on public devnet. Toolchain and program IDs: `docs/FACTS.md`.
 
 ## Scope freeze (Phase 0)
 
 - In: mandates, allowlists, caps, x402 spend budget, executed **and** refused receipts, `strategy_id` templates, Float strategy marketplace, revoke-only bot, house operators (`markov-steady`, `markov-momentum`, `markov-redteam`), four-beat + strategy-vault demos.
-- Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, marketing page, this repo restyling markovhq.com.
+- Out: copilot, launch radar, pooled mandates, score/bonds/credit, token, restyling markovhq.com, x402 facilitator settlement (grant M2), Supabase.

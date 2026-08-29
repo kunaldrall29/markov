@@ -7,7 +7,7 @@ Rule: a doc that describes code is written from the code, never before it.
 ## Principles
 
 1. Every external claim carries source + date (`docs/FACTS.md`). If it isn't verified, it isn't documented.
-2. Public claims must match litepaper v0.4. When docs and litepaper drift, the litepaper wins and the doc gets fixed.
+2. Public claims must match litepaper v0.6.1 / `SPEC.md`. When docs and the essay drift, SPEC wins and the essay gets patched.
 3. Refusals are documented as features, not errors — every doc that shows an action shows its refusal path.
 4. Each surface README answers "what is this and how do I run it" without leaving that tree.
 
@@ -37,18 +37,20 @@ Rule: a doc that describes code is written from the code, never before it.
 
 `apps/web/README.md` · `apps/indexer/README.md`
 
-MVP v2 writeup: `docs/markov-mvp-v2.md`. Diagrams: `docs/markov-architecture-v2.mermaid`, `docs/markov-gate-flow-v2.mermaid`, `docs/markov-strategy-vault-flow.mermaid`.
+Hosted Float: `https://float.markovhq.com`. Indexer writes Railway Postgres. MVP writeup: `docs/markov-mvp-v2.md`.
 
 ## float-agents → `apps/agents`, `apps/data-api`
 
 `apps/agents/README.md` · `apps/data-api/README.md`
 
+Hosted data-api: `https://api.markovhq.com` (canonical; Railway alias until TLS attaches).
+
 ## float-bot → `apps/bot`
 
 `apps/bot/README.md`
 
-## markov-site → `apps/site`
+## markov-site / markov-docs → `apps/site`
 
-Docusaurus host in this repo (`bun run --filter @markov/site dev`, `:3001`). Free, in-repo. Marketing at [markovhq.com](https://markovhq.com) is a different property and is not restyled here.
+Docusaurus host in this repo (`bun run --filter @markov/site dev`, `:3001`). Fourth hosted surface: Vercel project `markov-docs` at `docs.markovhq.com`. Marketing at [markovhq.com](https://markovhq.com) is a different property and is not restyled here.
 
 Live docs routes: `/` · `/docs` · `/docs/mandates` · `/docs/policy` · `/docs/receipts` · `/docs/kill-switch` · `/docs/owners` · `/docs/operators` · `/docs/venues` · `/docs/program` · `/docs/sdk` · `/docs/block-reason` · `/docs/data-api` · `/docs/security` · `/llms.txt`

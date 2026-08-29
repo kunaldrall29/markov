@@ -1,6 +1,8 @@
 # STATUS.md — Markov Phase 0 MVP audit
 
-**Date:** 2026-08-28 ~15:20 UTC  
+**2026-08-29 refresh:** still **NO-GO**. v2.2 spec is in-tree. `https://float.markovhq.com` is live Float. Chain-native indexer backfills (15 action receipts locally; hosted indexer not redeployed yet). House operators are three distinct on-chain pubkeys. `F-X402-SETTLE-MINT` is deferred-M2 (not a GO blocker). Remaining blockers: org transfer; empty `main`; git autodeploy; docs/api/app TLS; 2/11 on-chain BlockReasons; hosted four-beat; litepaper v0.6.1; grant application file; Helius UNSET. Run `bun scripts/mvp-status-audit.ts`.
+
+**Date:** 2026-08-28 ~15:20 UTC (original audit below)  
 **Auditor posture:** read-only. No product fixes. Working tree in `/workspace` (`kunaldrall29/markov`, branch `cursor/mvp-prototype-aeb5`) had **uncommitted** house-operator tick / indexer-log WIP; those files were not treated as shipped.  
 **Trees inspected:** `/workspace` (live product monorepo) and `~/markov/` (Aug 25 six-folder clone).  
 **Missing spec files (BLOCKED as sources):** `prompt-mvp-build-v2.md`, `markov-superteam-application-v2.md`, `markov-litepaper-v0.6.md` are **not in either tree**. Live HTML litepaper at `https://markovhq.com/litepaper` is **v0.6**. In-repo canon is `docs/markov-mvp-v2.md` + `SPEC.md` (litepaper claims stay v0.4 in `docs/FACTS.md` until this appendix).

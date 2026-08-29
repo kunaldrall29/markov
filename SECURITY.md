@@ -51,4 +51,4 @@ No mainnet deployment exists. Do not set `MARKOV_MAINNET=1` until an external au
 
 ## Reporting a vulnerability
 
-Email **security@markov.fyi** with a description, reproduction steps, and impact. Please do not open public issues for security reports. We acknowledge within 72 hours and coordinate disclosure timing with you; no formal bounty program exists yet — this file will be updated when one does. Good-faith research against local and devnet deployments is welcome.
+Email **hello@markovhq.net** with a description, reproduction steps, and impact. Please do not open public issues for security reports. We acknowledge within 72 hours and coordinate disclosure timing with you; no formal bounty program exists yet — this file will be updated when one does. Good-faith research against local and devnet deployments is welcome.

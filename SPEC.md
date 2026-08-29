@@ -6,7 +6,7 @@ Authoritative account / instruction / event spec for the mandate primitive.
 
 **On-chain port:** `programs/mandate` (Anchor, `src/lib.rs`). Instruction names below are the IDL. Names must stay 1:1.
 
-Litepaper v0.4 wins if this file and the litepaper drift; then this file gets fixed.
+Litepaper on markovhq.com is the public essay (target v0.6.1). If this file and that essay drift on protocol semantics, this file wins and the essay gets patched. Numbers still require `docs/FACTS.md`.
 
 ## Status
 
@@ -15,7 +15,28 @@ Litepaper v0.4 wins if this file and the litepaper drift; then this file gets fi
 | Engine (`MandateEngine`) | Implemented, tested. Float HUD + Telegram still keyed by `mdt_*` |
 | `demo_swap` / `demo_yield` | Live on public Solana devnet — see `docs/FACTS.md` |
 | Mandate program | Live on public Solana devnet; dump matches this tree (vault pin + `strategy_id`). Wallet path: unsigned tx → wallet sign → confirm |
-| Cluster | Engine HUD on loopback. Chain RPC from `data/devnet.json` (`https://api.devnet.solana.com`). |
+| Cluster | Engine HUD on loopback. Chain RPC from `SOLANA_RPC_URL` / `data/devnet.json` (fallback `https://api.devnet.solana.com`). |
+| Data layer | Railway Postgres. `DATABASE_URL`. Migrations in `apps/indexer/migrations/`. View `public_receipts`. Table `waitlist`. **Not Supabase.** |
+| Indexer | Chain-native. Helius WS (or `SOLANA_WS_URL`) on mandate program logs. Parses Anchor events. **Only writer of receipts.** No API-ledger sync. |
+| Hosted surfaces | `markovhq.com` marketing + `/receipts`; `float.markovhq.com` Float; `docs.markovhq.com` protocol docs (`markov-docs`); `api.markovhq.com` data-api. |
+
+## Canonical domains (Decision 0)
+
+| Host | Role |
+|---|---|
+| `markovhq.com` | Marketing. Public receipts at `/receipts`. |
+| `float.markovhq.com` | Float (consumer marketplace). |
+| `docs.markovhq.com` | Protocol docs (this repo, `apps/site`, Vercel project `markov-docs`). |
+| `api.markovhq.com` | data-api (`/v1/receipts`, `/health`). |
+| `app.markovhq.com` | 301 → `float.markovhq.com`. |
+| `markov.fyi` apex + wildcard | 301 → the markovhq.com equivalent. Redirect-only; never a product host. |
+| Handle | `@markovfyi` |
+
+Env matrix: `DATABASE_URL` is the database. Do not set `SUPABASE_URL` / `SUPABASE_SERVICE_KEY` / `SUPABASE_SERVICE_ROLE_KEY`.
+
+## x402 (MVP vs grant M2)
+
+MVP ships **in-program spend budgets**. `OverSpendCap` / `OverSpendDailyCap` are on-chain refusals against the priced demo endpoint. Facilitator settlement + a canonical settle mint (`F-X402-SETTLE-MINT`) is **grant milestone M2**, not MVP, not open-blocking.
 
 ## Accounts
 
@@ -137,7 +158,7 @@ This registry is **append-only**. Codes already emitted on public devnet stay st
 
 ## Public Receipt Read Model
 
-Public surface for indexed execute/spend receipts. View name: `public_receipts`. The data-api reads **only** this view — no joins, no instruction payloads, no vault balances, no owner keys.
+Public surface for indexed execute/spend receipts. View name: `public_receipts` on **Railway Postgres** (SQL in `apps/indexer/migrations/`). The chain indexer is the only writer. The data-api reads **only** this view — no joins, no instruction payloads, no vault balances, no owner keys.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -199,7 +220,7 @@ Share accounting. Default `shareValue = 1_000_000`. Deposit: `shares = amount * 
 
 ### x402 (`"x402"`)
 
-Budgeted USDC-d debit to `recipient` with `nonce` + `memo`. Counts against spend caps, not notional caps. Demo price endpoint charges this (`apps/api/src/data.ts`, 20_000 units per quote).
+Budgeted USDC-d debit to `recipient` with `nonce` + `memo`. Counts against spend caps, not notional caps. Demo price endpoint charges this (`apps/api/src/data.ts`, 20_000 units per quote). On-chain, the allowlist entry is the **mandate program pubkey**. Facilitator mint settlement is M2 (`F-X402-SETTLE-MINT`), not this MVP.
 
 ## Demo mints
 

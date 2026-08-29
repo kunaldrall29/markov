@@ -2,9 +2,38 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-29 (Vercel Float + docs on kunaldrall29 / lemmalabs).
+Last refreshed: 2026-08-29 (MVP v2.2 spec + chain-native indexer + house operators).
+
+## 2026-08-29 — MVP v2.2
+
+| Claim | Status | Source / date |
+|---|---|---|
+| Data layer | Railway Postgres via `DATABASE_URL` | `apps/indexer/migrations/postgres_boot.sql` includes `public_receipts` + `waitlist`. Supabase unused. |
+| Indexer | Chain-native (program logs). API-ledger `POST /sync` removed | Local backfill 2026-08-29 vs `api.devnet.solana.com`: 35 signatures, 15 action receipts, `chainReady: true`, `lagSlots: 1`. Reasons still `OverTxCap`, `Revoked` only |
+| `DOMAIN_CANONICAL` | `markovhq.com` | Decision 0. Handle `@markovfyi` |
+| `FLOAT_URL` | `https://float.markovhq.com` | HTTP 200 title `Float — Markov` 2026-08-29. Vercel project `float-web` on `lemmalabs`. Interim alias `https://float-web-three.vercel.app` |
+| `DOCS_URL` | `https://docs.markovhq.com` intended | TLS handshake fails. Live alias `https://markov-docs-black.vercel.app`. `vercel domains add` on `lemmalabs1` → `domain_not_owned` |
+| `RECEIPTS_API_URL` | intended `https://api.markovhq.com` | TLS fails. Live `https://data-api-production-5ac5.up.railway.app`. Did not leave a pending Railway custom domain |
+| `app.markovhq.com` 301 → float | **No** | DNS exists; HTTPS fails; lemmalabs cannot attach (`domain_not_owned`) |
+| `markov.fyi` apex 301 | Yes | `https://markov.fyi/` → `https://markovhq.com/` |
+| `markov.fyi` wildcard product hosts | **No** | `float.markov.fyi` / `docs.markov.fyi` / `api.markov.fyi` / `app.markov.fyi` → Vercel `DEPLOYMENT_NOT_FOUND` |
+| `F-CANONICAL-DOMAIN` | **Open** (partial) | Float canonical host is live. docs/api/app + fyi wildcard still missing. Stopped rather than half-attach |
+| `F-X402-SETTLE-MINT` | **deferred-M2** | Not MVP-blocking. In-program spend caps remain |
+| House operators on-chain (distinct) | Yes | `markov-steady` `AFmFYWsn7hijB54y45Tvs8XQxuy1uG9MRQXDqThKXXBs` register `3WAk2mcf8cshWgM3MX87KrssH3DaXohfjFyUnjRUXN7NHCjm3Zsyntd2atdk5DsMMNB47CPQVn3xyYLkAhaeXKwj`. `markov-momentum` `CoVy9jnkzdxzi2say1tpHgiwDbcJ4n7RTvVwp8Rt8bHZ` register `aX4KVFhowjX9RsHqXSHXR97C7w6t1AnZJadrPGgtzZWbuUunmU7cfn4BTJwtmNmDeTkHmntXCJEs95bb449T2Mf`. `markov-redteam` `3ASMCGmhgjuhgVQB672tygz1FYxZk44Fq7rjpCS9jDWB` register `669wtbfxM7VMJF7VKGsdPyThGrcND65CvrcK5JDqxAGKDUjE1QF5qmf9P1uSVFmyvwE2fBD9nhJdrV1EvCssXE9M`. Pubkeys in `data/house-operators.json` |
+| Contact inbox | `hello@markovhq.net` | Live marketing site. `SECURITY.md` and docs updated. `security@markov.fyi` retired in-repo; inbox still unverified |
+| `gitleaks` full git history | Clean | gitleaks 8.24.3, 68 commits, no leaks. Working-tree `.env` / `keys/` are gitignored (filesystem scan is not the repo) |
+| Grant application v2.1 | **Absent** | `docs/grant/APPLICATION.md` stub. Fail closed |
+| Litepaper v0.6.1 on markovhq.com | **Not this repo** | Live page still v0.6. D1 cannot restyle/publish that property from here |
+| A1 org transfer `kunaldrall29/markov` → `MarkovFyi` | **Blocked** | `gh` 403 transfer. Stale MIT org repos still public |
+| A2 `main` | Empty initial commit until fast-forward | `origin/main` = `51513d4`. Merge-base is ancestor of this tree |
+| A3 Vercel git autodeploy | **No** | GitHub App still cannot connect. CLI deploys only |
+| Hosted API `chainReady` | Was false (missing `keys/` in image) | Now derived from RPC probe + `data/devnet.json`. Redeploy API to pick up |
+| Rust `#[test]` | 15 pass | `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` 2026-08-29. 11 BlockReason + 3 invariants + program id |
+| Telegram poller | Railway owns `getUpdates` | Loopback does not poll unless `TELEGRAM_POLL=1` |
+| HELIUS_API_KEY / SOLANA_WS_URL | **UNSET** in process env | Indexer falls back to public `wss://api.devnet.solana.com` (429s under backfill). Set Helius on Railway |
 
 ## 2026-08-29 — Vercel (kunaldrall29)
+
 
 | Claim | Status | Source / date |
 |---|---|---|
@@ -81,8 +110,8 @@ Last refreshed: 2026-08-29 (Vercel Float + docs on kunaldrall29 / lemmalabs).
 | markov.fyi docs/litepaper/Float URLs | **Not live** in this refresh | Intended site IA; GitHub is canonical until S9 |
 | GitHub org `MarkovFyi` | Exists; this product tree is `kunaldrall29/markov` | `gh api orgs/MarkovFyi` 2026-08-25 |
 | `security@markov.fyi` mailbox | Published in `SECURITY.md`; inbox not verified here | Treat as intended contact |
-| `F-X402-SETTLE-MINT` | **Open** | Facilitators typically settle canonical devnet USDC, not `USDC-d`. Confirm when a facilitator is pinned. Blocking for live x402 spend on public devnet, not for the local engine spend stub |
-| `F-CANONICAL-DOMAIN` | **Open** | Decision 0. `markov.fyi/docs` 404; local Docusaurus `:3001`. Do not invent a canonical host |
+| `F-X402-SETTLE-MINT` | **deferred-M2** | Facilitator settle mint is grant M2. MVP uses in-program spend caps |
+| `F-CANONICAL-DOMAIN` | **Open** (partial) | `float.markovhq.com` live. `docs.markovhq.com` / `api.markovhq.com` / `app.markovhq.com` not HTTPS. `markov.fyi` apex 301s; product wildcards 404 |
 
 ## External numbers (litepaper appendix — re-verify before public use)
 

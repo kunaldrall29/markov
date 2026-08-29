@@ -2,7 +2,16 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-29 — MVP v2.2 spec + wiring
+
+- Goal: apply v2.2 spec corrections; close hosted/devnet gaps that this agent can touch. Fail closed. Local ledger is not proof.
+- Done: SPEC/MAP/MVP v2.2 Railway Postgres + chain-native indexer + docs as fourth surface + domains Decision 0 + x402 M2. Indexer no longer syncs the API ledger; backfill+WS; unique `(sig, event_index)`; replay test. API `chainReady` from RPC. CORS markovhq.com. Three house operators registered on devnet (distinct pubkeys). 11+3 Rust tests green. Favicon. Bun 1.4.0 on Vercel. Telegram loopback does not steal `getUpdates`. gitleaks git history clean. Grant pack stub. Contact `hello@markovhq.net`.
+- Not done / blocked: org transfer 403; empty `main`; Vercel GitHub App; docs/api/app custom TLS (`domain_not_owned` on lemmalabs); 11 on-chain BlockReasons still 2; hosted four-beat recording; litepaper v0.6.1 on markovhq.com; grant application markdown; Helius UNSET; STATUS remains NO-GO.
+- Commands: `bun test packages apps` 113 pass; `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` 15 pass; local indexer backfill 35 sigs / 15 receipts / `chainReady true` lag 1; `gitleaks detect` 68 commits no leaks; `bun scripts/mvp-status-audit.ts` expected NO-GO.
+- Next: DNS at markovhq.com registrar (docs CNAME to markov-docs, api CNAME to Railway data-api, app 301); Helius on Railway indexer; redeploy api+indexer; redteam 11 reasons on chain; FF `main` once this tree is the production branch.
+
 ## 2026-08-29 — Vercel deploy as kunaldrall29
+
 
 - Goal: production-deploy Float + protocol docs from `kunaldrall29/markov` using a Vercel token for user `kunaldrall29` (team `lemmalabs`). Do not git-link `kunal-drall/markov`.
 - Done: CLI `whoami` = `kunaldrall29`. Created `float-web` + `markov-docs` on `lemmalabs1`. Root dirs `apps/web` / `apps/site`. Production READY: `https://float-web-three.vercel.app`, `https://markov-docs-black.vercel.app`. Hosted receipts still empty Railway feed. Token used via env only, not committed.
