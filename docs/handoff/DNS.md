@@ -7,6 +7,14 @@ Do not half-attach. `markovhq.com` is verified on a Vercel team **other than** `
 
 Until one of those is done, attaching `docs.markovhq.com` / `app.markovhq.com` to `lemmalabs` will fail TLS. `float.markovhq.com` already resolves as a project alias on `float-web` — leave it.
 
+**Deploy from this agent (2026-08-30):** `vercel whoami` is `kunaldrall29`. `GET /v2/teams` returns **zero teams**. `vercel deploy --prod --scope lemmalabs1` → not authorized for `lemmalabs1`. Kunal (who is on `lemmalabs`) must run, from this branch:
+
+```bash
+npx vercel@latest deploy --prod --yes --scope lemmalabs1
+```
+
+with `.vercel/project.json` pointing at `float-web` (`prj_fzX4OXUHz2XUyPVvzFFVHJmw4sTI`), then swap to `markov-docs` (`prj_U4GoBLAyEwICB3X3vQziz3jLvnLK`) and deploy again. That is what makes `https://float.markovhq.com/receipts` return 200.
+
 Vercel team for these projects: `lemmalabs` (`lemmalabs1`). User: `kunaldrall29`.
 
 Vercel CNAME target for every Vercel hostname below: `cname.vercel-dns.com`  

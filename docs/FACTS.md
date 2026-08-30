@@ -18,6 +18,13 @@ Last refreshed: 2026-08-30 (D-08–D-11, domain split, Float `/receipts`).
 | `F-DOMAIN-SUBDOMAINS` | **Open** | `docs.markovhq.com` / `api.markovhq.com` / `app.markovhq.com` pending DNS + Vercel team ownership. Owner: Kunal. Not a code task. See `docs/handoff/DNS.md`. |
 | `F-CANONICAL-DOMAIN` | **Closed** | Parent split 2026-08-30 into F-DOMAIN-FLOAT / F-DOMAIN-RECEIPTS / F-DOMAIN-SUBDOMAINS. Only the human-owned subdomain piece stays open. |
 | `F-X402-SETTLE-MINT` | **deferred-M2** | Unchanged |
+| Vercel CLI deploy this session | **Blocked** | Token user `kunaldrall29`, 0 teams. Cannot write `lemmalabs`. `https://float.markovhq.com/receipts` 404 until Kunal deploys |
+| Local Float `/receipts` | Yes | 2026-08-30 `next start` :3000. Counters `41 actions gated · 20 refusals emitted · 11 BlockReason keys`. Hosted data-api |
+| Hosted data-api stats | `{total:41,allowed:21,blocked:20}` 11 keys | `GET https://data-api-production-5ac5.up.railway.app/v1/receipts/stats` 2026-08-30 |
+| Hosted data-api `chainReady` | **false** | Indexer 429 on public devnet RPC. `lagSlots` ~319k. Railway API `/health` still `chainReady:true` |
+| `gitleaks` | Clean | 8.24.3, 81 commits, no leaks |
+| `bun audit` | 11 advisories | 7 high / 4 moderate, transitive (serialize-javascript, sharp, uuid) |
+| Rust tests | 20 pass | 2026-08-30 |
 
 ## 2026-08-29 — MVP v2.2
 
@@ -50,7 +57,7 @@ Last refreshed: 2026-08-30 (D-08–D-11, domain split, Float `/receipts`).
 | C6 Telegram phone capture | **No** | Hosted-bot API revoke **yes** (not phone): revoke `5C1eSYTw5komu2mxkFZEMr87U31U5uWNNAFPYqJ59FQaZrvL2zNTKC9Dw9SttXbtowUzCRBbVEgJ1hXRcw4Uqepb` then Revoked `42eduXDhbq4uEcHHgg43At9X9ReUCLRfSWHnCVURNSHqECiJhVRMtB1KkbzetgHQ6PB8naSzH1D3fgqwY265oamZ`. `EMERGENCY_KEY_JSON` SET on Railway api (not in git). |
 | Hosted four-beat (Railway API) | Yes | 2026-08-29T20:31Z `bun run demo:hosted`. Mandate `mdt_0001` PDA `FriqAUtjSTvPSxaFyU6ZF2tt8GEto1oPrBLCyQvM6DjQ`. Create/fund `4KShUHkkFqHXKX58vk9jvYPwVe2MpAc7wex1WyRPeK3HQd111ux1RSsjPh17kvi9wZV2jX3C17vxWovLFrWAmUo4`; allow swap `y3sjiYKvNTj1iq4r2VmBSYop3ZHc1YMhbyvVk8WYwLeG5TCc8NM8RPaMhCmSxVtqy8ZYb14ptYyyB2t44Cg61S3`; OverTxCap `JA4G4BubB8NE4XcuQQatuS7F8mazha8UNcSG9oMUUAZew4LctazpvLjJ1CyriCSbcnZP1c87LGndXRjiuA3mqYW`. Indexed on data-api within 10s. JSON `docs/demo/hosted-four-beat.json`. Canonical UI: `https://float.markovhq.com/receipts` (D-11). Docs alias still serves `/receipts` |
 | House ticks (this hour) | Yes | 2026-08-29T20:32Z steady `4MCyFY1LDj4KdJRdzWMzbVN7GiiJFEztAD5gmM2PyjabovvYZsiTmoZH6jYc2sWTes8sfcyVeQRarcN2hwEqRz3q`; momentum `3iHVgqeesxtLL5f83quWtzVoFrV2p8Tq1dXrigbGg1932m9uMxPDqWEWk5ANFZkPi3LRqhJ3Q6nbYebE4f1uoaku`; redteam `5dSyqiNccWw24utPwmisqKJSrNPPb1k8fZgd21z65gMnMZejSHUpANnWionXK8QfvTjZdpwoCKgfQumvmLKtpkeL` |
-| MVP audit | **NO-GO** | `bun scripts/mvp-status-audit.ts` 2026-08-29 ~20:33Z. 7 OK / 2 FAIL: grant application stub; `F-CANONICAL-DOMAIN` Open. Chain 11 BlockReasons confirmed from FACTS sigs. |
+| MVP audit | **NO-GO** | `bun scripts/mvp-status-audit.ts` 2026-08-30. **OK 13 / FAIL 2 / DEFERRED 4**. FAIL: `https://float.markovhq.com/receipts` 404 (Vercel `lemmalabs` deploy blocked — token `kunaldrall29` has zero teams); data-api `chainReady=false` (indexer public-RPC 429). DEFERRED D-08 + D-09×3. Chain 11 BlockReasons OK. Stats 11 keys. Ledger 41. |
 
 ### On-chain BlockReasons (11/11) — 2026-08-29 `bun scripts/chain-sprint.ts redteam`
 

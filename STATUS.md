@@ -1,5 +1,7 @@
 # STATUS.md — Markov Phase 0 MVP audit
 
+**2026-08-30 refresh:** still **NO-GO**. Audit is OK / FAIL / DEFERRED. Last run: **OK 13 / FAIL 2 / DEFERRED 4**. FAIL: production `https://float.markovhq.com/receipts` is 404 (CLI cannot deploy to Vercel team `lemmalabs` — token is `kunaldrall29` with zero teams); hosted data-api `chainReady=false` (indexer 429 on public RPC). DEFERRED: D-08 grant pack outside repo; D-09 org/licence/six-repo until grant acceptance. Local Float `/receipts` shows **41 gated / 20 refusals / 11 BlockReason keys**. Chain 11 FACTS refusal sigs still parse. See `docs/audit/SECURITY-REVIEW.md` (0 Critical, 2 High). Run `bun scripts/mvp-status-audit.ts`.
+
 **2026-08-29 refresh:** still **NO-GO**. Audit now evaluates: Float 200, data-api `chainReady`, public ledger 41 receipts, 11 `by_reason` keys, 11 FACTS refusal sigs confirmed on chain, three house operators on-chain, `F-X402-SETTLE-MINT` deferred-M2. Remaining FAIL rows: grant application stub; `F-CANONICAL-DOMAIN` still Open (partial). Hosted four-beat (Railway create/fund + allow + OverTxCap) and hosted-bot revoke+Revoked pair are in `docs/demo/hosted-four-beat.json`. Phone Telegram capture still missing. `origin/main` is the product tree. Run `bun scripts/mvp-status-audit.ts`.
 
 **Date:** 2026-08-28 ~15:20 UTC (original audit below)  

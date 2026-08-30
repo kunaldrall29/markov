@@ -2,11 +2,19 @@
 
 Handoff file. Newest entry at the top. Facts, not narrative.
 
+## 2026-08-30 — D-08–D-11, Float `/receipts`, security review
+
+- Goal: record owner decisions without deleting checks; ship the receipts feed; write a devnet security review; re-verify.
+- Done: audit statuses OK/FAIL/DEFERRED. D-08 grant pointer DEFERRED never; D-09 org/licence/six-repo DEFERRED until grant acceptance; D-10 email OK; D-11 canonical `https://float.markovhq.com/receipts`. Domain split in FACTS. Float `/receipts` page (data-api, 429 backoff, badges, explorer, nav). Handoff `docs/handoff/DNS.md` + `markovhq-links.md`. `docs/audit/SECURITY-REVIEW.md`. Rust tests 20. `bun test` 130. `gitleaks` 81 commits clean. Local `/receipts` 41/20/11.
+- Not done / blocked: Vercel prod deploy of `float-web` / `markov-docs` — `VERCEL_TOKEN` is `kunaldrall29` with **zero teams**, cannot write `lemmalabs`. `float.markovhq.com/receipts` still 404. data-api `chainReady` false (indexer 429). Org transfer. Telegram phone capture.
+- Commands: `bun scripts/mvp-status-audit.ts` → NO-GO 13/2/4; `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint`; `bun test packages apps scripts`.
+- Next: Kunal deploys `npx vercel deploy --prod --yes --scope lemmalabs1` from this branch; attach docs/api/app per `docs/handoff/DNS.md`; Helius on Railway indexer.
+
 ## 2026-08-29 — hosted four-beat + bot revoke
 
 - Goal: prove Float/Railway → devnet → public receipts; hosted emergency revoke with a chain signature; keep STATUS fail-closed.
 - Done: `.dockerignore` ships `data/house-operators.json`. Hosted `POST /mandates` builds chain txs. `bun run demo:hosted` against `https://api-production-d2e8.up.railway.app`: create/fund `4KShUHkk…`, allow `y3sjiYKv…`, OverTxCap `JA4G4Bub…` (indexed). `railway run -s bot -- bun scripts/hosted-bot-revoke.ts mdt_0001` → revoke `5C1eSYTw…` then Revoked `42eduXDh…`. Three house ticks this hour. Audit confirms 11 FACTS refusal sigs on chain; prints **NO-GO** (grant stub + `F-CANONICAL-DOMAIN`). Float prod redeployed (`float.markovhq.com`); engine-demo buttons loopback-only. `EMERGENCY_KEY_JSON` SET on Railway api (stdin, not in git).
-- Not done: org transfer; Vercel GitHub App; docs/api/app TLS; litepaper v0.6.1; grant application; Telegram phone capture; `markovhq.com/receipts` 404.
+- Not done: org transfer; Vercel GitHub App; docs/api/app TLS; litepaper v0.6.1; grant application; Telegram phone capture; marketing-site receipts path 404.
 - Commands: `bun run demo:hosted`; `railway run -s bot -- bun scripts/hosted-bot-revoke.ts mdt_0001`; `bun scripts/chain-sprint.ts ticks`; `bun scripts/mvp-status-audit.ts`.
 - Next: DNS owner attaches docs/api/app; real grant markdown; phone `/revoke` screenshot.
 

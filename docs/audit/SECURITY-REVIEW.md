@@ -12,7 +12,7 @@ Posture: fail closed. Findings are not embarrassing; unfound findings are. Every
 |---|---|---|
 | Critical | 0 | — |
 | High | 2 | SR-H1, SR-H2 |
-| Medium | 7 | SR-M1 … SR-M7 |
+| Medium | 8 | SR-M1 … SR-M8 |
 | Low | 5 | SR-L1 … SR-L5 |
 | Info | 6 | SR-I1 … SR-I6 |
 
@@ -34,6 +34,7 @@ Posture: fail closed. Findings are not embarrassing; unfound findings are. Every
 | SR-M5 | Medium | Telegram `/pause` `/revoke` bound to chat allowlist, not mandate-owner Telegram ID | `apps/bot/src/allow.ts` `canMutate`; `commands.ts` ~110–117 | Any allowlisted chat can emergency-pause/revoke any engine id the API knows. CLI (`chatId == null`) allowed | Accepted while the bot is a house emergency control. Do not treat it as per-owner auth. Hosted allowlist is a single chat id |
 | SR-M6 | Medium | Simulation avoidance under-represents refusals | Design (C3) | Operator can simulate locally and submit only passing txs | Scoring layer (out of scope): weight owner-initiated pause/revoke/expiry; weight tenure and volume; a zero-refusal record is unremarkable, not excellent |
 | SR-M7 | Medium | Indexer does not unwind devnet reorgs | `apps/indexer/src/chain.ts` `onLogs` + backfill; unique `(sig, event_index)` | Duplicate sigs are skipped (regression test). Dropped txs leave a row | Accepted on devnet. Mainnet: confirm by root + optional slot rewind |
+| SR-M8 | Medium | Indexer stalled on public RPC 429s; data-api `chainReady` false | Hosted indexer logs 2026-08-30; `/health` `lagSlots` ~319k, `chainReady:false`. `rpcOk` on data-api false | Public feed still serves 41 indexed receipts; new txs may lag | Set Helius `SOLANA_RPC_URL` / `SOLANA_WS_URL` on Railway indexer (not in git) |
 | SR-L1 | Low | Mint authority on USDC-d / DEMO is the deployer | FACTS mints; faucet `createMintToInstruction` `apps/api/src/chain.ts` ~384 | Extra minting inflates vault size; **does not** skip per-tx caps | Accepted mock. Mainnet: freeze mint or use canonical USDC |
 | SR-L2 | Low | Hosted faucet needs `keys/deployer.json` on disk | `faucetDemoUsdcd`; `.dockerignore` drops `keys` | Image cannot mint; loopback can | Keep keys out of the image. Optional `DEPLOYER_KEY_JSON` later if a public faucet is required |
 | SR-L3 | Low | CORS allows `*.vercel.app` | `packages/rpc/src/domains.ts` `isProductOrigin` | Any Vercel app can read public receipts (already public) | Tighten when custom TLS is attached |
@@ -118,19 +119,37 @@ Cluster: `WalletProviders` uses `publicRpcUrl()`. `markovCluster()` defaults to 
 
 ## C6 — Re-verification
 
-Filled after this session’s test run (same commit series).
+2026-08-30 this session.
 
 | Gate | Result |
 |---|---|
-| `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` | *(run log)* |
-| `bun test` | *(run log)* |
-| `bun scripts/mvp-status-audit.ts` | *(verdict block)* |
-| 11 FACTS BlockReason sigs | *(confirm)* |
-| Hosted four-beat 5 sigs | `docs/demo/hosted-four-beat.json` |
-| Hosted `/health` `chainReady`, `/v1/receipts`, `/v1/receipts/stats` | *(counts)* |
-| `https://float.markovhq.com/receipts` | *(HTTP)* |
-| Secret scan | *(gitleaks)* |
-| `cargo audit` / JS audit | *(tools)* |
+| `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` | **20 passed** |
+| `bun test packages apps scripts` | **130 pass, 0 fail** |
+| `bun scripts/mvp-status-audit.ts` | **NO-GO**. OK 13 / FAIL 2 / DEFERRED 4. FAIL: `https://float.markovhq.com/receipts` HTTP 404 (Vercel `lemmalabs` deploy blocked: this token is `kunaldrall29` with **zero teams**); data-api `chainReady=false` (indexer 429 on `api.devnet.solana.com`, SR-M8). Deferred: D-08, D-09 ×3. Chain 11 BlockReasons confirmed. Stats 11 keys. Ledger 41 receipts. |
+| 11 FACTS BlockReason sigs | OK (audit, retry on 429) |
+| Hosted four-beat signatures | Unchanged in `docs/demo/hosted-four-beat.json` (create/fund, allow, OverTxCap, hosted-bot revoke, Revoked) |
+| Hosted API `/health` | `chainReady:true` `cluster:devnet` slot ~490381239 |
+| Hosted data-api `/health` | `chainReady:false` `lagSlots` ~319k |
+| `GET /v1/receipts/stats` | `{total:41, allowed:21, blocked:20}` with **11** `by_reason` keys |
+| `https://float.markovhq.com` | HTTP 200 |
+| `https://float.markovhq.com/receipts` | HTTP **404** until Kunal deploys `float-web` on `lemmalabs` from this branch |
+| Local Float `/receipts` | HTTP 200; UI `41 actions gated · 20 refusals emitted · 11 BlockReason keys` |
+| Secret scan | `gitleaks detect` 81 commits, no leaks. Float `.next/static` has no `MARKOV_API_SECRET` / `TELEGRAM_BOT_TOKEN` / PEM |
+| `cargo audit` | Tool not installed in this environment |
+| JS `bun audit` | 11 advisories (7 high, 4 moderate): `serialize-javascript` via Docusaurus, `sharp` via Next, `uuid` via wallet adapter / web3.js. Transitive; not patched this session |
+
+Audit verdict block (verbatim):
+
+```
+NO-GO
+OK 13 / FAIL 2 / DEFERRED 4
+
+Deferred by decision — reactivates when:
+- grant application outside repo (D-08, owner Kunal): Never — the grant pack lives outside the code repo by design
+- github org MarkovFyi transfer (D-09, owner Kunal): Grant acceptance
+- licence holder MarkovFyi (D-09, owner Kunal): Grant acceptance
+- six-repo layout (D-09, owner Kunal): Grant acceptance
+```
 
 ## Accepted risks for devnet scope
 
@@ -140,7 +159,7 @@ Filled after this session’s test run (same commit series).
 4. Refusal nonce bump (SR-M1): required for a committed receipt.
 5. Telegram house allowlist (SR-M5), not per-owner Telegram binding.
 6. Simulation avoidance and wash delegation (SR-M6 / C3): scoring is not shipped; do not market a zero-refusal house record as excellence.
-7. Indexer reorgs on devnet (SR-M7).
+7. Indexer reorgs on devnet (SR-M7). Public-RPC 429 stall (SR-M8) until Helius is set.
 8. `F-DOMAIN-SUBDOMAINS` still open: docs/api/app TLS is owner DNS, not a code task.
 9. x402 facilitator and Score/credit: out of scope (M2 / backlog).
 10. Spend destination any same-mint ATA (SR-M4) while x402 payee is operator-chosen.
