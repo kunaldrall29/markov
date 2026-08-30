@@ -508,6 +508,8 @@ pub mod mandate {
     }
 }
 
+/// Policy closed door. Must return Ok so the tx commits and ActionRefused is on chain.
+/// An instruction error would revert the transaction and the receipt would vanish.
 fn refuse(
     mandate: Pubkey,
     operator: Pubkey,
@@ -1249,6 +1251,76 @@ mod tests {
         assert!(code.contains("token::transfer"));
         assert!(code.contains("pub fn owner_withdraw"));
         assert!(!code.contains("spl_token::instruction::transfer"));
+    }
+
+    fn slice_fn(src: &str, marker: &str) -> String {
+        let start = src.find(marker).expect(marker);
+        let rest = &src[start..];
+        let end = rest.find("\n    pub fn ").unwrap_or(rest.len().min(1200));
+        rest[..end].to_string()
+    }
+
+    #[test]
+    fn refuse_returns_ok_so_the_receipt_is_not_lost() {
+        let src = include_str!("lib.rs");
+        let start = src.find("fn refuse(").expect("refuse");
+        let rest = &src[start..];
+        let end = rest.find("\nfn ").unwrap_or(rest.len().min(800));
+        let body = &rest[..end];
+        assert!(body.contains("emit!(ActionRefused"));
+        assert!(body.contains("Ok(())"));
+        assert!(!body.contains("err!("));
+        assert!(!body.contains("Err("));
+        let prod = src.split("#[cfg(test)]").next().unwrap();
+        assert!(prod.contains("return refuse("));
+    }
+
+    #[test]
+    fn emergency_cannot_amend_policy_or_move_funds() {
+        let src = include_str!("lib.rs");
+        let code = src.split("#[cfg(test)]").next().unwrap();
+        assert!(code.contains("pub fn amend_policy(ctx: Context<OwnerOnly>, policy: Policy)"));
+        assert!(code.contains("pub fn owner_withdraw(ctx: Context<OwnerWithdraw>"));
+        assert!(code.contains("has_one = owner"));
+        assert!(!code.contains("pub fn amend_policy(ctx: Context<EmergencyOrOwner>)"));
+        assert!(!code.contains("pub fn unpause(ctx: Context<EmergencyOrOwner>)"));
+    }
+
+    #[test]
+    fn owner_withdraw_reachable_in_active_paused_revoked_expired() {
+        let src = include_str!("lib.rs");
+        let body = slice_fn(src, "pub fn owner_withdraw");
+        assert!(!body.contains("STATE_PAUSED"));
+        assert!(!body.contains("STATE_REVOKED"));
+        assert!(!body.contains("STATE_ACTIVE"));
+        assert!(!body.contains("expires_ts"));
+        assert!(!body.contains("gate_state"));
+        assert!(!body.contains("NotActive"));
+        assert!(body.contains("token::transfer"));
+    }
+
+    #[test]
+    fn utc_day_rolls_at_midnight_utc() {
+        assert_eq!(utc_day(86_399), 0);
+        assert_eq!(utc_day(86_400), 1);
+        assert_eq!(utc_day(86_401), 1);
+        let (mut m, _, _, _, _) = sample();
+        m.spent_today = 150;
+        m.spend_today = 40;
+        m.day_stamp = utc_day(now());
+        rollover(&mut m, now());
+        assert_eq!(m.spent_today, 150);
+        rollover(&mut m, now() + 86_400);
+        assert_eq!(m.spent_today, 0);
+        assert_eq!(m.spend_today, 0);
+    }
+
+    #[test]
+    fn execute_swap_cpi_is_typed_demo_swap_not_unchecked_program() {
+        let src = include_str!("lib.rs");
+        let accounts = slice_fn(src, "pub struct ExecuteSwap");
+        assert!(accounts.contains("pub swap_program: Program<'info, DemoSwap>"));
+        assert!(!accounts.contains("UncheckedAccount<'info>\n    pub swap_program"));
     }
 }
 
