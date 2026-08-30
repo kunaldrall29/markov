@@ -2,7 +2,22 @@
 
 Claims ledger. If a number is not sourced and dated here, it does not go on a slide, the site, or a submission.
 
-Last refreshed: 2026-08-29 (MVP v2.2 hosted indexer + 11 on-chain BlockReasons).
+Last refreshed: 2026-08-30 (D-08–D-11, domain split, Float `/receipts`).
+
+## 2026-08-30 — owner decisions D-08–D-11 and domain split
+
+| Claim | Status | Source / date |
+|---|---|---|
+| **D-08** | Grant application is not committed to this repo | Pack lives outside the code repo by design. `docs/grant/APPLICATION.md` is a pointer. Audit: **DEFERRED**, reactivates **Never**. Do not FAIL the audit for its absence. |
+| **D-09** | Org transfer to MarkovFyi deferred until the grant is accepted | Org / licence / six-repo checks stay in the audit as **DEFERRED**. Reactivates: grant acceptance. Live tree remains `kunaldrall29/markov`. |
+| **D-10** | Contact email is `hello@markovhq.net` | Deliberately a separate domain from `markovhq.com`. Inbox still unverified; do not re-flag the domain split. |
+| **D-11** | Public receipts feed canonical path | `https://float.markovhq.com/receipts`. The marketing site is not the product feed. |
+| `F-EMAIL-DOMAIN` | **Closed** | Resolved by D-10. `hello@markovhq.net` is intentional. |
+| `F-DOMAIN-FLOAT` | **Closed** | `https://float.markovhq.com` live HTTPS on Vercel `float-web` / `lemmalabs`. |
+| `F-DOMAIN-RECEIPTS` | **Closed** | Resolved by D-11. Canonical UI is Float `/receipts`. |
+| `F-DOMAIN-SUBDOMAINS` | **Open** | `docs.markovhq.com` / `api.markovhq.com` / `app.markovhq.com` pending DNS + Vercel team ownership. Owner: Kunal. Not a code task. See `docs/handoff/DNS.md`. |
+| `F-CANONICAL-DOMAIN` | **Closed** | Parent split 2026-08-30 into F-DOMAIN-FLOAT / F-DOMAIN-RECEIPTS / F-DOMAIN-SUBDOMAINS. Only the human-owned subdomain piece stays open. |
+| `F-X402-SETTLE-MINT` | **deferred-M2** | Unchanged |
 
 ## 2026-08-29 — MVP v2.2
 
@@ -17,23 +32,23 @@ Last refreshed: 2026-08-29 (MVP v2.2 hosted indexer + 11 on-chain BlockReasons).
 | `app.markovhq.com` 301 → float | **No** | DNS exists; HTTPS fails; lemmalabs cannot attach (`domain_not_owned`) |
 | `markov.fyi` apex 301 | Yes | `https://markov.fyi/` → `https://markovhq.com/` |
 | `markov.fyi` wildcard product hosts | **No** | `float.markov.fyi` / `docs.markov.fyi` / `api.markov.fyi` / `app.markov.fyi` → Vercel `DEPLOYMENT_NOT_FOUND` |
-| `F-CANONICAL-DOMAIN` | **Open** (partial) | Float canonical host is live. docs/api/app + fyi wildcard still missing. Stopped rather than half-attach |
+| `F-CANONICAL-DOMAIN` | **Closed** (split 2026-08-30) | See F-DOMAIN-FLOAT / F-DOMAIN-RECEIPTS / F-DOMAIN-SUBDOMAINS |
 | `F-X402-SETTLE-MINT` | **deferred-M2** | Not MVP-blocking. In-program spend caps remain |
 | House operators on-chain (distinct) | Yes | Pubkeys in `data/house-operators.json`. Fresh ticks 2026-08-29: steady deposit `3hYm2kvEFWDogpt3Y7kNPkVNDvgZo6YbTqy9wPuHCBcx7zFsQTBjad7ubBE93feNjKCYBANAkLbZkuZcmQAXw3PK`; momentum swap `2bKn6HciKS44iPQ6nMt669wgxFvqkSkGXRYVEc57x3hsec9XtfAZ7uScDN7uxHSCkRna1rq9AHNFXZh5yKvM18mt`; redteam swap `336PTYVwCjNgMzLDeNRrYM6SWu8jhGKitX7tcj4UUY5Q8p8iyhhVjVBdkhZhhS7qF8m6m3zhxJkZ2tb9ZBZeD6jS` |
 | Fan-out N txs same `strategy_id` | Yes | Momentum hash `b7148375f60fe4a027ce664cd47c9982f9c6005868dc7ee148dc53c8ad976245`. A-ok `2HNeLwCRLgixjSobZjeow478rG9bBb5SJdD1JnwA3riXLkrJNhgxLdqWgrYGu2jv6d8SBUNxFLV6KcfTVgfV9HUk`; B-ok `3EyUooQerHbaWU6Qz8hCX5Voxqfc7AQQA86RSQ75qs26yZadZ2kgUAcQUTvNyNfi1VvQNo4o5F3LL9qrv7BFNkMA`; C-`OverTxCap` `2w7zzqXwXkgyfxB8d2wjMiw2qgZ4ZkN6Bx82RLNdeTPkCF6kYx8USqsb45iYzv8mVdEPu7d6U5HCMSWs3ECpfkqR` |
-| Contact inbox | `hello@markovhq.net` | Live marketing site. `SECURITY.md` and docs updated. Inbox still unverified |
+| Contact inbox | `hello@markovhq.net` | D-10. Deliberate separate domain. `SECURITY.md` and docs updated. Inbox still unverified |
 | `gitleaks` full git history | Clean | gitleaks 8.24.3, 68 commits, no leaks. Working-tree `.env` / `keys/` are gitignored |
-| Grant application v2.1 | **Absent** | `docs/grant/APPLICATION.md` stub. Fail closed |
+| Grant application v2.1 | **D-08 pointer** | Not in this repo by design. `docs/grant/APPLICATION.md` is the pointer. Audit DEFERRED, never reactivates |
 | Litepaper v0.6.1 on markovhq.com | **Not this repo** | Live page still v0.6. D1 cannot restyle/publish that property from here |
-| A1 org transfer `kunaldrall29/markov` → `MarkovFyi` | **Blocked** | `gh` 403 transfer. Stale MIT org repos still public |
+| A1 org transfer `kunaldrall29/markov` → `MarkovFyi` | **D-09 deferred** | Reactivates on grant acceptance. `gh` 403 transfer. Stale MIT org repos still public |
 | A2 `main` | Fast-forwarded 2026-08-29 | `origin/main` is the product tree (no longer the empty initial commit) |
 | A3 Vercel git autodeploy | **No** | GitHub App still cannot connect. CLI deploys only |
 | Hosted API `chainReady` | RPC probe + `data/devnet.json` | `https://api-production-d2e8.up.railway.app/health` `chainReady:true` 2026-08-29 after redeploy |
-| Rust `#[test]` | 15 pass | `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` 2026-08-29 |
+| Rust `#[test]` | 20 pass | `cargo test --manifest-path programs/mandate/Cargo.toml --features no-entrypoint` 2026-08-30. Added refuse-Ok, utc_day rollover, owner_withdraw all states, emergency cannot amend/withdraw, typed CPI |
 | Telegram poller | Railway owns `getUpdates` | Loopback does not poll unless `TELEGRAM_POLL=1` |
 | HELIUS_API_KEY / SOLANA_WS_URL | Public WS on Railway indexer | `wss://api.devnet.solana.com` (429s). Set Helius on Railway for lag |
 | C6 Telegram phone capture | **No** | Hosted-bot API revoke **yes** (not phone): revoke `5C1eSYTw5komu2mxkFZEMr87U31U5uWNNAFPYqJ59FQaZrvL2zNTKC9Dw9SttXbtowUzCRBbVEgJ1hXRcw4Uqepb` then Revoked `42eduXDhbq4uEcHHgg43At9X9ReUCLRfSWHnCVURNSHqECiJhVRMtB1KkbzetgHQ6PB8naSzH1D3fgqwY265oamZ`. `EMERGENCY_KEY_JSON` SET on Railway api (not in git). |
-| Hosted four-beat (Railway API) | Yes | 2026-08-29T20:31Z `bun run demo:hosted`. Mandate `mdt_0001` PDA `FriqAUtjSTvPSxaFyU6ZF2tt8GEto1oPrBLCyQvM6DjQ`. Create/fund `4KShUHkkFqHXKX58vk9jvYPwVe2MpAc7wex1WyRPeK3HQd111ux1RSsjPh17kvi9wZV2jX3C17vxWovLFrWAmUo4`; allow swap `y3sjiYKvNTj1iq4r2VmBSYop3ZHc1YMhbyvVk8WYwLeG5TCc8NM8RPaMhCmSxVtqy8ZYb14ptYyyB2t44Cg61S3`; OverTxCap `JA4G4BubB8NE4XcuQQatuS7F8mazha8UNcSG9oMUUAZew4LctazpvLjJ1CyriCSbcnZP1c87LGndXRjiuA3mqYW`. Indexed on data-api within 10s. JSON `docs/demo/hosted-four-beat.json`. `markovhq.com/receipts` still 404 (marketing site). Live UI: `https://markov-docs-black.vercel.app/receipts` |
+| Hosted four-beat (Railway API) | Yes | 2026-08-29T20:31Z `bun run demo:hosted`. Mandate `mdt_0001` PDA `FriqAUtjSTvPSxaFyU6ZF2tt8GEto1oPrBLCyQvM6DjQ`. Create/fund `4KShUHkkFqHXKX58vk9jvYPwVe2MpAc7wex1WyRPeK3HQd111ux1RSsjPh17kvi9wZV2jX3C17vxWovLFrWAmUo4`; allow swap `y3sjiYKvNTj1iq4r2VmBSYop3ZHc1YMhbyvVk8WYwLeG5TCc8NM8RPaMhCmSxVtqy8ZYb14ptYyyB2t44Cg61S3`; OverTxCap `JA4G4BubB8NE4XcuQQatuS7F8mazha8UNcSG9oMUUAZew4LctazpvLjJ1CyriCSbcnZP1c87LGndXRjiuA3mqYW`. Indexed on data-api within 10s. JSON `docs/demo/hosted-four-beat.json`. Canonical UI: `https://float.markovhq.com/receipts` (D-11). Docs alias still serves `/receipts` |
 | House ticks (this hour) | Yes | 2026-08-29T20:32Z steady `4MCyFY1LDj4KdJRdzWMzbVN7GiiJFEztAD5gmM2PyjabovvYZsiTmoZH6jYc2sWTes8sfcyVeQRarcN2hwEqRz3q`; momentum `3iHVgqeesxtLL5f83quWtzVoFrV2p8Tq1dXrigbGg1932m9uMxPDqWEWk5ANFZkPi3LRqhJ3Q6nbYebE4f1uoaku`; redteam `5dSyqiNccWw24utPwmisqKJSrNPPb1k8fZgd21z65gMnMZejSHUpANnWionXK8QfvTjZdpwoCKgfQumvmLKtpkeL` |
 | MVP audit | **NO-GO** | `bun scripts/mvp-status-audit.ts` 2026-08-29 ~20:33Z. 7 OK / 2 FAIL: grant application stub; `F-CANONICAL-DOMAIN` Open. Chain 11 BlockReasons confirmed from FACTS sigs. |
 
@@ -134,7 +149,7 @@ Revoke setup (C6 chain pair, not phone): `5F3zKLXVdCQsafBnHryrLuEexMEmrvc6cFy9EK
 | GitHub org `MarkovFyi` | Exists; this product tree is `kunaldrall29/markov` | `gh api orgs/MarkovFyi` 2026-08-25 |
 | `security@markov.fyi` mailbox | Published in `SECURITY.md`; inbox not verified here | Treat as intended contact |
 | `F-X402-SETTLE-MINT` | **deferred-M2** | Facilitator settle mint is grant M2. MVP uses in-program spend caps |
-| `F-CANONICAL-DOMAIN` | **Open** (partial) | `float.markovhq.com` live. `docs.markovhq.com` / `api.markovhq.com` / `app.markovhq.com` not HTTPS. `markov.fyi` apex 301s; product wildcards 404 |
+| `F-CANONICAL-DOMAIN` | **Closed** (split 2026-08-30) | See F-DOMAIN-* rows in the 2026-08-30 table |
 
 ## External numbers (litepaper appendix — re-verify before public use)
 

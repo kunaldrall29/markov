@@ -12,3 +12,4 @@ Out of this session on purpose. Do not pick up unless asked.
 - Restyling markovhq.com
 - Batching (Phase 1)
 - Hosted Telegram phone capture of revoke+refusal (hosted API revoke now has a chain sig; the phone round-trip is still missing)
+- Landing-v2 prompt is not in this repo; any future landing copy must use `https://float.markovhq.com/receipts`

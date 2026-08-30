@@ -9,7 +9,7 @@
     "dev:api": "bun --filter @markov/api dev",
     "dev:site": "bun --filter @markov/site dev",
     "dev:services": "bun scripts/dev-services.ts",
-    "test": "bun test packages apps",
+    "test": "bun test packages apps scripts",
     "typecheck": "bun --filter '*' typecheck",
     "lint": "bun --filter '*' lint",
     "build": "bun --filter '*' build",
