@@ -10,7 +10,7 @@ This repository **is** the product tree (paths, not MarkovFyi remotes until A1 l
 2. **Indexer is chain-native.** It subscribes to program logs via Helius WS (`SOLANA_WS_URL`), parses Anchor events, and is the **only** writer of receipts. The API-ledger sync path is removed, not a fallback.
 3. **Docs site is a fourth hosted surface** (`markov-docs`, Vercel) at `docs.markovhq.com`.
 4. **x402 facilitator settlement is grant milestone M2, not MVP.** MVP ships in-program spend budgets with `OverSpendCap` / `OverSpendDailyCap` on-chain against the priced demo endpoint. `F-X402-SETTLE-MINT` is deferred-M2, not open-blocking.
-5. **Canonical domains (Decision 0 resolved):** `markovhq.com` (marketing + `/receipts`), `float.markovhq.com` (Float), `docs.markovhq.com`, `api.markovhq.com` (data-api). `app.markovhq.com` 301 → float. `markov.fyi` apex + wildcard 301 → markovhq.com equivalents; redirect-only, never a product host. Handle stays @markovfyi.
+5. **Canonical domains (Decision 0 resolved):** `markovhq.com` (marketing), `float.markovhq.com` (Float + public receipts at `/receipts`), `docs.markovhq.com`, `api.markovhq.com` (data-api). `app.markovhq.com` 301 → float. `markov.fyi` apex + wildcard 301 → markovhq.com equivalents; redirect-only, never a product host. Handle stays @markovfyi.
 6. **Definition of done unchanged:** the 90-second demo passes *against hosted surfaces*, all 11 BlockReasons exist on chain, and `docs/prompt-mvp-status-audit.md` prints GO.
 
 ## What changed from v1
@@ -37,7 +37,7 @@ Pooling/NAV, real venues, batching, Score SDK, bonds/credit, mainnet, restyling 
 
 ## §7 Acceptance (90-second demo)
 
-Against **hosted** surfaces (`float.markovhq.com`, Railway API, `api.markovhq.com`, `markovhq.com/receipts` or `docs.markovhq.com/receipts`). Local engine / `data/ledger.json` never counts.
+Against **hosted** surfaces (`float.markovhq.com`, Railway API, `api.markovhq.com`, `https://float.markovhq.com/receipts`). Local engine / `data/ledger.json` never counts.
 
 1. Float strategy card showing actions, refusals.
 2. Owner subscribes from template, lowers per-tx cap; funds stay in that owner's mandate.

@@ -51,10 +51,26 @@ export function explorerTxUrl(sig: string, cluster: MarkovCluster = markovCluste
   return `https://solscan.io/tx/${sig}?cluster=devnet`;
 }
 
+function looksLikeMainnetRpc(url: string): boolean {
+  return /mainnet/i.test(url) && !/devnet/i.test(url);
+}
+
+function looksLikeDevnetRpc(url: string): boolean {
+  return /devnet/i.test(url);
+}
+
+/** Browser RPC. Never mix clusters: a devnet UI must not hit a mainnet endpoint. */
 export function publicRpcUrl(cluster: MarkovCluster = markovCluster()): string {
   const fromEnv = process.env.NEXT_PUBLIC_SOLANA_RPC_URL?.trim() || process.env.SOLANA_RPC_URL?.trim();
-  if (fromEnv && !fromEnv.toLowerCase().includes("api-key")) return fromEnv;
-  if (cluster === "localnet") return "http://127.0.0.1:8899";
-  if (cluster === "mainnet-beta") return "https://api.mainnet-beta.solana.com";
-  return "https://api.devnet.solana.com";
+  const safe = fromEnv && !fromEnv.toLowerCase().includes("api-key") ? fromEnv : "";
+  if (cluster === "devnet") {
+    if (safe && !looksLikeMainnetRpc(safe)) return safe;
+    return "https://api.devnet.solana.com";
+  }
+  if (cluster === "localnet") {
+    if (safe && !looksLikeMainnetRpc(safe) && !looksLikeDevnetRpc(safe)) return safe;
+    return "http://127.0.0.1:8899";
+  }
+  if (safe && looksLikeMainnetRpc(safe)) return safe;
+  return "https://api.mainnet-beta.solana.com";
 }

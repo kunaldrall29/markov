@@ -94,3 +94,15 @@ test("isProductOrigin allows markovhq.com and localhost", () => {
   expect(isProductOrigin("http://localhost:3001")).toBe(true);
   expect(isProductOrigin("https://evil.example")).toBe(false);
 });
+
+test("publicRpcUrl on devnet ignores a mainnet endpoint", () => {
+  process.env.NEXT_PUBLIC_SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com";
+  delete process.env.SOLANA_RPC_URL;
+  expect(publicRpcUrl("devnet")).toBe("https://api.devnet.solana.com");
+});
+
+test("RECEIPTS_PAGE_URL is the float canonical path", async () => {
+  const { RECEIPTS_PAGE_URL, FLOAT_URL } = await import("../src/domains");
+  expect(RECEIPTS_PAGE_URL).toBe(`${FLOAT_URL}/receipts`);
+  expect(RECEIPTS_PAGE_URL).toBe("https://float.markovhq.com/receipts");
+});

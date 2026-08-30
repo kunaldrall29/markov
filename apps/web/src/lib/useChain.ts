@@ -4,6 +4,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
 import { useCallback } from "react";
 import { copy } from "@/lib/copy";
+import { confirmChainIntent } from "@/lib/signPreview";
 import { useApi, type ApiCaller } from "@/lib/useApi";
 
 export type ChainAware<T> = T & {
@@ -35,6 +36,8 @@ export function useChainApi(): { api: ApiCaller; mutate: ApiCaller; connected: b
       }
       if (!signTransaction) throw new Error(copy.wallet.required);
       const built = out as ChainAware<T>;
+      const previewOk = await confirmChainIntent(built.intent);
+      if (!previewOk) throw new Error("Signature cancelled");
       const tx = Transaction.from(bytesFromB64(built.tx!));
       const signed = await signTransaction(tx);
       const sig = await connection.sendRawTransaction(signed.serialize(), { skipPreflight: false });
