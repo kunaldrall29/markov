@@ -10,7 +10,7 @@ export const MARKETING_URL = `https://${DOMAIN_CANONICAL}`;
 export const FLOAT_URL = `https://${FLOAT_HOST}`;
 export const DOCS_URL = `https://${DOCS_HOST}`;
 export const RECEIPTS_API_URL = `https://${API_HOST}`;
-export const RECEIPTS_PAGE_URL = `${MARKETING_URL}/receipts`;
+export const RECEIPTS_PAGE_URL = `${FLOAT_URL}/receipts`;
 
 /** Interim Vercel aliases until docs/api custom TLS is live. Not for user-facing copy. */
 export const INTERIM_FLOAT_ALIAS = "https://float-web-three.vercel.app";

@@ -12,4 +12,4 @@ B1 chain-native indexer · B2 `chainReady` from RPC + lag · B3 non-empty public
 
 C1 three distinct house operator keypairs · C2 on-chain house ticks · C3 fan-out N txs with `strategy_id` · C4 eleven on-chain refusals · C5 `cargo test` / `anchor test` · C6 Telegram kill switch with real sigs.
 
-D1 litepaper v0.6.1 on markovhq.com (not this repo’s restyle) · D2 this grant pack · D3 secret scan · D4 one contact inbox · D5 FACTS closure (`F-CANONICAL-DOMAIN`, `F-X402-SETTLE-MINT` deferred-M2).
+D1 litepaper v0.6.1 on markovhq.com (not this repo’s restyle) · D2 this grant pack · D3 secret scan · D4 one contact inbox · D5 FACTS: `F-DOMAIN-FLOAT` / `F-DOMAIN-RECEIPTS` closed, `F-DOMAIN-SUBDOMAINS` open (Kunal), `F-X402-SETTLE-MINT` deferred-M2.

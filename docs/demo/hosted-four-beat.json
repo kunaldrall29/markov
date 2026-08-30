@@ -1,0 +1,40 @@
+{
+  "at": "2026-08-29T20:31:24.921Z",
+  "api": "https://api-production-d2e8.up.railway.app",
+  "dataApi": "https://data-api-production-5ac5.up.railway.app",
+  "mandateId": "mdt_0001",
+  "pda": "FriqAUtjSTvPSxaFyU6ZF2tt8GEto1oPrBLCyQvM6DjQ",
+  "seed": "1788035479254",
+  "beats": {
+    "createFund": {
+      "sig": "4KShUHkkFqHXKX58vk9jvYPwVe2MpAc7wex1WyRPeK3HQd111ux1RSsjPh17kvi9wZV2jX3C17vxWovLFrWAmUo4",
+      "explorer": "https://solscan.io/tx/4KShUHkkFqHXKX58vk9jvYPwVe2MpAc7wex1WyRPeK3HQd111ux1RSsjPh17kvi9wZV2jX3C17vxWovLFrWAmUo4?cluster=devnet"
+    },
+    "spend": {
+      "sig": "8yaoNhYU1oYPrqQbm6aTTyFdkxbPrCNKXZkbv6hKHwfjFoktEeC25A8odfh2aQrntvs47kHw3UMW95vjyzE7bg5",
+      "explorer": "https://solscan.io/tx/8yaoNhYU1oYPrqQbm6aTTyFdkxbPrCNKXZkbv6hKHwfjFoktEeC25A8odfh2aQrntvs47kHw3UMW95vjyzE7bg5?cluster=devnet"
+    },
+    "swapOk": {
+      "sig": "y3sjiYKvNTj1iq4r2VmBSYop3ZHc1YMhbyvVk8WYwLeG5TCc8NM8RPaMhCmSxVtqy8ZYb14ptYyyB2t44Cg61S3",
+      "explorer": "https://solscan.io/tx/y3sjiYKvNTj1iq4r2VmBSYop3ZHc1YMhbyvVk8WYwLeG5TCc8NM8RPaMhCmSxVtqy8ZYb14ptYyyB2t44Cg61S3?cluster=devnet"
+    },
+    "overTxCap": {
+      "sig": "JA4G4BubB8NE4XcuQQatuS7F8mazha8UNcSG9oMUUAZew4LctazpvLjJ1CyriCSbcnZP1c87LGndXRjiuA3mqYW",
+      "explorer": "https://solscan.io/tx/JA4G4BubB8NE4XcuQQatuS7F8mazha8UNcSG9oMUUAZew4LctazpvLjJ1CyriCSbcnZP1c87LGndXRjiuA3mqYW?cluster=devnet"
+    },
+    "revoke": {
+      "sig": "5C1eSYTw5komu2mxkFZEMr87U31U5uWNNAFPYqJ59FQaZrvL2zNTKC9Dw9SttXbtowUzCRBbVEgJ1hXRcw4Uqepb",
+      "explorer": "https://solscan.io/tx/5C1eSYTw5komu2mxkFZEMr87U31U5uWNNAFPYqJ59FQaZrvL2zNTKC9Dw9SttXbtowUzCRBbVEgJ1hXRcw4Uqepb?cluster=devnet",
+      "via": "hosted-bot POST /mandates/mdt_0001/revoke"
+    },
+    "revokedSwap": {
+      "sig": "42eduXDhbq4uEcHHgg43At9X9ReUCLRfSWHnCVURNSHqECiJhVRMtB1KkbzetgHQ6PB8naSzH1D3fgqwY265oamZ",
+      "explorer": "https://solscan.io/tx/42eduXDhbq4uEcHHgg43At9X9ReUCLRfSWHnCVURNSHqECiJhVRMtB1KkbzetgHQ6PB8naSzH1D3fgqwY265oamZ?cluster=devnet"
+    }
+  },
+  "indexed": {
+    "allow": true,
+    "over": true,
+    "revokedSwap": true
+  }
+}

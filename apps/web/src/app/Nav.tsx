@@ -42,6 +42,9 @@ export function Nav() {
         <Link href="/bot" onClick={() => setOpen(false)}>
           {copy.nav.bot}
         </Link>
+        <Link href="/receipts" onClick={() => setOpen(false)}>
+          {copy.nav.receipts}
+        </Link>
         <a href={DOCS}>{copy.nav.docs}</a>
         <a href="https://markovhq.com" target="_blank" rel="noopener noreferrer">
           {copy.nav.markov}

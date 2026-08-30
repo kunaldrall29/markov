@@ -1,4 +1,4 @@
-import { DOCS_URL, INTERIM_API, INTERIM_DOCS_ALIAS } from "@markov/rpc";
+import { DOCS_URL, INTERIM_API, INTERIM_DATA_API, INTERIM_DOCS_ALIAS, engineDemoAllowed } from "@markov/rpc";
 
 /** Public Railway API until api.markovhq.com TLS is attached. */
 export const HOSTED_API_URL = INTERIM_API;
@@ -24,4 +24,23 @@ export function publicDocsUrl(): string {
   if (fromEnv) return fromEnv.replace(/\/$/, "");
   if (hostedBuild()) return HOSTED_DOCS_FALLBACK;
   return "http://127.0.0.1:3001";
+}
+
+/** Public receipts JSON. Canonical page is float.markovhq.com/receipts (D-11). */
+export function publicReceiptsApiUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_RECEIPTS_API_URL?.trim();
+  if (fromEnv) return fromEnv.replace(/\/$/, "");
+  if (hostedBuild()) return INTERIM_DATA_API;
+  return "http://127.0.0.1:8788";
+}
+
+/** Engine demos are loopback-only. Hosted Float talks to Railway and must not show them. */
+export function floatEngineDemo(): boolean {
+  if (!engineDemoAllowed()) return false;
+  try {
+    const host = new URL(publicApiUrl()).hostname;
+    return host === "127.0.0.1" || host === "localhost";
+  } catch {
+    return false;
+  }
 }

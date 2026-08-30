@@ -1,5 +1,7 @@
 # APPLICATION v2.1
 
-**Absent from this repository.** Fail closed. Do not invent Superteam KPI scores, placeholder grant IDs, or a `[50/100]` line.
+**D-08.** The Superteam grant application is not committed to this code repository. The pack lives outside the tree by design. Do not invent Superteam KPI scores, placeholder grant IDs, or a `[50/100]` line.
 
-When the application markdown exists, drop it here as `markov-superteam-application-v2.md` and point FACTS at the commit.
+This file is a pointer. The MVP audit records it as **DEFERRED** (reactivates: never) — not FAIL.
+
+When a submitted pack exists outside this repo, point FACTS at that location. Do not paste it here to make an audit look green.

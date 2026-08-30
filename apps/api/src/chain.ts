@@ -26,6 +26,7 @@ import {
   type ChainPolicy,
 } from "@markovfyi/operator";
 import { ACTORS } from "./seed";
+import committedHouse from "../../../data/house-operators.json";
 
 const ROOT = join(import.meta.dir, "../../..");
 const HOUSE_PATH = join(ROOT, "data/house-operators.json");
@@ -56,21 +57,23 @@ async function probeRpc(): Promise<RpcCache> {
 void probeRpc();
 setInterval(() => void probeRpc(), 10_000);
 
+function houseMap(): Record<string, string> {
+  const fromFile = existsSync(HOUSE_PATH)
+    ? (JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>)
+    : {};
+  return { ...(committedHouse as Record<string, string>), ...fromFile };
+}
+
 export function houseOperatorPubkey(name: string): PublicKey {
-  if (existsSync(HOUSE_PATH)) {
-    const map = JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>;
-    const pk = map[name];
-    if (pk) return new PublicKey(pk);
-  }
+  const pk = houseMap()[name];
+  if (pk) return new PublicKey(pk);
   if (existsSync(OPERATOR_KEY)) return loadKeypair(OPERATOR_KEY).publicKey;
   throw new Error(`unknown house operator ${name}`);
 }
 
 export function emergencyPubkey(): PublicKey {
-  if (existsSync(HOUSE_PATH)) {
-    const map = JSON.parse(readFileSync(HOUSE_PATH, "utf8")) as Record<string, string>;
-    if (map.emergency) return new PublicKey(map.emergency);
-  }
+  const pk = houseMap().emergency;
+  if (pk) return new PublicKey(pk);
   return loadKeypair(EMERGENCY_KEY).publicKey;
 }
 
@@ -125,7 +128,7 @@ function factsOrThrow() {
 }
 
 function client(): OwnerClient {
-  return new OwnerClient({ payer: Keypair.generate(), factsPath: FACTS_PATH });
+  return new OwnerClient({ payer: Keypair.generate(), rpc: rpcUrl(), factsPath: FACTS_PATH });
 }
 
 function chainPolicy(policy: Policy): ChainPolicy {
@@ -258,13 +261,24 @@ export async function buildMandateTx(
 
 async function confirmedTx(sig: string) {
   const facts = factsOrThrow();
-  const connection = new Connection(facts.rpc, "confirmed");
-  const tx = await connection.getTransaction(sig, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
-  if (!tx || tx.meta?.err) throw new Error("transaction not confirmed");
-  return { connection, facts };
+  const connection = new Connection(rpcUrl(), "confirmed");
+  let lastErr = "transaction not confirmed";
+  for (let i = 0; i < 12; i++) {
+    try {
+      const tx = await connection.getTransaction(sig, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      if (tx?.meta?.err) throw new Error("transaction failed on chain");
+      if (tx) return { connection, facts };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/failed on chain/i.test(msg)) throw err;
+      lastErr = msg;
+    }
+    await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+  }
+  throw new Error(lastErr);
 }
 
 export async function confirmChain(
@@ -279,7 +293,11 @@ export async function confirmChain(
     const ownerPk = new PublicKey(actor);
     const seed = BigInt(intent.seed);
     const pda = mandatePda(new PublicKey(facts.programs.mandate), ownerPk, seed);
-    const info = await connection.getAccountInfo(pda, "confirmed");
+    let info = await connection.getAccountInfo(pda, "confirmed");
+    for (let i = 0; i < 8 && (!info || info.owner.toBase58() !== facts.programs.mandate); i++) {
+      await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+      info = await connection.getAccountInfo(pda, "confirmed");
+    }
     if (!info || info.owner.toBase58() !== facts.programs.mandate) {
       throw new Error("on-chain mandate missing");
     }
@@ -333,7 +351,7 @@ export async function emergencyChain(
   const m = engine.mandate(mandateId);
   if (!m.chain || (!existsSync(EMERGENCY_KEY) && !process.env.EMERGENCY_KEY_JSON?.trim())) return null;
   const emergency = loadEmergencyKeypair();
-  const owners = new OwnerClient({ payer: emergency, factsPath: FACTS_PATH });
+  const owners = new OwnerClient({ payer: emergency, rpc: rpcUrl(), factsPath: FACTS_PATH });
   const ownerPk = new PublicKey(m.owner);
   const seed = BigInt(m.chain.seed);
   const sig =

@@ -18,14 +18,14 @@ Litepaper on markovhq.com is the public essay (target v0.6.1). If this file and 
 | Cluster | Engine HUD on loopback. Chain RPC from `SOLANA_RPC_URL` / `data/devnet.json` (fallback `https://api.devnet.solana.com`). |
 | Data layer | Railway Postgres. `DATABASE_URL`. Migrations in `apps/indexer/migrations/`. View `public_receipts`. Table `waitlist`. **Not Supabase.** |
 | Indexer | Chain-native. Helius WS (or `SOLANA_WS_URL`) on mandate program logs. Parses Anchor events. **Only writer of receipts.** No API-ledger sync. |
-| Hosted surfaces | `markovhq.com` marketing + `/receipts`; `float.markovhq.com` Float; `docs.markovhq.com` protocol docs (`markov-docs`); `api.markovhq.com` data-api. |
+| Hosted surfaces | `markovhq.com` marketing; `float.markovhq.com` Float + `/receipts`; `docs.markovhq.com` protocol docs (`markov-docs`); `api.markovhq.com` data-api. |
 
 ## Canonical domains (Decision 0)
 
 | Host | Role |
 |---|---|
-| `markovhq.com` | Marketing. Public receipts at `/receipts`. |
-| `float.markovhq.com` | Float (consumer marketplace). |
+| `markovhq.com` | Marketing. Do not restyle from this repo. |
+| `float.markovhq.com` | Float (consumer marketplace). Canonical public receipts at `/receipts` (D-11). |
 | `docs.markovhq.com` | Protocol docs (this repo, `apps/site`, Vercel project `markov-docs`). |
 | `api.markovhq.com` | data-api (`/v1/receipts`, `/health`). |
 | `app.markovhq.com` | 301 → `float.markovhq.com`. |

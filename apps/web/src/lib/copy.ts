@@ -6,6 +6,7 @@ export const copy = {
     subscribe: "Subscribe",
     kill: "Kill switch",
     bot: "Bot",
+    receipts: "Live receipts",
     docs: "Docs",
     markov: "Markov",
     menu: "Menu",

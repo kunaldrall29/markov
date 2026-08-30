@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { DEMO_POLICY } from "../src/seed";
-import { buildSubscribe, chainHealth, chainReady, houseOperatorPubkey, isWalletPubkey } from "../src/chain";
+import { buildSubscribe, chainHealth, chainReady, emergencyPubkey, houseOperatorPubkey, isWalletPubkey } from "../src/chain";
 import { loadKeypair } from "@markovfyi/operator";
 
 const ROOT = join(import.meta.dir, "../../..");
@@ -19,6 +19,7 @@ describe("on-chain float path", () => {
     expect(keys.every(Boolean)).toBe(true);
     expect(new Set(keys).size).toBe(3);
     expect(houseOperatorPubkey("markov-momentum").toBase58()).toBe(map["markov-momentum"]);
+    expect(emergencyPubkey().toBase58()).toBe(map.emergency);
   });
 
   test("buildSubscribe returns an unsigned tx when keys exist", async () => {
